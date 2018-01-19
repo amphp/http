@@ -9,7 +9,7 @@ namespace Amp\Http\Parser;
  */
 final class Rfc7230 {
     // We make use of possessive modifiers, which gives a slight performance boost
-    const HEADER_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++):[\x20\x09]*+((?:[\x20\x09]*+[\x21-\x7E\x80-\xFF]++)*+)[\x20\x09]*+\r\n)xm";
+    const HEADER_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++):[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+\r\n)m";
     const HEADER_FOLD_REGEX = "(\r\n[ \t]++)";
 
     /**
