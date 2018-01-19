@@ -1,0 +1,22 @@
+{
+    "name": "amphp/http",
+    "description": "Basic HTTP primitives which can be shared by servers and clients.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Niklas Keller",
+            "email": "me@kelunik.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Amp\\Http\\": "src"
+        }
+    },
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^6.5",
+        "friendsofphp/php-cs-fixer": "^2.10"
+    }
+}
