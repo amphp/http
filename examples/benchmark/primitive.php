@@ -29,10 +29,10 @@ X-No-Whitespace: Test
 X-Trailing-Whitespace:  	Foobar		  
 ";
 
-$start = microtime(true);
+$start = \microtime(true);
 
 for ($i = 0; $i < 300000; $i++) {
     parse($rawHeaders);
 }
 
-print (microtime(true) - $start) . PHP_EOL;
+print(\microtime(true) - $start) . PHP_EOL;

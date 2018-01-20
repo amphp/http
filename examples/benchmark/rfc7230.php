@@ -17,10 +17,10 @@ X-Trailing-Whitespace:  	Foobar
 // Normalize line endings, which might be broken by Git otherwise
 $rawHeaders = \str_replace("\n", "\r\n", \str_replace("\r\n", "\n", $rawHeaders));
 
-$start = microtime(true);
+$start = \microtime(true);
 
 for ($i = 0; $i < 300000; $i++) {
     Rfc7230::parseHeaders($rawHeaders);
 }
 
-print (microtime(true) - $start) . PHP_EOL;
+print(\microtime(true) - $start) . PHP_EOL;
