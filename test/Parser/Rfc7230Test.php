@@ -38,8 +38,8 @@ class Rfc7230Test extends TestCase {
             [" x:y\r\n"],
             ["x :z\r\n"],
             [" x:z\r\n"],
-            ["x :z\n"],
-            ["x:z\n"],
+            ["x :z\nfoo: bar\r\n"],
+            ["x:z\nfoo: bar\r\n"],
             ["ser ver:\tamphp.org\r\n"],
             ["server:\tamphp.org\r\n fold\r\n"],
         ];
