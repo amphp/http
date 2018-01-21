@@ -2,6 +2,9 @@
 
 namespace Amp\Http\Cookie;
 
+/**
+ * A cookie as sent in a request's 'cookie' header, so without any attributes.
+ */
 final class RequestCookie {
     /** @var string */
     private $name;
@@ -62,23 +65,23 @@ final class RequestCookie {
     }
 
     /**
-     * {@inheritdoc}
+     * @return string Name of the cookie.
      */
     public function getName(): string {
         return $this->name;
     }
 
     /**
-     * {@inheritdoc}
+     * @return string Value of the cookie.
      */
     public function getValue(): string {
         return $this->value;
     }
 
     /**
-     * {@inheritdoc}
+     * @return string Representation of the cookie as in a header.
      */
     public function __toString(): string {
-        return \rawurlencode($this->name) . '=' . \rawurlencode($this->value);
+        return $this->name . '=' . $this->value;
     }
 }
