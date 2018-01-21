@@ -61,7 +61,7 @@ final class ResponseCookie {
                         $time = \DateTime::createFromFormat('D, j M Y G:i:s T', $pieces[1]);
 
                         if ($time === false) {
-                            break;
+                            break; // break is correct, see https://tools.ietf.org/html/rfc6265#section-5.2.1
                         }
 
                         $expires = $meta->getExpires();
@@ -97,11 +97,8 @@ final class ResponseCookie {
             }
         }
 
-        try {
-            return new self($name, $value, $meta);
-        } catch (InvalidCookieError $e) {
-            return null;
-        }
+        // This won't throw. If it does, then the regex above is wrong.
+        return new self($name, $value, $meta);
     }
 
     /**

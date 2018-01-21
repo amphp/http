@@ -22,6 +22,25 @@ class ResponseCookieTest extends TestCase {
             ResponseCookie::fromHeader("id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly")
         );
 
+        // This might fail if the second switches between withMaxAge() and fromHeader() - we take the risk
+        $expectedMeta = CookieAttributes::empty()
+            ->withMaxAge(60);
+
+        $this->assertEquals(
+            new ResponseCookie("id", "a3fWa", $expectedMeta),
+            ResponseCookie::fromHeader("id=a3fWa; Max-AGE=60")
+        );
+
+        // Missing "Wed, " in date, so date is ignored
+        $expectedMeta = CookieAttributes::empty()
+            ->withDomain("example.com")
+            ->withPath("/");
+
+        $this->assertEquals(
+            new ResponseCookie("qwerty", "219ffwef9w0f", $expectedMeta),
+            ResponseCookie::fromHeader("qwerty=219ffwef9w0f; Domain=example.com; Path=/; Expires=30 Aug 2019 00:00:00 GMT")
+        );
+
         $expectedMeta = CookieAttributes::empty()
             ->withDomain("example.com")
             ->withPath("/")
@@ -46,5 +65,31 @@ class ResponseCookieTest extends TestCase {
         $this->assertNull(
             ResponseCookie::fromHeader("query foo=129")
         );
+    }
+
+    public function testInvalidName() {
+        $this->expectException(InvalidCookieError::class);
+
+        new ResponseCookie("foo:bar");
+    }
+
+    public function testInvalidValue() {
+        $this->expectException(InvalidCookieError::class);
+
+        new ResponseCookie("foobar", "foo;bar");
+    }
+
+    public function testGetAttributes() {
+        $attributes = CookieAttributes::default();
+        $cookie = new ResponseCookie("foobar", "xxx", $attributes);
+
+        $this->assertSame($attributes, $cookie->getAttributes());
+    }
+
+    public function testToString() {
+        $attributes = CookieAttributes::default();
+        $cookie = new ResponseCookie("foobar", "xxx", $attributes);
+
+        $this->assertSame("foobar=xxx; HttpOnly", (string) $cookie);
     }
 }
