@@ -23,5 +23,9 @@
         "platform": {
             "php": "7.0.0"
         }
+    },
+    "scripts": {
+        "test": "php vendor/bin/phpunit",
+        "code-style": "php vendor/bin/php-cs-fixer fix"
     }
 }
