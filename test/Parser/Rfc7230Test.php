@@ -44,4 +44,14 @@ class Rfc7230Test extends TestCase {
             ["server:\tamphp.org\r\n fold\r\n"],
         ];
     }
+
+    public function testIgnoresHttp2PseudoHeaders() {
+        $headers = [
+            "foobar" => ["bar"],
+            ":method" => ["GET"],
+            "x" => ["y"],
+        ];
+
+        $this->assertSame("foobar: bar\r\nx: y\r\n", Rfc7230::formatHeaders($headers));
+    }
 }
