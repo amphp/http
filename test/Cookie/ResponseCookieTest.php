@@ -29,7 +29,22 @@ class ResponseCookieTest extends TestCase {
 
         $this->assertEquals(
             new ResponseCookie("qwerty", "219ffwef9w0f", $expectedMeta),
-            ResponseCookie::fromHeader("qwerty=219ffwef9w0f; Domain=example.com; Path=/; Expires=Wed, 30 Aug 2019 00:00:00 GMT")
+            $cookie = ResponseCookie::fromHeader("qwerty=219ffwef9w0f; Domain=example.com; Path=/; Expires=Wed, 30 Aug 2019 00:00:00 GMT")
+        );
+
+        $this->assertFalse($cookie->isSecure());
+        $this->assertFalse($cookie->isHttpOnly());
+        $this->assertSame("qwerty", $cookie->getName());
+        $this->assertSame("219ffwef9w0f", $cookie->getValue());
+        $this->assertSame("example.com", $cookie->getDomain());
+        $this->assertSame("/", $cookie->getPath());
+        $this->assertSame(
+            (new \DateTimeImmutable("Wed, 30 Aug 2019 00:00:00", new \DateTimeZone("GMT")))->getTimestamp(),
+            $cookie->getExpires()
+        );
+
+        $this->assertNull(
+            ResponseCookie::fromHeader("query foo=129")
         );
     }
 }
