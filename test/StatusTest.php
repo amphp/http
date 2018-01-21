@@ -31,6 +31,6 @@ class StatusTest extends TestCase {
         $constants = $class->getConstants();
 
         // Double array_flip removes any duplicates.
-        $this->assertSame($constants, array_flip(array_flip($constants)));
+        $this->assertSame($constants, \array_flip(\array_flip($constants)));
     }
 }
