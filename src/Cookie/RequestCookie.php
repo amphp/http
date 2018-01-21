@@ -4,6 +4,11 @@ namespace Amp\Http\Cookie;
 
 /**
  * A cookie as sent in a request's 'cookie' header, so without any attributes.
+ *
+ * This class does not deal with encoding of arbitrary names and values. If you want to use arbitrary values, please use
+ * an encoding mechanism like Base64 or URL encoding.
+ *
+ * @link https://tools.ietf.org/html/rfc6265#section-5.4
  */
 final class RequestCookie {
     /** @var string */
@@ -79,7 +84,7 @@ final class RequestCookie {
     }
 
     /**
-     * @return string Representation of the cookie as in a header.
+     * @return string Representation of the cookie as in a 'cookie' header.
      */
     public function __toString(): string {
         return $this->name . '=' . $this->value;
