@@ -64,26 +64,18 @@ final class ResponseCookie {
                             break; // break is correct, see https://tools.ietf.org/html/rfc6265#section-5.2.1
                         }
 
-                        $expires = $meta->getExpires();
-
-                        if ($expires === 0 || $expires > $time->getTimestamp()) {
-                            $meta = $meta->withExpiry($time);
-                        }
+                        $meta = $meta->withExpiry($time);
                         break;
 
                     case 'max-age':
                         $maxAge = \trim($pieces[1]);
 
-                        if (!\ctype_digit($maxAge)) {
+                        // This also allows +1.42, but avoids a more complicated manual check
+                        if (!\is_numeric($maxAge)) {
                             break; // break is correct, see https://tools.ietf.org/html/rfc6265#section-5.2.2
                         }
 
-                        $time = \time() + (int) $maxAge;
-                        $expires = $meta->getExpires();
-
-                        if ($expires === 0 || $expires > $time) {
-                            $meta = $meta->withMaxAge($maxAge);
-                        }
+                        $meta = $meta->withMaxAge($maxAge);
                         break;
 
                     case 'path':
@@ -141,13 +133,21 @@ final class ResponseCookie {
     }
 
     /**
-     * @return int Expiry as unix timestamp or 0 to indicate no expiry.
+     * @return \DateTimeImmutable|null Expiry if set, otherwise `null`.
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
+     */
+    public function getExpiry() { /* : ?\DateTimeImmutable */
+        return $this->attributes->getExpiry();
+    }
+
+    /**
+     * @return int|null Max-Age if set, otherwise `null`.
+     *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getExpires(): int {
-        return $this->attributes->getExpires();
+    public function getMaxAge() { /* : ?int */
+        return $this->attributes->getMaxAge();
     }
 
     /**

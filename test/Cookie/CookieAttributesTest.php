@@ -5,13 +5,26 @@ namespace Amp\Http\Cookie;
 use PHPUnit\Framework\TestCase;
 
 class CookieAttributesTest extends TestCase {
-    public function testExpiryIsRemovable() {
-        $attributes = CookieAttributes::default()
-            ->withMaxAge(10);
-        $this->assertGreaterThan(0, $attributes->getExpires());
+    public function testMaxAge() {
+        $attributes = CookieAttributes::default()->withMaxAge(10);
+        $this->assertSame(10, $attributes->getMaxAge());
+        $this->assertNull($attributes->getExpiry());
+
+        $attributes = $attributes->withoutMaxAge();
+        $this->assertNull($attributes->getMaxAge());
+        $this->assertNull($attributes->getExpiry());
+    }
+
+    public function testExpiry() {
+        $expiry = new \DateTimeImmutable("now+10s");
+
+        $attributes = CookieAttributes::default()->withExpiry($expiry);
+        $this->assertSame($expiry, $attributes->getExpiry());
+        $this->assertNull($attributes->getMaxAge());
 
         $attributes = $attributes->withoutExpiry();
-        $this->assertSame(0, $attributes->getExpires());
+        $this->assertNull($attributes->getExpiry());
+        $this->assertNull($attributes->getMaxAge());
     }
 
     public function testSecure() {

@@ -59,7 +59,7 @@ class ResponseCookieTest extends TestCase {
         $this->assertSame("/", $cookie->getPath());
         $this->assertSame(
             (new \DateTimeImmutable("Wed, 30 Aug 2019 00:00:00", new \DateTimeZone("GMT")))->getTimestamp(),
-            $cookie->getExpires()
+            $cookie->getExpiry()->getTimestamp()
         );
 
         // Non-digit in Max-Age
@@ -70,7 +70,7 @@ class ResponseCookieTest extends TestCase {
 
         // "-" in front in Max-Age
         $this->assertEquals(
-            new ResponseCookie("qwerty", "219ffwef9w0f", CookieAttributes::empty()),
+            new ResponseCookie("qwerty", "219ffwef9w0f", CookieAttributes::empty()->withMaxAge(-1)),
             ResponseCookie::fromHeader("qwerty=219ffwef9w0f; Max-Age=-1")
         );
 

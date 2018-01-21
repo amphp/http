@@ -14,8 +14,11 @@ final class CookieAttributes {
     /** @var string */
     private $domain = '';
 
-    /** @var int */
-    private $expires = 0;
+    /** @var int|null */
+    private $maxAge;
+
+    /** @var \DateTimeImmutable */
+    private $expiry;
 
     /** @var bool */
     private $secure = false;
@@ -79,28 +82,40 @@ final class CookieAttributes {
     /**
      * Applies the given maximum age to the cookie.
      *
-     * Maximum age and expiry are normalized by this class. Changing one affects the other.
-     *
      * @param int $maxAge Cookie maximum age.
      *
      * @return self Cloned instance with the specified operation applied.
      *
+     * @see self::withoutMaxAge()
      * @see self::withExpiry()
-     * @see self::withoutExpiry()
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
     public function withMaxAge(int $maxAge): self {
         $new = clone $this;
-        $new->expires = \time() + $maxAge;
+        $new->maxAge = $maxAge;
+
+        return $new;
+    }
+
+    /**
+     * Removes any max-age information.
+     *
+     * @return self Cloned instance with the specified operation applied.
+     *
+     * @see self::withMaxAge()
+     *
+     * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
+     */
+    public function withoutMaxAge(): self {
+        $new = clone $this;
+        $new->maxAge = null;
 
         return $new;
     }
 
     /**
      * Applies the given expiry to the cookie.
-     *
-     * Maximum age and expiry are normalized by this class. Changing one affects the other.
      *
      * @param \DateTimeInterface $date
      *
@@ -113,7 +128,14 @@ final class CookieAttributes {
      */
     public function withExpiry(\DateTimeInterface $date): self {
         $new = clone $this;
-        $new->expires = $date->getTimestamp();
+
+        if ($date instanceof \DateTimeImmutable) {
+            $new->expiry = $date;
+        } else if ($date instanceof \DateTime) {
+            $new->expiry = \DateTimeImmutable::createFromMutable($date);
+        } else {
+            $new->expiry = new \DateTimeImmutable("@" . $date->getTimestamp());
+        }
 
         return $new;
     }
@@ -121,19 +143,15 @@ final class CookieAttributes {
     /**
      * Removes any expiry information.
      *
-     * Maximum age and expiry are normalized by this class. Changing one affects the other.
-     *
      * @return self Cloned instance with the specified operation applied.
      *
-     * @see self::withMaxAge()
      * @see self::withExpiry()
      *
-     * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
      */
     public function withoutExpiry(): self {
         $new = clone $this;
-        $new->expires = 0;
+        $new->expiry = null;
 
         return $new;
     }
@@ -213,13 +231,21 @@ final class CookieAttributes {
     }
 
     /**
-     * @return int Expiry as unix timestamp or 0 to indicate no expiry.
+     * @return int|null Cookie maximum age in seconds or `null` if no value is set.
      *
-     * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getExpires(): int {
-        return $this->expires;
+    public function getMaxAge() { /* : ?int */
+        return $this->maxAge;
+    }
+
+    /**
+     * @return \DateTimeImmutable|null Cookie expiry or `null` if no value is set.
+     *
+     * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
+     */
+    public function getExpiry() { /* : ?\DateTimeImmutable */
+        return $this->expiry;
     }
 
     /**
@@ -246,16 +272,20 @@ final class CookieAttributes {
     public function __toString(): string {
         $string = '';
 
-        if (0 !== $this->expires) {
-            $string .= '; Expires=' . \gmdate('D, j M Y G:i:s T', $this->expires);
+        if ($this->expiry) {
+            $string .= '; Expires=' . \gmdate('D, j M Y G:i:s T', $this->expiry->getTimestamp());
+        }
+
+        if ($this->maxAge) {
+            $string .= '; Max-Age=' . $this->maxAge;
         }
 
         if ('' !== $this->path) {
-            $string .= '; Path=' . \rawurlencode($this->path);
+            $string .= '; Path=' . $this->path;
         }
 
         if ('' !== $this->domain) {
-            $string .= '; Domain=' . \rawurlencode($this->domain);
+            $string .= '; Domain=' . $this->domain;
         }
 
         if ($this->secure) {
