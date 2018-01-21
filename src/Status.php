@@ -79,6 +79,8 @@ final class Status {
         return [
             100 => 'Continue',
             101 => 'Switching Protocols',
+            102 => 'Processing',
+            103 => 'Early Hints',
             200 => 'OK',
             201 => 'Created',
             202 => 'Accepted',
@@ -88,6 +90,7 @@ final class Status {
             206 => 'Partial Content',
             207 => 'Multi-Status',
             208 => 'Already Reported',
+            226 => 'IM Used',
             300 => 'Multiple Choices',
             301 => 'Moved Permanently',
             302 => 'Found',
