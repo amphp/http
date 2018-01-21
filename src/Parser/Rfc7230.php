@@ -46,7 +46,8 @@ final class Rfc7230 {
 
         foreach ($matches as $match) {
             // We avoid a call to \trim() here due to the regex.
-            // Unfortunately, we can't avoid the \strtolower() calls due to \array_change_key_case() behavior.
+            // Unfortunately, we can't avoid the \strtolower() calls due to \array_change_key_case() behavior
+            // when equal headers are present with different casing, e.g. 'set-cookie' and 'Set-Cookie'.
             // Accessing matches directly instead of using foreach (... as list(...)) is slightly faster.
             $headers[\strtolower($match[1])][] = $match[2];
         }
