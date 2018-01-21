@@ -8,11 +8,11 @@ class ResponseCookieTest extends TestCase {
     public function testParsing() {
         // Examples from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
         $this->assertEquals(
-            new ResponseCookie("sessionid", "38afes7a8", CookieMeta::empty()->withHttpOnly()->withPath("/")),
+            new ResponseCookie("sessionid", "38afes7a8", CookieAttributes::empty()->withHttpOnly()->withPath("/")),
             ResponseCookie::fromHeader("sessionid=38afes7a8; HttpOnly; Path=/")
         );
 
-        $expectedMeta = CookieMeta::empty()
+        $expectedMeta = CookieAttributes::empty()
             ->withHttpOnly()
             ->withSecure()
             ->withExpiry(new \DateTimeImmutable("Wed, 21 Oct 2015 07:28:00", new \DateTimeZone("GMT")));
@@ -22,7 +22,7 @@ class ResponseCookieTest extends TestCase {
             ResponseCookie::fromHeader("id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly")
         );
 
-        $expectedMeta = CookieMeta::empty()
+        $expectedMeta = CookieAttributes::empty()
             ->withDomain("example.com")
             ->withPath("/")
             ->withExpiry(new \DateTimeImmutable("Wed, 30 Aug 2019 00:00:00", new \DateTimeZone("GMT")));

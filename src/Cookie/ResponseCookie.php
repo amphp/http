@@ -9,8 +9,8 @@ final class ResponseCookie {
     /** @var string */
     private $value;
 
-    /** @var CookieMeta */
-    private $meta;
+    /** @var CookieAttributes */
+    private $attributes;
 
     /**
      * Parses a cookie from a 'set-cookie' header.
@@ -31,7 +31,7 @@ final class ResponseCookie {
         list(, $name, $value) = $match;
 
         // httpOnly must default to false for parsing
-        $meta = CookieMeta::empty();
+        $meta = CookieAttributes::empty();
 
         foreach ($parts as $part) {
             $pieces = \array_map('trim', \explode('=', $part, 2));
@@ -97,16 +97,16 @@ final class ResponseCookie {
     }
 
     /**
-     * @param string     $name
-     * @param string     $value
-     * @param CookieMeta $meta
+     * @param string           $name
+     * @param string           $value
+     * @param CookieAttributes $attributes
      *
      * @throws InvalidCookieError If name or value is invalid.
      */
     public function __construct(
         string $name,
         string $value = '',
-        CookieMeta $meta = null
+        CookieAttributes $attributes = null
     ) {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
             throw new InvalidCookieError("Invalid cookie name: '{$name}'");
@@ -118,55 +118,36 @@ final class ResponseCookie {
 
         $this->name = $name;
         $this->value = $value;
-        $this->meta = $meta ?? CookieMeta::default();
+        $this->attributes = $attributes ?? CookieAttributes::default();
     }
 
     public function getExpires(): int {
-        return $this->meta->getExpires();
+        return $this->attributes->getExpires();
     }
 
     public function getPath(): string {
-        return $this->meta->getPath();
+        return $this->attributes->getPath();
     }
 
     public function getDomain(): string {
-        return $this->meta->getDomain();
+        return $this->attributes->getDomain();
     }
 
     public function isSecure(): bool {
-        return $this->meta->isSecure();
+        return $this->attributes->isSecure();
     }
 
     public function isHttpOnly(): bool {
-        return $this->meta->isHttpOnly();
+        return $this->attributes->isHttpOnly();
     }
 
-    public function getMeta(): CookieMeta {
-        return $this->meta;
+    public function getAttributes(): CookieAttributes {
+        return $this->attributes;
     }
 
     public function __toString(): string {
         $line = \rawurlencode($this->name) . '=' . \rawurlencode($this->value);
-
-        if (0 !== $expires = $this->meta->getExpires()) {
-            $line .= '; Expires=' . \gmdate('D, j M Y G:i:s T', $expires);
-        }
-
-        if ('' !== $path = $this->meta->getPath()) {
-            $line .= '; Path=' . \rawurlencode($path);
-        }
-
-        if ('' !== $domain = $this->meta->getDomain()) {
-            $line .= '; Domain=' . \rawurlencode($domain);
-        }
-
-        if ($this->meta->isSecure()) {
-            $line .= '; Secure';
-        }
-
-        if ($this->meta->isHttpOnly()) {
-            $line .= '; HttpOnly';
-        }
+        $line .= $this->attributes;
 
         return $line;
     }

@@ -2,7 +2,7 @@
 
 namespace Amp\Http\Cookie;
 
-final class CookieMeta {
+final class CookieAttributes {
     /** @var string */
     private $path = '';
 
@@ -114,5 +114,31 @@ final class CookieMeta {
 
     public function isHttpOnly(): bool {
         return $this->httpOnly;
+    }
+
+    public function __toString(): string {
+        $string = '';
+
+        if (0 !== $this->expires) {
+            $string .= '; Expires=' . \gmdate('D, j M Y G:i:s T', $this->expires);
+        }
+
+        if ('' !== $this->path) {
+            $string .= '; Path=' . \rawurlencode($this->path);
+        }
+
+        if ('' !== $this->domain) {
+            $string .= '; Domain=' . \rawurlencode($this->domain);
+        }
+
+        if ($this->secure) {
+            $string .= '; Secure';
+        }
+
+        if ($this->httpOnly) {
+            $string .= '; HttpOnly';
+        }
+
+        return $string;
     }
 }
