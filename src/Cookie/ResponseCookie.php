@@ -121,6 +121,14 @@ final class ResponseCookie {
         $this->attributes = $attributes ?? CookieAttributes::default();
     }
 
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function getValue(): string {
+        return $this->value;
+    }
+
     public function getExpires(): int {
         return $this->attributes->getExpires();
     }
