@@ -62,6 +62,18 @@ class ResponseCookieTest extends TestCase {
             $cookie->getExpires()
         );
 
+        // Non-digit in Max-Age
+        $this->assertEquals(
+            new ResponseCookie("qwerty", "219ffwef9w0f", CookieAttributes::empty()),
+            ResponseCookie::fromHeader("qwerty=219ffwef9w0f; Max-Age=12520b")
+        );
+
+        // "-" in front in Max-Age
+        $this->assertEquals(
+            new ResponseCookie("qwerty", "219ffwef9w0f", CookieAttributes::empty()),
+            ResponseCookie::fromHeader("qwerty=219ffwef9w0f; Max-Age=-1")
+        );
+
         $this->assertNull(
             ResponseCookie::fromHeader("query foo=129")
         );
