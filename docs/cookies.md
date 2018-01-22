@@ -2,7 +2,8 @@
 title: Cookies
 permalink: /cookies
 ---
-HTTP cookies are specified by [RFC 6265](https://tools.ietf.org/html/rfc6265). This package implements parsers for the `set-cookie` and `cookie` headers.
+HTTP cookies are specified by [RFC 6265](https://tools.ietf.org/html/rfc6265).
+This package implements parsers for the `set-cookie` and `cookie` headers.
 It further has a developer friendly API for creating such headers.
 
 {:.note}
@@ -20,9 +21,10 @@ Hence, the responsible class is called `ResponseCookie`.
 {:.note}
 > More information about `set-cookie` can by obtained from the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie) or other sources.
 
-`ResponseCookie::fromHeader()` accepts a header value and attempts to parse it. If the parsing succeeds, a `ResponseCookie` is returned.
+`ResponseCookie::fromHeader()` accepts a header value and attempts to parse it.
+If the parsing succeeds, a `ResponseCookie` is returned.
 If not, `null` is returned.
-No exceptions are used, because cookies are always user input and untrusted, thus failure to parse such headers isn't exceptional.
+No exceptions are thrown, because received cookies are always user input and untrusted and malformed headers should be discarded according to the RFC.
 
 ```php
 $attributes = CookieAttributes::default()->withSecure();
@@ -51,9 +53,10 @@ Hence, the responsible class is called `RequestCookie`.
 {:.note}
 > More information about `cookie` can by obtained from the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cookie) or other sources.
 
-`RequestCookie::fromHeader()` accepts a header value and attempts to parse it. If the parsing succeeds, an array of `RequestCookie` instances is returned.
+`RequestCookie::fromHeader()` accepts a header value and attempts to parse it.
+If the parsing succeeds, an array of `RequestCookie` instances is returned.
 If not, an empty array is returned.
-No exceptions are used, because cookies are always user input and untrusted, thus failure to parse such headers isn't exceptional.
+No exceptions are thrown, because received cookies are always user input and untrusted and malformed headers should be discarded according to the RFC.
 
 ```php
 $responseCookie = new ResponseCookie("session", \bin2hex(\random_bytes(16)), $attributes);

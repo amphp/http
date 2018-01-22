@@ -80,13 +80,13 @@ class ResponseCookieTest extends TestCase {
     }
 
     public function testInvalidName() {
-        $this->expectException(InvalidCookieError::class);
+        $this->expectException(InvalidCookieException::class);
 
         new ResponseCookie("foo:bar");
     }
 
     public function testInvalidValue() {
-        $this->expectException(InvalidCookieError::class);
+        $this->expectException(InvalidCookieException::class);
 
         new ResponseCookie("foobar", "foo;bar");
     }

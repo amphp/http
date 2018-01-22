@@ -29,14 +29,13 @@ final class ResponseCookie {
      */
     public static function fromHeader(string $string) { /* : ?self */
         $parts = \array_map("trim", \explode(";", $string));
+        $nameValue = \explode("=", \array_shift($parts), 2);
 
-        $pattern = '(^([^()<>@,;:\\"/[\]?={}\x01-\x20\x7F]++)=([\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+)$)m';
-
-        if (!\preg_match($pattern, \array_shift($parts), $match)) {
+        if (\count($nameValue) !== 2) {
             return null;
         }
 
-        list(, $name, $value) = $match;
+        list($name, $value) = $nameValue;
 
         // httpOnly must default to false for parsing
         $meta = CookieAttributes::empty();
@@ -89,8 +88,11 @@ final class ResponseCookie {
             }
         }
 
-        // This won't throw. If it does, then the regex above is wrong.
-        return new self($name, $value, $meta);
+        try {
+            return new self($name, $value, $meta);
+        } catch (InvalidCookieException $e) {
+            return null;
+        }
     }
 
     /**
@@ -98,7 +100,7 @@ final class ResponseCookie {
      * @param string           $value Value of the cookie.
      * @param CookieAttributes $attributes Attributes of the cookie.
      *
-     * @throws InvalidCookieError If name or value is invalid.
+     * @throws InvalidCookieException If name or value is invalid.
      */
     public function __construct(
         string $name,
@@ -106,11 +108,11 @@ final class ResponseCookie {
         CookieAttributes $attributes = null
     ) {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
-            throw new InvalidCookieError("Invalid cookie name: '{$name}'");
+            throw new InvalidCookieException("Invalid cookie name: '{$name}'");
         }
 
         if (!\preg_match('(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)', $value)) {
-            throw new InvalidCookieError("Invalid cookie value: '{$value}'");
+            throw new InvalidCookieException("Invalid cookie value: '{$value}'");
         }
 
         $this->name = $name;

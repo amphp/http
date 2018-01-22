@@ -19,13 +19,13 @@ class RequestCookieTest extends TestCase {
     }
 
     public function testInvalidCookieName() {
-        $this->expectException(InvalidCookieError::class);
+        $this->expectException(InvalidCookieException::class);
 
         new RequestCookie("foo bar");
     }
 
     public function testInvalidCookieValue() {
-        $this->expectException(InvalidCookieError::class);
+        $this->expectException(InvalidCookieException::class);
 
         new RequestCookie("foobar", "what is this");
     }
