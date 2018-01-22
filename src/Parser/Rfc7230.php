@@ -58,16 +58,18 @@ final class Rfc7230 {
     /**
      * Format headers in to their on-the-wire format.
      *
-     * **Important**: Always validate headers syntactically before calling this method. We have assertions in place, but
-     * these might be disabled on production and are no protection against response splitting when turned off. Headers
-     * should usually be verified when set on a response object, thus there's no reason to validate them again here.
+     * Headers are always validated syntactically. This protects against response splitting and header injection
+     * attacks.
      *
      * @param array $headers Headers in a format as returned by {@see parseHeaders()}.
      *
      * @return string Formatted headers.
+     *
+     * @throws InvalidHeaderException If header names or values are invalid.
      */
     public static function formatHeaders(array $headers): string {
         $buffer = "";
+        $lines = 0;
 
         foreach ($headers as $name => $values) {
             // PHP casts integer-like keys to integers
@@ -78,13 +80,21 @@ final class Rfc7230 {
                 continue;
             }
 
-            \assert(\preg_match(self::HEADER_NAME_REGEX, $name), "Invalid header name");
-            \assert(\is_array($values));
-
+            /** @var array $values */
             foreach ($values as $value) {
-                \assert(\preg_match(self::HEADER_VALUE_REGEX, $value), "Invalid header value");
                 $buffer .= "{$name}: {$value}\r\n";
+                $lines++;
             }
+        }
+
+        $count = \preg_match_all(self::HEADER_REGEX, $buffer);
+
+        if ($count !== $lines) {
+            if (\substr_count($buffer, "\n") > $count) {
+                throw new InvalidHeaderException("Header injection attempt blocked");
+            }
+
+            throw new InvalidHeaderException("Invalid headers blocked");
         }
 
         return $buffer;
