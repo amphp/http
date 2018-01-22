@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\Http\Parser;
+namespace Amp\Http;
 
-class InvalidHeaderException extends \Exception {
+final class InvalidHeaderException extends \Exception {
     /**
      * Thrown on header injection attempts.
      *

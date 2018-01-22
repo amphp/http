@@ -1,6 +1,6 @@
 <?php
 
-use Amp\Http\Parser\Rfc7230;
+use Amp\Http\Rfc7230;
 
 require __DIR__ . "/../vendor/autoload.php";
 

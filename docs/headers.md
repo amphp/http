@@ -7,13 +7,13 @@ It also provides a corresponding header formatter.
 
 ## Parsing Headers
 
-`Amp\Http\Parser\Rfc7230::parseHeaders()` parses raw headers into an array mapping header names to arrays of header values.
+`Amp\Http\Rfc7230::parseHeaders()` parses raw headers into an array mapping header names to arrays of header values.
 Every header line must end with `\r\n`, also the last one.
 
 ```php
 <?php
 
-use Amp\Http\Parser\Rfc7230;
+use Amp\Http\Rfc7230;
 
 require __DIR__ . "/../vendor/autoload.php";
 
@@ -54,14 +54,14 @@ array(4) {
 
 ## Formatting Headers
 
-`Amp\Http\Parser\Rfc7230::formatHeaders()` takes an array with the same format as `parseHeaders()` returns.
+`Amp\Http\Rfc7230::formatHeaders()` takes an array with the same format as `parseHeaders()` returns.
 It protects against header injections and other non-compliant header names and values.
 
 ```php
 <?php
 
 use Amp\Http\Cookie\ResponseCookie;
-use Amp\Http\Parser\Rfc7230;
+use Amp\Http\Rfc7230;
 
 require __DIR__ . "/../vendor/autoload.php";
 

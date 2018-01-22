@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\Http\Parser;
+namespace Amp\Http;
 
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +29,7 @@ class Rfc7230Test extends TestCase {
 
     /** @dataProvider provideInvalidHeaders */
     public function testInvalidHeaderParsing(string $rawHeaders) {
-        $this->expectException(ParseException::class);
+        $this->expectException(InvalidHeaderException::class);
         Rfc7230::parseHeaders($rawHeaders);
     }
 

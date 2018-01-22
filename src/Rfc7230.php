@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\Http\Parser;
+namespace Amp\Http;
 
 /**
  * @link https://tools.ietf.org/html/rfc7230
@@ -23,7 +23,7 @@ final class Rfc7230 {
      *
      * @return array Associative array mapping header names to arrays of values.
      *
-     * @throws ParseException If invalid headers have been passed.
+     * @throws InvalidHeaderException If invalid headers have been passed.
      */
     public static function parseHeaders(string $rawHeaders): array {
         // Ensure that the last line also ends with a newline, this is important.
@@ -36,10 +36,10 @@ final class Rfc7230 {
         if ($count !== \substr_count($rawHeaders, "\n")) {
             // Folding is deprecated, see https://tools.ietf.org/html/rfc7230#section-3.2.4
             if (\preg_match(self::HEADER_FOLD_REGEX, $rawHeaders)) {
-                throw new ParseException("Invalid Header Syntax: Obsolete Line Folding");
+                throw new InvalidHeaderException("Invalid header syntax: Obsolete line folding");
             }
 
-            throw new ParseException("Invalid Header Syntax");
+            throw new InvalidHeaderException("Invalid header syntax");
         }
 
         $headers = [];
@@ -91,10 +91,10 @@ final class Rfc7230 {
 
         if ($count !== $lines) {
             if (\substr_count($buffer, "\n") > $count) {
-                throw new InvalidHeaderException("Header injection attempt blocked");
+                throw new InvalidHeaderException("Invalid headers: Header injection attempt");
             }
 
-            throw new InvalidHeaderException("Invalid headers blocked");
+            throw new InvalidHeaderException("Invalid headers");
         }
 
         return $buffer;
