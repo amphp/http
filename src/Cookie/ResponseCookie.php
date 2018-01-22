@@ -37,6 +37,13 @@ final class ResponseCookie {
 
         list($name, $value) = $nameValue;
 
+        $name = \trim($name);
+        $value = \trim($value, " \t\n\r\0\x0B\"");
+
+        if ($name === "") {
+            return null;
+        }
+
         // httpOnly must default to false for parsing
         $meta = CookieAttributes::empty();
 
