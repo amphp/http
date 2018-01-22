@@ -131,7 +131,7 @@ final class CookieAttributes {
 
         if ($date instanceof \DateTimeImmutable) {
             $new->expiry = $date;
-        } else if ($date instanceof \DateTime) {
+        } elseif ($date instanceof \DateTime) {
             $new->expiry = \DateTimeImmutable::createFromMutable($date);
         } else {
             $new->expiry = new \DateTimeImmutable("@" . $date->getTimestamp());
