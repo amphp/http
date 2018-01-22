@@ -18,4 +18,4 @@ $headers = Rfc7230::formatHeaders([
     ]
 ]);
 
-var_dump($headers);
+\var_dump($headers);

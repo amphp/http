@@ -11,4 +11,4 @@ $rawHeaders = "Server: GitHub.com\r\n"
 
 $headers = Rfc7230::parseHeaders($rawHeaders);
 
-var_dump($headers);
+\var_dump($headers);
