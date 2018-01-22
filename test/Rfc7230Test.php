@@ -54,4 +54,32 @@ class Rfc7230Test extends TestCase {
 
         $this->assertSame("foobar: bar\r\nx: y\r\n", Rfc7230::formatHeaders($headers));
     }
+
+    public function testDetectsHeaderInjectionsWithLfInValue() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+
+        Rfc7230::formatHeaders(["foobar" => ["test\nbar"]]);
+    }
+
+    public function testDetectsHeaderInjectionsWithCrInValue() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+
+        Rfc7230::formatHeaders(["foobar" => ["test\rbar"]]);
+    }
+
+    public function testDetectsHeaderInjectionsWithCrInName() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+
+        Rfc7230::formatHeaders(["foobar\n" => ["bar"]]);
+    }
+
+    public function testDetectsInvalidHeaderSyntax() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers");
+
+        Rfc7230::formatHeaders(["foo bar" => ["bar"]]);
+    }
 }
