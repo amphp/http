@@ -42,4 +42,16 @@ class CookieAttributesTest extends TestCase {
         $this->assertFalse($attributes->withoutHttpOnly()->isHttpOnly());
         $this->assertTrue($attributes->withoutHttpOnly()->withHttpOnly()->isHttpOnly());
     }
+
+    public function testToString() {
+        $expiry = new \DateTimeImmutable("now+10s");
+        $attributes = CookieAttributes::default();
+
+        $this->assertSame('; HttpOnly', (string) $attributes);
+        $this->assertSame('; Secure; HttpOnly', (string) $attributes->withSecure());
+        $this->assertSame('; Max-Age=10; HttpOnly', (string) $attributes->withMaxAge(10));
+        $this->assertSame('; Path=/; HttpOnly', (string) $attributes->withPath('/'));
+        $this->assertSame('; Domain=localhost; HttpOnly', (string) $attributes->withDomain('localhost'));
+        $this->assertSame('; Expires=' . \gmdate('D, j M Y G:i:s T', $expiry->getTimestamp()) . '; HttpOnly', (string) $attributes->withExpiry($expiry));
+    }
 }

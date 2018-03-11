@@ -78,7 +78,7 @@ class Rfc7230Test extends TestCase {
 
     public function testDetectsInvalidHeaderSyntax() {
         $this->expectException(InvalidHeaderException::class);
-        $this->expectExceptionMessage("Invalid headers");
+        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
 
         Rfc7230::formatHeaders(["foo bar" => ["bar"]]);
     }

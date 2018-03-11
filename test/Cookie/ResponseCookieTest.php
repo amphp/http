@@ -5,6 +5,14 @@ namespace Amp\Http\Cookie;
 use PHPUnit\Framework\TestCase;
 
 class ResponseCookieTest extends TestCase {
+    public function testParsingOnEmptyName() {
+        $this->assertNull(ResponseCookie::fromHeader("=123438afes7a8"));
+    }
+
+    public function testParsingOnInvalidNameValueCount() {
+        $this->assertNull(ResponseCookie::fromHeader("; HttpOnly=123"));
+    }
+
     public function testParsing() {
         // Examples from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
         $this->assertEquals(
@@ -77,6 +85,11 @@ class ResponseCookieTest extends TestCase {
         $this->assertNull(
             ResponseCookie::fromHeader("query foo=129")
         );
+    }
+
+    public function testGetMaxAge() {
+        $responseCookie = new ResponseCookie("qwerty", "219ffwef9w0f", CookieAttributes::empty()->withMaxAge(10));
+        $this->assertSame(10, $responseCookie->getMaxAge());
     }
 
     public function testInvalidName() {
