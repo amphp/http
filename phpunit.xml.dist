@@ -2,7 +2,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.0/phpunit.xsd" bootstrap="vendor/autoload.php" colors="true">
     <testsuites>
         <testsuite name="Main">
-            <directory>test</directory>
+            <directory suffix="Test.php">test</directory>
         </testsuite>
     </testsuites>
     <filter>
