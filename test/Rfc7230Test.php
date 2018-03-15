@@ -57,28 +57,63 @@ class Rfc7230Test extends TestCase {
 
     public function testDetectsHeaderInjectionsWithLfInValue() {
         $this->expectException(InvalidHeaderException::class);
-        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+        $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar" => ["test\nbar"]]);
     }
 
     public function testDetectsHeaderInjectionsWithCrInValue() {
         $this->expectException(InvalidHeaderException::class);
-        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+        $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar" => ["test\rbar"]]);
     }
 
+    public function testDetectsHeaderInjectionsWithCrLfInValue() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers");
+
+        Rfc7230::formatHeaders(["foobar" => ["test\r\nbar"]]);
+    }
+
+    public function testDetectsHeaderInjectionsWithCrLfAndColonInValue() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers");
+
+        Rfc7230::formatHeaders(["foobar" => ["test\r\nfoo: bar"]]);
+    }
+
     public function testDetectsHeaderInjectionsWithCrInName() {
         $this->expectException(InvalidHeaderException::class);
-        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+        $this->expectExceptionMessage("Invalid headers");
 
-        Rfc7230::formatHeaders(["foobar\n" => ["bar"]]);
+        Rfc7230::formatHeaders(["foobar\rfoobar" => ["bar"]]);
+    }
+
+    public function testDetectsHeaderInjectionsWithLfInName() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers");
+
+        Rfc7230::formatHeaders(["foobar\nfoobar" => ["bar"]]);
+    }
+
+    public function testDetectsHeaderInjectionsWithCrLfInName() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers");
+
+        Rfc7230::formatHeaders(["foobar\r\nfoobar" => ["bar"]]);
+    }
+
+    public function testDetectsHeaderInjectionsWithCrLfAndColonInName() {
+        $this->expectException(InvalidHeaderException::class);
+        $this->expectExceptionMessage("Invalid headers");
+
+        Rfc7230::formatHeaders(["foobar: test\r\nfoobar" => ["bar"]]);
     }
 
     public function testDetectsInvalidHeaderSyntax() {
         $this->expectException(InvalidHeaderException::class);
-        $this->expectExceptionMessage("Invalid headers: Header injection attempt");
+        $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foo bar" => ["bar"]]);
     }
