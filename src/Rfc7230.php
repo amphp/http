@@ -89,11 +89,7 @@ final class Rfc7230 {
 
         $count = \preg_match_all(self::HEADER_REGEX, $buffer);
 
-        if ($count !== $lines) {
-            if (\substr_count($buffer, "\n") > $count) {
-                throw new InvalidHeaderException("Invalid headers: Header injection attempt");
-            }
-
+        if ($lines !== $count || $lines !== \substr_count($buffer, "\n")) {
             throw new InvalidHeaderException("Invalid headers");
         }
 
