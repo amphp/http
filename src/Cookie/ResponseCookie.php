@@ -10,7 +10,8 @@ namespace Amp\Http\Cookie;
  *
  * @link https://tools.ietf.org/html/rfc6265#section-5.2
  */
-final class ResponseCookie {
+final class ResponseCookie
+{
     /** @var string */
     private $name;
 
@@ -27,7 +28,8 @@ final class ResponseCookie {
      *
      * @return self|null Returns a `ResponseCookie` instance on success and `null` on failure.
      */
-    public static function fromHeader(string $string) { /* : ?self */
+    public static function fromHeader(string $string)
+    { /* : ?self */
         $parts = \array_map("trim", \explode(";", $string));
         $nameValue = \explode("=", \array_shift($parts), 2);
 
@@ -130,14 +132,16 @@ final class ResponseCookie {
     /**
      * @return string Name of the cookie.
      */
-    public function getName(): string {
+    public function getName(): string
+    {
         return $this->name;
     }
 
     /**
      * @return string Value of the cookie.
      */
-    public function getValue(): string {
+    public function getValue(): string
+    {
         return $this->value;
     }
 
@@ -146,7 +150,8 @@ final class ResponseCookie {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
      */
-    public function getExpiry() { /* : ?\DateTimeImmutable */
+    public function getExpiry()
+    { /* : ?\DateTimeImmutable */
         return $this->attributes->getExpiry();
     }
 
@@ -155,7 +160,8 @@ final class ResponseCookie {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getMaxAge() { /* : ?int */
+    public function getMaxAge()
+    { /* : ?int */
         return $this->attributes->getMaxAge();
     }
 
@@ -164,7 +170,8 @@ final class ResponseCookie {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.4
      */
-    public function getPath(): string {
+    public function getPath(): string
+    {
         return $this->attributes->getPath();
     }
 
@@ -173,7 +180,8 @@ final class ResponseCookie {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.3
      */
-    public function getDomain(): string {
+    public function getDomain(): string
+    {
         return $this->attributes->getDomain();
     }
 
@@ -182,7 +190,8 @@ final class ResponseCookie {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.5
      */
-    public function isSecure(): bool {
+    public function isSecure(): bool
+    {
         return $this->attributes->isSecure();
     }
 
@@ -191,21 +200,24 @@ final class ResponseCookie {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.6
      */
-    public function isHttpOnly(): bool {
+    public function isHttpOnly(): bool
+    {
         return $this->attributes->isHttpOnly();
     }
 
     /**
      * @return CookieAttributes All cookie attributes.
      */
-    public function getAttributes(): CookieAttributes {
+    public function getAttributes(): CookieAttributes
+    {
         return $this->attributes;
     }
 
     /**
      * @return string Representation of the cookie as in a 'set-cookie' header.
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         $line = $this->name . '=' . $this->value;
         $line .= $this->attributes;
 

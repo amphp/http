@@ -4,20 +4,24 @@ namespace Amp\Http;
 
 use PHPUnit\Framework\TestCase;
 
-class Rfc7230Test extends TestCase {
+class Rfc7230Test extends TestCase
+{
     /** @dataProvider provideValidHeaders */
-    public function testValidHeaderParsing(string $rawHeaders, array $expectedResult) {
+    public function testValidHeaderParsing(string $rawHeaders, array $expectedResult)
+    {
         $result = Rfc7230::parseHeaders($rawHeaders);
         $this->assertSame($result, $expectedResult);
     }
 
     /** @dataProvider provideValidHeaders */
-    public function testValidHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult) {
+    public function testValidHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult)
+    {
         $result = Rfc7230::parseHeaders(Rfc7230::formatHeaders($expectedResult));
         $this->assertSame($result, $expectedResult);
     }
 
-    public function provideValidHeaders() {
+    public function provideValidHeaders()
+    {
         return [
             ["x:y\r\n", ["x" => ["y"]]],
             ["server:\tamphp.org\r\n", ["server" => ["amphp.org"]]],
@@ -28,12 +32,14 @@ class Rfc7230Test extends TestCase {
     }
 
     /** @dataProvider provideInvalidHeaders */
-    public function testInvalidHeaderParsing(string $rawHeaders) {
+    public function testInvalidHeaderParsing(string $rawHeaders)
+    {
         $this->expectException(InvalidHeaderException::class);
         Rfc7230::parseHeaders($rawHeaders);
     }
 
-    public function provideInvalidHeaders() {
+    public function provideInvalidHeaders()
+    {
         return [
             [" x:y\r\n"],
             ["x :z\r\n"],
@@ -45,7 +51,8 @@ class Rfc7230Test extends TestCase {
         ];
     }
 
-    public function testIgnoresHttp2PseudoHeaders() {
+    public function testIgnoresHttp2PseudoHeaders()
+    {
         $headers = [
             "foobar" => ["bar"],
             ":method" => ["GET"],
@@ -55,63 +62,72 @@ class Rfc7230Test extends TestCase {
         $this->assertSame("foobar: bar\r\nx: y\r\n", Rfc7230::formatHeaders($headers));
     }
 
-    public function testDetectsHeaderInjectionsWithLfInValue() {
+    public function testDetectsHeaderInjectionsWithLfInValue()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar" => ["test\nbar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrInValue() {
+    public function testDetectsHeaderInjectionsWithCrInValue()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar" => ["test\rbar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfInValue() {
+    public function testDetectsHeaderInjectionsWithCrLfInValue()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar" => ["test\r\nbar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfAndColonInValue() {
+    public function testDetectsHeaderInjectionsWithCrLfAndColonInValue()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar" => ["test\r\nfoo: bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrInName() {
+    public function testDetectsHeaderInjectionsWithCrInName()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar\rfoobar" => ["bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithLfInName() {
+    public function testDetectsHeaderInjectionsWithLfInName()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar\nfoobar" => ["bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfInName() {
+    public function testDetectsHeaderInjectionsWithCrLfInName()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar\r\nfoobar" => ["bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfAndColonInName() {
+    public function testDetectsHeaderInjectionsWithCrLfAndColonInName()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 
         Rfc7230::formatHeaders(["foobar: test\r\nfoobar" => ["bar"]]);
     }
 
-    public function testDetectsInvalidHeaderSyntax() {
+    public function testDetectsInvalidHeaderSyntax()
+    {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
 

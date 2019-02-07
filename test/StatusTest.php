@@ -4,8 +4,10 @@ namespace Amp\Http;
 
 use PHPUnit\Framework\TestCase;
 
-class StatusTest extends TestCase {
-    public function testEachDefinedStatusHasDefaultReason() {
+class StatusTest extends TestCase
+{
+    public function testEachDefinedStatusHasDefaultReason()
+    {
         $class = new \ReflectionClass(Status::class);
 
         foreach ($class->getConstants() as $statusCode) {
@@ -13,7 +15,8 @@ class StatusTest extends TestCase {
         }
     }
 
-    public function testEachDefaultReasonHasCorrespondingConstant() {
+    public function testEachDefaultReasonHasCorrespondingConstant()
+    {
         $class = new \ReflectionClass(Status::class);
         $constants = $class->getConstants();
 
@@ -26,7 +29,8 @@ class StatusTest extends TestCase {
         }
     }
 
-    public function testNoDuplicateDefinition() {
+    public function testNoDuplicateDefinition()
+    {
         $class = new \ReflectionClass(Status::class);
         $constants = $class->getConstants();
 

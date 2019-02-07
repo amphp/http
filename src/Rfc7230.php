@@ -7,7 +7,8 @@ namespace Amp\Http;
  * @link https://tools.ietf.org/html/rfc2616
  * @link https://tools.ietf.org/html/rfc5234
  */
-final class Rfc7230 {
+final class Rfc7230
+{
     // We make use of possessive modifiers, which gives a slight performance boost
     const HEADER_NAME_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++)$)";
     const HEADER_VALUE_REGEX = "(^[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+$)";
@@ -25,7 +26,8 @@ final class Rfc7230 {
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
-    public static function parseHeaders(string $rawHeaders): array {
+    public static function parseHeaders(string $rawHeaders): array
+    {
         // Ensure that the last line also ends with a newline, this is important.
         \assert(\substr($rawHeaders, -2) === "\r\n", "Argument 1 must end with CRLF");
 
@@ -67,7 +69,8 @@ final class Rfc7230 {
      *
      * @throws InvalidHeaderException If header names or values are invalid.
      */
-    public static function formatHeaders(array $headers): string {
+    public static function formatHeaders(array $headers): string
+    {
         $buffer = "";
         $lines = 0;
 

@@ -4,16 +4,20 @@ namespace Amp\Http\Cookie;
 
 use PHPUnit\Framework\TestCase;
 
-class ResponseCookieTest extends TestCase {
-    public function testParsingOnEmptyName() {
+class ResponseCookieTest extends TestCase
+{
+    public function testParsingOnEmptyName()
+    {
         $this->assertNull(ResponseCookie::fromHeader("=123438afes7a8"));
     }
 
-    public function testParsingOnInvalidNameValueCount() {
+    public function testParsingOnInvalidNameValueCount()
+    {
         $this->assertNull(ResponseCookie::fromHeader("; HttpOnly=123"));
     }
 
-    public function testParsing() {
+    public function testParsing()
+    {
         // Examples from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
         $this->assertEquals(
             new ResponseCookie("sessionid", "38afes7a8", CookieAttributes::empty()->withHttpOnly()->withPath("/")),
@@ -87,31 +91,36 @@ class ResponseCookieTest extends TestCase {
         );
     }
 
-    public function testGetMaxAge() {
+    public function testGetMaxAge()
+    {
         $responseCookie = new ResponseCookie("qwerty", "219ffwef9w0f", CookieAttributes::empty()->withMaxAge(10));
         $this->assertSame(10, $responseCookie->getMaxAge());
     }
 
-    public function testInvalidName() {
+    public function testInvalidName()
+    {
         $this->expectException(InvalidCookieException::class);
 
         new ResponseCookie("foo:bar");
     }
 
-    public function testInvalidValue() {
+    public function testInvalidValue()
+    {
         $this->expectException(InvalidCookieException::class);
 
         new ResponseCookie("foobar", "foo;bar");
     }
 
-    public function testGetAttributes() {
+    public function testGetAttributes()
+    {
         $attributes = CookieAttributes::default();
         $cookie = new ResponseCookie("foobar", "xxx", $attributes);
 
         $this->assertSame($attributes, $cookie->getAttributes());
     }
 
-    public function testToString() {
+    public function testToString()
+    {
         $attributes = CookieAttributes::default();
         $cookie = new ResponseCookie("foobar", "xxx", $attributes);
 

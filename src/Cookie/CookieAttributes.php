@@ -7,7 +7,8 @@ namespace Amp\Http\Cookie;
  *
  * @link https://tools.ietf.org/html/rfc6265
  */
-final class CookieAttributes {
+final class CookieAttributes
+{
     /** @var string */
     private $path = '';
 
@@ -31,7 +32,8 @@ final class CookieAttributes {
      *
      * @see self::default()
      */
-    public static function empty(): self {
+    public static function empty(): self
+    {
         $new = new self;
         $new->httpOnly = false;
 
@@ -43,11 +45,13 @@ final class CookieAttributes {
      *
      * @see self::empty()
      */
-    public static function default(): self {
+    public static function default(): self
+    {
         return new self;
     }
 
-    private function __construct() {
+    private function __construct()
+    {
         // only allow creation via named constructors
     }
 
@@ -58,7 +62,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.4
      */
-    public function withPath(string $path): self {
+    public function withPath(string $path): self
+    {
         $new = clone $this;
         $new->path = $path;
 
@@ -72,7 +77,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.3
      */
-    public function withDomain(string $domain): self {
+    public function withDomain(string $domain): self
+    {
         $new = clone $this;
         $new->domain = $domain;
 
@@ -91,7 +97,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function withMaxAge(int $maxAge): self {
+    public function withMaxAge(int $maxAge): self
+    {
         $new = clone $this;
         $new->maxAge = $maxAge;
 
@@ -107,7 +114,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function withoutMaxAge(): self {
+    public function withoutMaxAge(): self
+    {
         $new = clone $this;
         $new->maxAge = null;
 
@@ -126,7 +134,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
      */
-    public function withExpiry(\DateTimeInterface $date): self {
+    public function withExpiry(\DateTimeInterface $date): self
+    {
         $new = clone $this;
 
         if ($date instanceof \DateTimeImmutable) {
@@ -149,7 +158,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
      */
-    public function withoutExpiry(): self {
+    public function withoutExpiry(): self
+    {
         $new = clone $this;
         $new->expiry = null;
 
@@ -163,7 +173,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.5
      */
-    public function withSecure(): self {
+    public function withSecure(): self
+    {
         $new = clone $this;
         $new->secure = true;
 
@@ -177,7 +188,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.5
      */
-    public function withoutSecure(): self {
+    public function withoutSecure(): self
+    {
         $new = clone $this;
         $new->secure = false;
 
@@ -191,7 +203,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.6
      */
-    public function withHttpOnly(): self {
+    public function withHttpOnly(): self
+    {
         $new = clone $this;
         $new->httpOnly = true;
 
@@ -205,7 +218,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.6
      */
-    public function withoutHttpOnly(): self {
+    public function withoutHttpOnly(): self
+    {
         $new = clone $this;
         $new->httpOnly = false;
 
@@ -217,7 +231,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.4
      */
-    public function getPath(): string {
+    public function getPath(): string
+    {
         return $this->path;
     }
 
@@ -226,7 +241,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.3
      */
-    public function getDomain(): string {
+    public function getDomain(): string
+    {
         return $this->domain;
     }
 
@@ -235,7 +251,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getMaxAge() { /* : ?int */
+    public function getMaxAge()
+    { /* : ?int */
         return $this->maxAge;
     }
 
@@ -244,7 +261,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getExpiry() { /* : ?\DateTimeImmutable */
+    public function getExpiry()
+    { /* : ?\DateTimeImmutable */
         return $this->expiry;
     }
 
@@ -253,7 +271,8 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.5
      */
-    public function isSecure(): bool {
+    public function isSecure(): bool
+    {
         return $this->secure;
     }
 
@@ -262,14 +281,16 @@ final class CookieAttributes {
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.6
      */
-    public function isHttpOnly(): bool {
+    public function isHttpOnly(): bool
+    {
         return $this->httpOnly;
     }
 
     /**
      * @return string Representation of the cookie attributes appended to key=value in a 'set-cookie' header.
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         $string = '';
 
         if ($this->expiry) {

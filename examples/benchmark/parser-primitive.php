@@ -1,7 +1,8 @@
 <?php
 
 // This implementation doesn't do any validation and just splits at the first colon in each line.
-function parse(string $rawHeaders): array {
+function parse(string $rawHeaders): array
+{
     $lines = \explode("\r\n", $rawHeaders);
     $headers = [];
 

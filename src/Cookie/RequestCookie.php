@@ -10,7 +10,8 @@ namespace Amp\Http\Cookie;
  *
  * @link https://tools.ietf.org/html/rfc6265#section-5.4
  */
-final class RequestCookie {
+final class RequestCookie
+{
     /** @var string */
     private $name;
 
@@ -26,7 +27,8 @@ final class RequestCookie {
      *
      * @return RequestCookie[]
      */
-    public static function fromHeader(string $string): array {
+    public static function fromHeader(string $string): array
+    {
         $cookies = \explode(";", $string);
         $result = [];
 
@@ -56,7 +58,8 @@ final class RequestCookie {
      *
      * @throws InvalidCookieException If name or value is invalid.
      */
-    public function __construct(string $name, string $value = '') {
+    public function __construct(string $name, string $value = '')
+    {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]*+$)', $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");
         }
@@ -72,21 +75,24 @@ final class RequestCookie {
     /**
      * @return string Name of the cookie.
      */
-    public function getName(): string {
+    public function getName(): string
+    {
         return $this->name;
     }
 
     /**
      * @return string Value of the cookie.
      */
-    public function getValue(): string {
+    public function getValue(): string
+    {
         return $this->value;
     }
 
     /**
      * @return string Representation of the cookie as in a 'cookie' header.
      */
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->name . '=' . $this->value;
     }
 }

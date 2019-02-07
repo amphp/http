@@ -4,8 +4,10 @@ namespace Amp\Http\Cookie;
 
 use PHPUnit\Framework\TestCase;
 
-class CookieAttributesTest extends TestCase {
-    public function testMaxAge() {
+class CookieAttributesTest extends TestCase
+{
+    public function testMaxAge()
+    {
         $attributes = CookieAttributes::default()->withMaxAge(10);
         $this->assertSame(10, $attributes->getMaxAge());
         $this->assertNull($attributes->getExpiry());
@@ -15,7 +17,8 @@ class CookieAttributesTest extends TestCase {
         $this->assertNull($attributes->getExpiry());
     }
 
-    public function testExpiry() {
+    public function testExpiry()
+    {
         $expiry = new \DateTimeImmutable("now+10s");
 
         $attributes = CookieAttributes::default()->withExpiry($expiry);
@@ -27,7 +30,8 @@ class CookieAttributesTest extends TestCase {
         $this->assertNull($attributes->getMaxAge());
     }
 
-    public function testSecure() {
+    public function testSecure()
+    {
         $attributes = CookieAttributes::default();
 
         $this->assertFalse($attributes->isSecure());
@@ -35,7 +39,8 @@ class CookieAttributesTest extends TestCase {
         $this->assertFalse($attributes->withSecure()->withoutSecure()->isSecure());
     }
 
-    public function testHttpOnly() {
+    public function testHttpOnly()
+    {
         $attributes = CookieAttributes::default();
 
         $this->assertTrue($attributes->isHttpOnly());
@@ -43,7 +48,8 @@ class CookieAttributesTest extends TestCase {
         $this->assertTrue($attributes->withoutHttpOnly()->withHttpOnly()->isHttpOnly());
     }
 
-    public function testToString() {
+    public function testToString()
+    {
         $expiry = new \DateTimeImmutable("now+10s");
         $attributes = CookieAttributes::default();
 

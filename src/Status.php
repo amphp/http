@@ -5,7 +5,8 @@ namespace Amp\Http;
 /**
  * @link https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
  */
-final class Status {
+final class Status
+{
     const CONTINUE = 100;
     const SWITCHING_PROTOCOLS = 101;
     const PROCESSING = 102;
@@ -71,11 +72,13 @@ final class Status {
     const NOT_EXTENDED = 510;
     const NETWORK_AUTHENTICATION_REQUIRED = 511;
 
-    private function __construct() {
+    private function __construct()
+    {
         // forbid instances
     }
 
-    public static function getReason(int $code): string {
+    public static function getReason(int $code): string
+    {
         return [
             100 => 'Continue',
             101 => 'Switching Protocols',
