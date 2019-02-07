@@ -16,6 +16,7 @@ matrix:
 
 before_install:
   - phpenv config-rm xdebug.ini || echo "No xdebug config."
+  - echo "assert.exception = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:
   - composer update -n --prefer-dist
@@ -38,4 +39,5 @@ after_script:
 
 cache:
   directories:
-    - $HOME/.composer/cache/files
+    - $HOME/.composer/cache
+    - $HOME/.php-cs-fixer
