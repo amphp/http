@@ -52,7 +52,7 @@ abstract class Message
      *
      * @param string[]|string[][] $headers
      */
-    public function setHeaders(array $headers)
+    protected function setHeaders(array $headers)
     {
         // Ensure this is an atomic operation, either all headers are set or none.
         $before = $this->headers;
@@ -76,7 +76,7 @@ abstract class Message
      *
      * @throws \Error If the header name or value is invalid.
      */
-    public function setHeader(string $name, $value)
+    protected function setHeader(string $name, $value)
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
@@ -105,7 +105,7 @@ abstract class Message
      *
      * @throws \Error If the header name or value is invalid.
      */
-    public function addHeader(string $name, $value)
+    protected function addHeader(string $name, $value)
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
@@ -134,7 +134,7 @@ abstract class Message
      *
      * @param string $name
      */
-    public function removeHeader(string $name)
+    protected function removeHeader(string $name)
     {
         unset($this->headers[\strtolower($name)]);
     }
