@@ -12,14 +12,15 @@ namespace Amp\Http\Cookie;
  */
 final class ResponseCookie
 {
-    /** @var string */
-    private $name;
-
-    /** @var string */
-    private $value;
-
-    /** @var CookieAttributes */
-    private $attributes;
+    private static $dateFormats = [
+        'D, d M Y H:i:s T',
+        'D, d-M-y H:i:s T',
+        'D, d-M-Y H:i:s T',
+        'D, d-m-y H:i:s T',
+        'D, d-m-Y H:i:s T',
+        'D M j G:i:s Y',
+        'D M d H:i:s Y T',
+    ];
 
     /**
      * Parses a cookie from a 'set-cookie' header.
@@ -66,9 +67,9 @@ final class ResponseCookie
             } else {
                 switch ($key) {
                     case 'expires':
-                        $time = \DateTime::createFromFormat('D, j M Y G:i:s T', $pieces[1]);
+                        $time = self::parseDate($pieces[1]);
 
-                        if ($time === false) {
+                        if ($time === null) {
                             break; // break is correct, see https://tools.ietf.org/html/rfc6265#section-5.2.1
                         }
 
@@ -103,6 +104,29 @@ final class ResponseCookie
             return null;
         }
     }
+
+    /**
+     * @param string $date Formatted cookie date
+     *
+     * @return \DateTimeImmutable|null Parsed date.
+     */
+    private static function parseDate(string $date)
+    { /* ?\DateTimeImmutable */
+        foreach (self::$dateFormats as $dateFormat) {
+            if ($parsedDate = \DateTimeImmutable::createFromFormat($dateFormat, $date, new \DateTimeZone('GMT'))) {
+                return $parsedDate;
+            }
+        }
+
+        return null;
+    }
+
+    /** @var string */
+    private $name;
+    /** @var string */
+    private $value;
+    /** @var CookieAttributes */
+    private $attributes;
 
     /**
      * @param string           $name Name of the cookie.
