@@ -27,11 +27,29 @@ class RequestCookieTest extends TestCase
         new RequestCookie("foo bar");
     }
 
+    public function testInvalidCookieNameModify()
+    {
+        $cookie = new RequestCookie("foobar");
+
+        $this->expectException(InvalidCookieException::class);
+
+        $cookie->withName('foo bar');
+    }
+
     public function testInvalidCookieValue()
     {
         $this->expectException(InvalidCookieException::class);
 
         new RequestCookie("foobar", "what is this");
+    }
+
+    public function testInvalidCookieValueModify()
+    {
+        $cookie = new RequestCookie("foobar", "what-is-this");
+
+        $this->expectException(InvalidCookieException::class);
+
+        $cookie->withValue('what is this');
     }
 
     public function testGetters()
@@ -41,5 +59,23 @@ class RequestCookieTest extends TestCase
         $this->assertSame("foobar", $cookie->getName());
         $this->assertSame("baz", $cookie->getValue());
         $this->assertSame("foobar=baz", (string) $cookie);
+    }
+
+    public function testModifyName()
+    {
+        $cookie = new RequestCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withName('bar');
+
+        $this->assertSame('foobar', $cookie->getName());
+        $this->assertSame('bar', $newCookie->getName());
+    }
+
+    public function testModifyValue()
+    {
+        $cookie = new RequestCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withValue('what-is-that');
+
+        $this->assertSame('what-is-this', $cookie->getValue());
+        $this->assertSame('what-is-that', $newCookie->getValue());
     }
 }
