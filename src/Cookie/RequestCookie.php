@@ -80,12 +80,36 @@ final class RequestCookie
         return $this->name;
     }
 
+    public function withName(string $name): self
+    {
+        if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
+            throw new InvalidCookieException("Invalid cookie name: '{$name}'");
+        }
+
+        $clone = clone $this;
+        $clone->name = $name;
+
+        return $clone;
+    }
+
     /**
      * @return string Value of the cookie.
      */
     public function getValue(): string
     {
         return $this->value;
+    }
+
+    public function withValue(string $value): self
+    {
+        if (!\preg_match('(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)', $value)) {
+            throw new InvalidCookieException("Invalid cookie value: '{$value}'");
+        }
+
+        $clone = clone $this;
+        $clone->value = $value;
+
+        return $clone;
     }
 
     /**
