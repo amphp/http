@@ -72,10 +72,12 @@ final class Status
     const NOT_EXTENDED = 510;
     const NETWORK_AUTHENTICATION_REQUIRED = 511;
 
+    // @codeCoverageIgnoreStart
     private function __construct()
     {
         // forbid instances
     }
+    // @codeCoverageIgnoreEnd
 
     public static function getReason(int $code): string
     {
