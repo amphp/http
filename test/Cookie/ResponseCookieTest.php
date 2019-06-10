@@ -248,4 +248,14 @@ class ResponseCookieTest extends TestCase
 
         $cookie->withValue('what is this');
     }
+
+    public function testPreservesUnknownAttributes()
+    {
+        $cookie = ResponseCookie::fromHeader('key=value; HttpOnly; SameSite=strict;Foobar');
+        $this->assertNotNull($cookie);
+        $this->assertSame('key', $cookie->getName());
+        $this->assertSame('value', $cookie->getValue());
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertSame('key=value; HttpOnly; SameSite=strict; Foobar', (string) $cookie);
+    }
 }

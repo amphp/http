@@ -22,6 +22,9 @@ final class ResponseCookie
         'D M d H:i:s Y T',
     ];
 
+    /** @var string[] */
+    private $unknownAttributes = [];
+
     /**
      * Parses a cookie from a 'set-cookie' header.
      *
@@ -49,6 +52,7 @@ final class ResponseCookie
 
         // httpOnly must default to false for parsing
         $meta = CookieAttributes::empty();
+        $unknownAttributes = [];
 
         foreach ($parts as $part) {
             $pieces = \array_map('trim', \explode('=', $part, 2));
@@ -62,6 +66,10 @@ final class ResponseCookie
 
                     case 'httponly':
                         $meta = $meta->withHttpOnly();
+                        break;
+
+                    default:
+                        $unknownAttributes[] = $part;
                         break;
                 }
             } else {
@@ -94,12 +102,19 @@ final class ResponseCookie
                     case 'domain':
                         $meta = $meta->withDomain($pieces[1]);
                         break;
+
+                    default:
+                        $unknownAttributes[] = $part;
+                        break;
                 }
             }
         }
 
         try {
-            return new self($name, $value, $meta);
+            $cookie = new self($name, $value, $meta);
+            $cookie->unknownAttributes = $unknownAttributes;
+
+            return $cookie;
         } catch (InvalidCookieException $e) {
             return null;
         }
@@ -326,6 +341,11 @@ final class ResponseCookie
     {
         $line = $this->name . '=' . $this->value;
         $line .= $this->attributes;
+
+        $unknownAttributes = \implode('; ', $this->unknownAttributes);
+        if ($unknownAttributes !== '') {
+            $line .= '; ' . $unknownAttributes;
+        }
 
         return $line;
     }
