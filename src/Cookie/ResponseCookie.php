@@ -161,12 +161,36 @@ final class ResponseCookie
         return $this->name;
     }
 
+    public function withName(string $name): self
+    {
+        if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
+            throw new InvalidCookieException("Invalid cookie name: '{$name}'");
+        }
+
+        $clone = clone $this;
+        $clone->name = $name;
+
+        return $clone;
+    }
+
     /**
      * @return string Value of the cookie.
      */
     public function getValue(): string
     {
         return $this->value;
+    }
+
+    public function withValue(string $value): self
+    {
+        if (!\preg_match('(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)', $value)) {
+            throw new InvalidCookieException("Invalid cookie value: '{$value}'");
+        }
+
+        $clone = clone $this;
+        $clone->value = $value;
+
+        return $clone;
     }
 
     /**
@@ -179,6 +203,16 @@ final class ResponseCookie
         return $this->attributes->getExpiry();
     }
 
+    public function withExpiry(\DateTimeInterface $expiry): self
+    {
+        return $this->withAttributes($this->attributes->withExpiry($expiry));
+    }
+
+    public function withoutExpiry(): self
+    {
+        return $this->withAttributes($this->attributes->withoutExpiry());
+    }
+
     /**
      * @return int|null Max-Age if set, otherwise `null`.
      *
@@ -187,6 +221,16 @@ final class ResponseCookie
     public function getMaxAge()
     { /* : ?int */
         return $this->attributes->getMaxAge();
+    }
+
+    public function withMaxAge(int $maxAge): self
+    {
+        return $this->withAttributes($this->attributes->withMaxAge($maxAge));
+    }
+
+    public function withoutMaxAge(): self
+    {
+        return $this->withAttributes($this->attributes->withoutMaxAge());
     }
 
     /**
@@ -199,6 +243,11 @@ final class ResponseCookie
         return $this->attributes->getPath();
     }
 
+    public function withPath(string $path): self
+    {
+        return $this->withAttributes($this->attributes->withPath($path));
+    }
+
     /**
      * @return string Cookie domain.
      *
@@ -207,6 +256,11 @@ final class ResponseCookie
     public function getDomain(): string
     {
         return $this->attributes->getDomain();
+    }
+
+    public function withDomain(string $domain): self
+    {
+        return $this->withAttributes($this->attributes->withDomain($domain));
     }
 
     /**
@@ -219,6 +273,16 @@ final class ResponseCookie
         return $this->attributes->isSecure();
     }
 
+    public function withSecure(): self
+    {
+        return $this->withAttributes($this->attributes->withSecure());
+    }
+
+    public function withoutSecure(): self
+    {
+        return $this->withAttributes($this->attributes->withoutSecure());
+    }
+
     /**
      * @return bool Whether the httpOnly flag is enabled or not.
      *
@@ -229,12 +293,30 @@ final class ResponseCookie
         return $this->attributes->isHttpOnly();
     }
 
+    public function withHttpOnly(): self
+    {
+        return $this->withAttributes($this->attributes->withHttpOnly());
+    }
+
+    public function withoutHttpOnly(): self
+    {
+        return $this->withAttributes($this->attributes->withoutHttpOnly());
+    }
+
     /**
      * @return CookieAttributes All cookie attributes.
      */
     public function getAttributes(): CookieAttributes
     {
         return $this->attributes;
+    }
+
+    public function withAttributes(CookieAttributes $attributes): self
+    {
+        $clone = clone $this;
+        $clone->withAttributes($attributes);
+
+        return $clone;
     }
 
     /**
