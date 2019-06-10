@@ -314,7 +314,7 @@ final class ResponseCookie
     public function withAttributes(CookieAttributes $attributes): self
     {
         $clone = clone $this;
-        $clone->withAttributes($attributes);
+        $clone->attributes = $attributes;
 
         return $clone;
     }

@@ -126,4 +126,126 @@ class ResponseCookieTest extends TestCase
 
         $this->assertSame("foobar=xxx; HttpOnly", (string) $cookie);
     }
+
+    public function testModifyName()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withName('bar');
+
+        $this->assertSame('foobar', $cookie->getName());
+        $this->assertSame('bar', $newCookie->getName());
+    }
+
+    public function testModifyValue()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withValue('what-is-that');
+
+        $this->assertSame('what-is-this', $cookie->getValue());
+        $this->assertSame('what-is-that', $newCookie->getValue());
+    }
+
+    public function testModifyHttpOnly()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withoutHttpOnly();
+
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertTrue($newCookie->withHttpOnly()->isHttpOnly());
+        $this->assertFalse($newCookie->isHttpOnly());
+    }
+
+    public function testModifySecure()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withSecure();
+
+        $this->assertFalse($cookie->isSecure());
+        $this->assertFalse($newCookie->withoutSecure()->isSecure());
+        $this->assertTrue($newCookie->isSecure());
+    }
+
+    public function testModifyDomain()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withDomain('example.com');
+
+        $this->assertSame('', $cookie->getDomain());
+        $this->assertSame('example.com', $newCookie->getDomain());
+    }
+
+    public function testModifyPath()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withPath('/example');
+
+        $this->assertSame('', $cookie->getPath());
+        $this->assertSame('/example', $newCookie->getPath());
+    }
+
+    public function testModifyExpiry()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withExpiry(\DateTimeImmutable::createFromFormat('Y-m-d', '2019-06-10'));
+
+        $this->assertNull($cookie->getExpiry());
+        $this->assertNull($newCookie->withoutExpiry()->getExpiry());
+        $this->assertSame('2019-06-10', $newCookie->getExpiry()->format('Y-m-d'));
+    }
+
+    public function testModifyExpiryMutable()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $expiry = \DateTime::createFromFormat('Y-m-d', '2019-06-10');
+        $newCookie = $cookie->withExpiry($expiry);
+
+        $this->assertNull($cookie->getExpiry());
+        $this->assertNull($newCookie->withoutExpiry()->getExpiry());
+        $this->assertSame('2019-06-10', $newCookie->getExpiry()->format('Y-m-d'));
+
+        $expiry->add(new \DateInterval('P2D'));
+        $this->assertSame('2019-06-10', $newCookie->getExpiry()->format('Y-m-d'));
+    }
+
+    public function testModifyMaxAge()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withMaxAge(12);
+
+        $this->assertNull($cookie->getMaxAge());
+        $this->assertNull($newCookie->withoutMaxAge()->getMaxAge());
+        $this->assertSame(12, $newCookie->getMaxAge());
+    }
+
+    public function testInvalidCookieName()
+    {
+        $this->expectException(InvalidCookieException::class);
+
+        new ResponseCookie("foo bar");
+    }
+
+    public function testInvalidCookieNameModify()
+    {
+        $cookie = new ResponseCookie("foobar");
+
+        $this->expectException(InvalidCookieException::class);
+
+        $cookie->withName('foo bar');
+    }
+
+    public function testInvalidCookieValue()
+    {
+        $this->expectException(InvalidCookieException::class);
+
+        new ResponseCookie("foobar", "what is this");
+    }
+
+    public function testInvalidCookieValueModify()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+
+        $this->expectException(InvalidCookieException::class);
+
+        $cookie->withValue('what is this');
+    }
 }
