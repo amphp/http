@@ -12,7 +12,10 @@
     "autoload": {
         "psr-4": {
             "Amp\\Http\\": "src"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "require": {
         "php": ">=7"
