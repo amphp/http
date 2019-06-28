@@ -7,6 +7,8 @@ namespace Amp\Http;
  * @param string  $headerName
  *
  * @return array|null
+ *
+ * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  */
 function parseTokenListHeader(Message $message, string $headerName)
 {
@@ -16,7 +18,7 @@ function parseTokenListHeader(Message $message, string $headerName)
         return [];
     }
 
-    \preg_match_all('(([^=,]+)(?:=(?:"([^"]*)"|([^,]*)))?,?\s*)', $header, $matches, \PREG_SET_ORDER);
+    \preg_match_all('(([^"=,]+)(?:=(?:"((?:[^\\\\"]|\\\\.)*)"|([^,"]*)))?,?\s*)', $header, $matches, \PREG_SET_ORDER);
 
     $totalMatchedLength = 0;
     $pairs = [];
@@ -28,8 +30,8 @@ function parseTokenListHeader(Message $message, string $headerName)
         $key = \strtolower(\trim($match[1]));
         $value = ($match[2] ?? '') . \trim($match[3] ?? '');
 
-        if (isset($match[3]) && $match[3] !== '' && \strpos($match[3], '"') !== false) {
-            return null; // parse error, unclosed quote
+        if (($match[2] ?? '') !== '') {
+            $value = \preg_replace('(\\\\(.))', '\1', $value);
         }
 
         $pairs[$key] = $value;

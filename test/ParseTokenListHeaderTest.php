@@ -25,6 +25,21 @@ class ParseTokenListHeaderTest extends TestCase
         ], parseTokenListHeader($this->createMessage(['cache-control' => 'private="foo, bar", max-age=31536000']), 'cache-control'));
 
         self::assertNull(parseTokenListHeader($this->createMessage(['cache-control' => 'private="foo, bar, max-age=31536000']), 'cache-control'));
+
+        self::assertSame([
+            'private' => 'foo"bar',
+            'max-age' => '31536000',
+        ], parseTokenListHeader($this->createMessage(['cache-control' => 'private="foo\"bar", max-age=31536000']), 'cache-control'));
+
+        self::assertSame([
+            'private' => 'foo""bar',
+            'max-age' => '31536000',
+        ], parseTokenListHeader($this->createMessage(['cache-control' => 'private="foo\"\"bar", max-age=31536000']), 'cache-control'));
+
+        self::assertSame([
+            'private' => 'foo\\',
+            'bar' => '',
+        ], parseTokenListHeader($this->createMessage(['cache-control' => 'private="foo\\\\", bar']), 'cache-control'));
     }
 
     private function createMessage(array $headers): Message
