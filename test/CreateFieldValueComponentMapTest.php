@@ -8,8 +8,10 @@ class CreateFieldValueComponentMapTest extends TestCase
 {
     public function test(): void
     {
-        self::assertSame(['foo' => 'bar', 'foobar' => 'bar'],
-            createFieldValueComponentMap([['foo', 'bar'], ['foobar', 'bar']]));
+        self::assertSame(
+            ['foo' => 'bar', 'foobar' => 'bar'],
+            createFieldValueComponentMap([['foo', 'bar'], ['foobar', 'bar']])
+        );
 
         self::assertSame(['foo' => 'bar'], createFieldValueComponentMap([['foo', 'bar']]));
 

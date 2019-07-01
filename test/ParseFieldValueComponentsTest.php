@@ -54,8 +54,7 @@ class ParseFieldValueComponentsTest extends TestCase
 
     private function createMessage(array $headers): Message
     {
-        return new class($headers) extends Message
-        {
+        return new class($headers) extends Message {
             public function __construct(array $headers)
             {
                 $this->setHeaders($headers);
