@@ -10,7 +10,7 @@ namespace Amp\Http;
  *
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  */
-function parseFieldValueComponents(Message $message, string $headerName)
+function parseFieldValueComponents(Message $message, string $headerName): ?array
 {
     $header = \implode(', ', $message->getHeaderArray($headerName));
 
@@ -42,4 +42,36 @@ function parseFieldValueComponents(Message $message, string $headerName)
     }
 
     return $pairs;
+}
+
+/**
+ * @param array $pairs Output of {@code parseFieldValueComponents}. Keys are handled case-insensitively.
+ *
+ * @return array|null Map of keys to values or {@code null} if incompatible duplicates are found.
+ */
+function createFieldValueComponentMap(?array $pairs): ?array
+{
+    if ($pairs === null) {
+        return null;
+    }
+
+    $map = [];
+
+    foreach ($pairs as $pair) {
+        \assert(\count($pair) === 2);
+        \assert(\is_string($pair[0]));
+        \assert(\is_string($pair[1]));
+    }
+
+    foreach ($pairs as [$key, $value]) {
+        $key = \strtolower($key);
+
+        if (isset($map[$key]) && $map[$key] !== $value) {
+            return null; // incompatible duplicates
+        }
+
+        $map[$key] = $value;
+    }
+
+    return $map;
 }
