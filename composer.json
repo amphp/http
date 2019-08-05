@@ -18,11 +18,13 @@
         ]
     },
     "require": {
-        "php": ">=7.1"
+        "php": ">=7.1",
+        "amphp/amp": "^2"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",
-        "amphp/php-cs-fixer-config": "dev-master"
+        "amphp/php-cs-fixer-config": "dev-master",
+        "amphp/phpunit-util": "^1.1"
     },
     "config": {
         "platform": {
