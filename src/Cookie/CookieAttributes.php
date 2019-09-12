@@ -9,9 +9,9 @@ namespace Amp\Http\Cookie;
  */
 final class CookieAttributes
 {
-    const SAMESITE_NONE = 'None';
-    const SAMESITE_LAX = 'Lax';
-    const SAMESITE_STRICT = 'Strict';
+    public const SAMESITE_NONE = 'None';
+    public const SAMESITE_LAX = 'Lax';
+    public const SAMESITE_STRICT = 'Strict';
 
     /**
      * @return CookieAttributes No cookie attributes.
@@ -286,7 +286,7 @@ final class CookieAttributes
      *
      * @link https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-5.3.7
      */
-    public function getSameSite()
+    public function getSameSite(): ?string
     {
         return $this->sameSite;
     }
@@ -296,8 +296,8 @@ final class CookieAttributes
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getMaxAge()
-    { /* : ?int */
+    public function getMaxAge(): ?int
+    {
         return $this->maxAge;
     }
 
@@ -306,8 +306,8 @@ final class CookieAttributes
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getExpiry()
-    { /* : ?\DateTimeImmutable */
+    public function getExpiry(): ?\DateTimeImmutable
+    {
         return $this->expiry;
     }
 

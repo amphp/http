@@ -74,8 +74,10 @@ class CookieAttributesTest extends TestCase
         $this->assertSame('; Max-Age=10; HttpOnly', (string) $attributes->withMaxAge(10));
         $this->assertSame('; Path=/; HttpOnly', (string) $attributes->withPath('/'));
         $this->assertSame('; Domain=localhost; HttpOnly', (string) $attributes->withDomain('localhost'));
-        $this->assertSame('; Expires=' . \gmdate('D, j M Y G:i:s T', $expiry->getTimestamp()) . '; HttpOnly',
-            (string) $attributes->withExpiry($expiry));
+        $this->assertSame(
+            '; Expires=' . \gmdate('D, j M Y G:i:s T', $expiry->getTimestamp()) . '; HttpOnly',
+            (string) $attributes->withExpiry($expiry)
+        );
         $this->assertSame('; HttpOnly; SameSite=Strict', (string) $attributes->withSameSite('strict'));
     }
 }
