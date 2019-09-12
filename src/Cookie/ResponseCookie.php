@@ -22,9 +22,6 @@ final class ResponseCookie
         'D M d H:i:s Y T',
     ];
 
-    /** @var string[] */
-    private $unknownAttributes = [];
-
     /**
      * Parses a cookie from a 'set-cookie' header.
      *
@@ -32,8 +29,8 @@ final class ResponseCookie
      *
      * @return self|null Returns a `ResponseCookie` instance on success and `null` on failure.
      */
-    public static function fromHeader(string $string)
-    { /* : ?self */
+    public static function fromHeader(string $string): ?self
+    {
         $parts = \array_map("trim", \explode(";", $string));
         $nameValue = \explode("=", \array_shift($parts), 2);
 
@@ -103,6 +100,20 @@ final class ResponseCookie
                         $meta = $meta->withDomain($pieces[1]);
                         break;
 
+                    case 'samesite':
+                        $normalizedValue = \ucfirst(\strtolower($pieces[1]));
+                        if (!\in_array($normalizedValue, [
+                            CookieAttributes::SAMESITE_NONE,
+                            CookieAttributes::SAMESITE_LAX,
+                            CookieAttributes::SAMESITE_STRICT,
+                        ], true)) {
+                            $unknownAttributes[] = $part;
+                        } else {
+                            $meta = $meta->withSameSite($normalizedValue);
+                        }
+
+                        break;
+
                     default:
                         $unknownAttributes[] = $part;
                         break;
@@ -125,8 +136,8 @@ final class ResponseCookie
      *
      * @return \DateTimeImmutable|null Parsed date.
      */
-    private static function parseDate(string $date)
-    { /* ?\DateTimeImmutable */
+    private static function parseDate(string $date): ?\DateTimeImmutable
+    {
         foreach (self::$dateFormats as $dateFormat) {
             if ($parsedDate = \DateTimeImmutable::createFromFormat($dateFormat, $date, new \DateTimeZone('GMT'))) {
                 return $parsedDate;
@@ -136,6 +147,8 @@ final class ResponseCookie
         return null;
     }
 
+    /** @var string[] */
+    private $unknownAttributes = [];
     /** @var string */
     private $name;
     /** @var string */
@@ -213,8 +226,8 @@ final class ResponseCookie
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.1
      */
-    public function getExpiry()
-    { /* : ?\DateTimeImmutable */
+    public function getExpiry(): ?\DateTimeImmutable
+    {
         return $this->attributes->getExpiry();
     }
 
@@ -233,8 +246,8 @@ final class ResponseCookie
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getMaxAge()
-    { /* : ?int */
+    public function getMaxAge(): ?int
+    {
         return $this->attributes->getMaxAge();
     }
 
@@ -316,6 +329,21 @@ final class ResponseCookie
     public function withoutHttpOnly(): self
     {
         return $this->withAttributes($this->attributes->withoutHttpOnly());
+    }
+
+    public function withSameSite(string $sameSite): self
+    {
+        return $this->withAttributes($this->attributes->withSameSite($sameSite));
+    }
+
+    public function withoutSameSite(): self
+    {
+        return $this->withAttributes($this->attributes->withoutSameSite());
+    }
+
+    public function getSameSite(): ?string
+    {
+        return $this->attributes->getSameSite();
     }
 
     /**

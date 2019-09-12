@@ -17,6 +17,22 @@ class CookieAttributesTest extends TestCase
         $this->assertNull($attributes->getExpiry());
     }
 
+    public function testSameSite()
+    {
+        $attributes = CookieAttributes::default()->withSameSite(CookieAttributes::SAMESITE_LAX);
+        $this->assertSame('Lax', $attributes->getSameSite());
+
+        $attributes = $attributes->withoutSameSite();
+        $this->assertNull($attributes->getSameSite());
+    }
+
+    public function testSameSite_invalidValue()
+    {
+        $this->expectException(\Error::class);
+
+        CookieAttributes::default()->withSameSite('fo');
+    }
+
     public function testExpiry()
     {
         $expiry = new \DateTimeImmutable("now+10s");
@@ -58,6 +74,10 @@ class CookieAttributesTest extends TestCase
         $this->assertSame('; Max-Age=10; HttpOnly', (string) $attributes->withMaxAge(10));
         $this->assertSame('; Path=/; HttpOnly', (string) $attributes->withPath('/'));
         $this->assertSame('; Domain=localhost; HttpOnly', (string) $attributes->withDomain('localhost'));
-        $this->assertSame('; Expires=' . \gmdate('D, j M Y G:i:s T', $expiry->getTimestamp()) . '; HttpOnly', (string) $attributes->withExpiry($expiry));
+        $this->assertSame(
+            '; Expires=' . \gmdate('D, j M Y G:i:s T', $expiry->getTimestamp()) . '; HttpOnly',
+            (string) $attributes->withExpiry($expiry)
+        );
+        $this->assertSame('; HttpOnly; SameSite=Strict', (string) $attributes->withSameSite('strict'));
     }
 }

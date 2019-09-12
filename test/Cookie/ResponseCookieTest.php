@@ -217,6 +217,16 @@ class ResponseCookieTest extends TestCase
         $this->assertSame(12, $newCookie->getMaxAge());
     }
 
+    public function testModifySameSite()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withSameSite('Lax');
+
+        $this->assertNull($cookie->getSameSite());
+        $this->assertNull($newCookie->withoutSameSite()->getSameSite());
+        $this->assertSame('Lax', $newCookie->getSameSite());
+    }
+
     public function testInvalidCookieName()
     {
         $this->expectException(InvalidCookieException::class);
@@ -249,6 +259,15 @@ class ResponseCookieTest extends TestCase
         $cookie->withValue('what is this');
     }
 
+    public function testSameSiteInvalid()
+    {
+        $cookie = ResponseCookie::fromHeader('foo=bar; SameSite=lax');
+
+        $this->assertSame('foo', $cookie->getName());
+        $this->assertSame('bar', $cookie->getValue());
+        $this->assertSame('Lax', $cookie->getSameSite());
+    }
+
     public function testPreservesUnknownAttributes()
     {
         $cookie = ResponseCookie::fromHeader('key=value; HttpOnly; SameSite=strict;Foobar');
@@ -256,6 +275,16 @@ class ResponseCookieTest extends TestCase
         $this->assertSame('key', $cookie->getName());
         $this->assertSame('value', $cookie->getValue());
         $this->assertTrue($cookie->isHttpOnly());
-        $this->assertSame('key=value; HttpOnly; SameSite=strict; Foobar', (string) $cookie);
+        $this->assertSame('key=value; HttpOnly; SameSite=Strict; Foobar', (string) $cookie);
+    }
+
+    public function testPreservesUnknownAttributes_invalidSameSite()
+    {
+        $cookie = ResponseCookie::fromHeader('key=value; HttpOnly; SameSite=foo;Foobar; bla=x');
+        $this->assertNotNull($cookie);
+        $this->assertSame('key', $cookie->getName());
+        $this->assertSame('value', $cookie->getValue());
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertSame('key=value; HttpOnly; SameSite=foo; Foobar; bla=x', (string) $cookie);
     }
 }

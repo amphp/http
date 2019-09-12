@@ -9,23 +9,9 @@ namespace Amp\Http\Cookie;
  */
 final class CookieAttributes
 {
-    /** @var string */
-    private $path = '';
-
-    /** @var string */
-    private $domain = '';
-
-    /** @var int|null */
-    private $maxAge;
-
-    /** @var \DateTimeImmutable */
-    private $expiry;
-
-    /** @var bool */
-    private $secure = false;
-
-    /** @var bool */
-    private $httpOnly = true;
+    public const SAMESITE_NONE = 'None';
+    public const SAMESITE_LAX = 'Lax';
+    public const SAMESITE_STRICT = 'Strict';
 
     /**
      * @return CookieAttributes No cookie attributes.
@@ -50,6 +36,21 @@ final class CookieAttributes
         return new self;
     }
 
+    /** @var string */
+    private $path = '';
+    /** @var string */
+    private $domain = '';
+    /** @var int|null */
+    private $maxAge;
+    /** @var \DateTimeImmutable */
+    private $expiry;
+    /** @var bool */
+    private $secure = false;
+    /** @var bool */
+    private $httpOnly = true;
+    /** @var string|null */
+    private $sameSite;
+
     private function __construct()
     {
         // only allow creation via named constructors
@@ -58,7 +59,8 @@ final class CookieAttributes
     /**
      * @param string $path Cookie path.
      *
-     * @return self Cloned instance with the specified operation applied. Cloned instance with the specified operation applied.
+     * @return self Cloned instance with the specified operation applied. Cloned instance with the specified operation
+     *     applied.
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.4
      */
@@ -81,6 +83,39 @@ final class CookieAttributes
     {
         $new = clone $this;
         $new->domain = $domain;
+
+        return $new;
+    }
+
+    /**
+     * @param string $sameSite Cookie SameSite attribute value.
+     *
+     * @return self Cloned instance with the specified operation applied.
+     *
+     * @link https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-5.3.7
+     */
+    public function withSameSite(string $sameSite): self
+    {
+        $normalizedValue = \ucfirst(\strtolower($sameSite));
+        if (!\in_array($normalizedValue, [self::SAMESITE_NONE, self::SAMESITE_LAX, self::SAMESITE_STRICT], true)) {
+            throw new \Error("Invalid SameSite attribute: " . $sameSite);
+        }
+
+        $new = clone $this;
+        $new->sameSite = $normalizedValue;
+
+        return $new;
+    }
+
+    /**
+     * @return self Cloned instance with the specified operation applied.
+     *
+     * @link https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-5.3.7
+     */
+    public function withoutSameSite(): self
+    {
+        $new = clone $this;
+        $new->sameSite = null;
 
         return $new;
     }
@@ -247,12 +282,22 @@ final class CookieAttributes
     }
 
     /**
+     * @return string Cookie domain.
+     *
+     * @link https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis-03#section-5.3.7
+     */
+    public function getSameSite(): ?string
+    {
+        return $this->sameSite;
+    }
+
+    /**
      * @return int|null Cookie maximum age in seconds or `null` if no value is set.
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getMaxAge()
-    { /* : ?int */
+    public function getMaxAge(): ?int
+    {
         return $this->maxAge;
     }
 
@@ -261,8 +306,8 @@ final class CookieAttributes
      *
      * @link https://tools.ietf.org/html/rfc6265#section-5.2.2
      */
-    public function getExpiry()
-    { /* : ?\DateTimeImmutable */
+    public function getExpiry(): ?\DateTimeImmutable
+    {
         return $this->expiry;
     }
 
@@ -315,6 +360,10 @@ final class CookieAttributes
 
         if ($this->httpOnly) {
             $string .= '; HttpOnly';
+        }
+
+        if ($this->sameSite !== null) {
+            $string .= '; SameSite=' . $this->sameSite;
         }
 
         return $string;
