@@ -217,6 +217,16 @@ class ResponseCookieTest extends TestCase
         $this->assertSame(12, $newCookie->getMaxAge());
     }
 
+    public function testModifySameSite()
+    {
+        $cookie = new ResponseCookie("foobar", "what-is-this");
+        $newCookie = $cookie->withSameSite('Lax');
+
+        $this->assertNull($cookie->getSameSite());
+        $this->assertNull($newCookie->withoutSameSite()->getSameSite());
+        $this->assertSame('Lax', $newCookie->getSameSite());
+    }
+
     public function testInvalidCookieName()
     {
         $this->expectException(InvalidCookieException::class);
@@ -266,5 +276,15 @@ class ResponseCookieTest extends TestCase
         $this->assertSame('value', $cookie->getValue());
         $this->assertTrue($cookie->isHttpOnly());
         $this->assertSame('key=value; HttpOnly; SameSite=Strict; Foobar', (string) $cookie);
+    }
+
+    public function testPreservesUnknownAttributes_invalidSameSite()
+    {
+        $cookie = ResponseCookie::fromHeader('key=value; HttpOnly; SameSite=foo;Foobar');
+        $this->assertNotNull($cookie);
+        $this->assertSame('key', $cookie->getName());
+        $this->assertSame('value', $cookie->getValue());
+        $this->assertTrue($cookie->isHttpOnly());
+        $this->assertSame('key=value; HttpOnly; SameSite=foo; Foobar', (string) $cookie);
     }
 }
