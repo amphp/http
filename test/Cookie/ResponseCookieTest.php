@@ -280,11 +280,11 @@ class ResponseCookieTest extends TestCase
 
     public function testPreservesUnknownAttributes_invalidSameSite()
     {
-        $cookie = ResponseCookie::fromHeader('key=value; HttpOnly; SameSite=foo;Foobar');
+        $cookie = ResponseCookie::fromHeader('key=value; HttpOnly; SameSite=foo;Foobar; bla=x');
         $this->assertNotNull($cookie);
         $this->assertSame('key', $cookie->getName());
         $this->assertSame('value', $cookie->getValue());
         $this->assertTrue($cookie->isHttpOnly());
-        $this->assertSame('key=value; HttpOnly; SameSite=foo; Foobar', (string) $cookie);
+        $this->assertSame('key=value; HttpOnly; SameSite=foo; Foobar; bla=x', (string) $cookie);
     }
 }
