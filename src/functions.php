@@ -75,3 +75,22 @@ function createFieldValueComponentMap(?array $pairs): ?array
 
     return $map;
 }
+
+/**
+ * Format timestamp in seconds as an HTTP date header.
+ *
+ * @param int|null $timestamp Timestamp to format, current time if `null`.
+ *
+ * @return string Formatted date header value.
+ */
+function formatDateHeader(?int $timestamp = null): string
+{
+    static $cachedTimestamp, $cachedFormattedDate;
+
+    $timestamp = $timestamp ?? \time();
+    if ($cachedTimestamp === $timestamp) {
+        return $cachedFormattedDate;
+    }
+
+    return $cachedFormattedDate = \gmdate("D, d M Y H:i:s", $cachedTimestamp = $timestamp) . " GMT";
+}
