@@ -19,7 +19,7 @@
     },
     "require": {
         "php": ">=7.1",
-        "amphp/hpack": "^2"
+        "amphp/hpack": "^3"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",
