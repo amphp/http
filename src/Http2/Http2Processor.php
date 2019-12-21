@@ -2,7 +2,6 @@
 
 namespace Amp\Http\Http2;
 
-/** @internal */
 interface Http2Processor
 {
     public function handlePong(string $data): void;
@@ -15,7 +14,7 @@ interface Http2Processor
 
     public function handleConnectionWindowIncrement(int $windowSize): void;
 
-    public function handleHeaders(int $streamId, array $pseudo, array $headers): void;
+    public function handleHeaders(int $streamId, array $pseudo, array $headers, bool $streamEnded): void;
 
     public function handlePushPromise(int $streamId, int $pushId, array $pseudo, array $headers): void;
 

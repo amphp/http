@@ -1,27 +1,24 @@
 <?php
 
 /** @noinspection PhpUnusedPrivateFieldInspection */
-
 /** @noinspection PhpDocSignatureInspection */
-
 /** @noinspection PhpUnhandledExceptionInspection */
 
 namespace Amp\Http\Http2;
 
 use Amp\Http\HPack;
 
-/** @internal */
 final class Http2Parser
 {
     private const DEFAULT_MAX_FRAME_SIZE = 1 << 14;
 
     private const HEADER_NAME_REGEX = '/^[\x21-\x40\x5b-\x7e]+$/';
 
-    private const KNOWN_RESPONSE_PSEUDO_HEADERS = [
+    public const KNOWN_RESPONSE_PSEUDO_HEADERS = [
         ":status" => true,
     ];
 
-    private const KNOWN_REQUEST_PSEUDO_HEADERS = [
+    public const KNOWN_REQUEST_PSEUDO_HEADERS = [
         ":method" => true,
         ":authority" => true,
         ":path" => true,
@@ -308,7 +305,7 @@ final class Http2Parser
         }
     }
 
-    private function parseHeaderBuffer(array $knownHeaders): array
+    private function parseHeaderBuffer(): array
     {
         \assert($this->headerStream !== 0);
         \assert($this->headerBuffer !== '');
@@ -328,9 +325,16 @@ final class Http2Parser
             }
 
             if ($name[0] === ':') {
-                if (!empty($headers) || !isset($knownHeaders[$name]) || isset($pseudo[$name])) {
+                if (!empty($headers)) {
                     throw new Http2ConnectionException(
-                        "Unknown or invalid pseudo header",
+                        "Pseudo header after other headers",
+                        self::PROTOCOL_ERROR
+                    );
+                }
+
+                if (isset($pseudo[$name])) {
+                    throw new Http2ConnectionException(
+                        "Repeat pseudo header",
                         self::PROTOCOL_ERROR
                     );
                 }
@@ -389,10 +393,6 @@ final class Http2Parser
 
             $parent &= 0x7fffffff;
 
-            if ($parent === 0) {
-                $this->throwInvalidZeroStreamIdError();
-            }
-
             if ($parent === $streamId) {
                 $this->throwInvalidRecursiveDependency($streamId);
             }
@@ -411,12 +411,14 @@ final class Http2Parser
             \substr($frameBuffer, $headerLength, $frameLength - $headerLength - $padding)
         );
 
+        $ended = $frameFlags & self::END_STREAM;
+
         if ($frameFlags & self::END_HEADERS) {
             $this->continuationExpected = false;
 
             $headersTooLarge = \strlen($this->headerBuffer) > $this->headerSizeLimit;
 
-            [$pseudo, $headers] = $this->parseHeaderBuffer(self::KNOWN_RESPONSE_PSEUDO_HEADERS);
+            [$pseudo, $headers] = $this->parseHeaderBuffer();
 
             // This must happen after the parsing, otherwise we loose the connection state and must close the whole
             // connection, which is not what we want here…
@@ -428,12 +430,12 @@ final class Http2Parser
                 );
             }
 
-            $this->handler->handleHeaders($streamId, $pseudo, $headers);
+            $this->handler->handleHeaders($streamId, $pseudo, $headers, $ended);
         } else {
             $this->continuationExpected = true;
         }
 
-        if ($frameFlags & self::END_STREAM) {
+        if ($ended) {
             $this->handler->handleStreamEnd($streamId);
         }
     }
@@ -450,7 +452,7 @@ final class Http2Parser
             $parent &= 0x7fffffff;
         }
 
-        if ($parent === 0) {
+        if ($streamId === 0) {
             $this->throwInvalidZeroStreamIdError();
         }
 
@@ -586,23 +588,34 @@ final class Http2Parser
     /** @see https://http2.github.io/http2-spec/#rfc.section.6.10 */
     private function parseContinuation(string $frameBuffer, int $frameFlags, int $streamId): void
     {
+        if ($this->headerBuffer === '') {
+            throw new Http2ConnectionException(
+                "Unexpected CONTINUATION frame for stream ID " . $this->headerStream,
+                self::PROTOCOL_ERROR
+            );
+        }
+
         $this->pushHeaderBlockFragment($streamId, $frameBuffer);
+
+        $ended = $frameFlags & self::END_STREAM;
 
         if ($frameFlags & self::END_HEADERS) {
             $this->continuationExpected = false;
 
             $isPush = $this->headerFrameType === self::PUSH_PROMISE;
-            $knownHeaders = $isPush ? self::KNOWN_REQUEST_PSEUDO_HEADERS : self::KNOWN_RESPONSE_PSEUDO_HEADERS;
-
             $pushId = $this->headerStream;
 
-            [$pseudo, $headers] = $this->parseHeaderBuffer($knownHeaders);
+            [$pseudo, $headers] = $this->parseHeaderBuffer();
 
             if ($isPush) {
                 $this->handler->handlePushPromise($streamId, $pushId, $pseudo, $headers);
             } else {
-                $this->handler->handleHeaders($streamId, $pseudo, $headers);
+                $this->handler->handleHeaders($streamId, $pseudo, $headers, $ended);
             }
+        }
+
+        if ($ended) {
+            $this->handler->handleStreamEnd($streamId);
         }
     }
 

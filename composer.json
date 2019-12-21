@@ -22,7 +22,7 @@
         "amphp/hpack": "^3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.5",
+        "phpunit/phpunit": "^7 || ^6.5",
         "amphp/php-cs-fixer-config": "dev-master"
     },
     "config": {
