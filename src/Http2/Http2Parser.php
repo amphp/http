@@ -10,6 +10,8 @@ use Amp\Http\HPack;
 
 final class Http2Parser
 {
+    public const PREFACE = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
+
     private const DEFAULT_MAX_FRAME_SIZE = 1 << 14;
 
     private const HEADER_NAME_REGEX = '/^[\x21-\x40\x5b-\x7e]+$/';
@@ -46,6 +48,14 @@ final class Http2Parser
     public const GOAWAY = 0x07;
     public const WINDOW_UPDATE = 0x08;
     public const CONTINUATION = 0x09;
+
+    // Settings
+    public const HEADER_TABLE_SIZE = 0x1; // 1 << 12
+    public const ENABLE_PUSH = 0x2; // 1
+    public const MAX_CONCURRENT_STREAMS = 0x3; // INF
+    public const INITIAL_WINDOW_SIZE = 0x4; // 1 << 16 - 1
+    public const MAX_FRAME_SIZE = 0x5; // 1 << 14
+    public const MAX_HEADER_LIST_SIZE = 0x6; // INF
 
     // Error codes
     public const GRACEFUL_SHUTDOWN = 0x0;
