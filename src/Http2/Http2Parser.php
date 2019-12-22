@@ -413,6 +413,10 @@ final class Http2Parser
     /** @see https://http2.github.io/http2-spec/#HEADERS */
     private function parseHeaders(string $frameBuffer, int $frameLength, int $frameFlags, int $streamId): void
     {
+        if ($streamId === 0) {
+            $this->throwInvalidZeroStreamIdError();
+        }
+
         $headerLength = 0;
         $isPadded = $frameFlags & self::PADDED;
         $isPriority = $frameFlags & self::PRIORITY_FLAG;
@@ -633,6 +637,13 @@ final class Http2Parser
     /** @see https://http2.github.io/http2-spec/#rfc.section.6.10 */
     private function parseContinuation(string $frameBuffer, int $frameFlags, int $streamId): void
     {
+        if ($streamId !== $this->headerStream) {
+            throw new Http2ConnectionException(
+                "Invalid CONTINUATION frame stream ID",
+                self::PROTOCOL_ERROR
+            );
+        }
+
         if ($this->headerBuffer === '') {
             throw new Http2ConnectionException(
                 "Unexpected CONTINUATION frame for stream ID " . $this->headerStream,
