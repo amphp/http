@@ -29,6 +29,7 @@ final class Http2Parser
     public const ACK = 0x01;
 
     // HEADERS Flags - https://http2.github.io/http2-spec/#rfc.section.6.2
+    public const NO_FLAG = 0x00;
     public const END_STREAM = 0x01;
     public const END_HEADERS = 0x04;
     public const PADDED = 0x08;
@@ -119,6 +120,9 @@ final class Http2Parser
     /** @var int */
     private $headerStream = 0;
 
+    /** @var int */
+    private $bytesRead = 0;
+
     /** @var HPack */
     private $hpack;
 
@@ -131,8 +135,12 @@ final class Http2Parser
         $this->handler = $handler;
     }
 
-    public function parse(): \Generator
+    public function parse(string $settings = null): \Generator
     {
+        if ($settings !== null) {
+            $this->parseSettings($settings, \strlen($settings), self::NO_FLAG, 0);
+        }
+
         $this->buffer = yield;
 
         while (true) {
@@ -232,7 +240,14 @@ final class Http2Parser
             $this->bufferOffset += $bytes;
         }
 
+        $this->bytesRead += $bytes;
+
         return $consumed;
+    }
+
+    public function getByteCount(): int
+    {
+        return $this->bytesRead;
     }
 
     private function parseDataFrame(string $frameBuffer, int $frameLength, int $frameFlags, int $streamId): void
@@ -297,11 +312,15 @@ final class Http2Parser
         if ($frameFlags & self::END_HEADERS) {
             $this->continuationExpected = false;
 
-            [$pseudo, $headers] = $this->parseHeaderBuffer(self::KNOWN_REQUEST_PSEUDO_HEADERS);
+            [$pseudo, $headers] = $this->parseHeaderBuffer();
 
             $this->handler->handlePushPromise($streamId, $pushId, $pseudo, $headers);
         } else {
             $this->continuationExpected = true;
+        }
+
+        if ($frameFlags & self::END_STREAM) {
+            $this->handler->handleStreamEnd($streamId);
         }
     }
 
