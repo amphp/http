@@ -35,6 +35,30 @@ class TestMessage extends Message
 
 class MessageTest extends TestCase
 {
+    public function testGetRawHeaders()
+    {
+        $message = new TestMessage([
+            'X-FooBar' => 'bar',
+            'X-Replace' => 'none'
+        ]);
+
+        // Replaces existing casing
+        $message->setHeader('x-rePlace', 'yes');
+
+        // Gets appended to the existing bucket, not after x-replace
+        $message->addHeader('x-fooBar', 'baz');
+
+        // Gets appended at the end, because name doesn't exist yet
+        $message->addHeader('x-again', 'hello');
+
+        $this->assertSame([
+            ['X-FooBar', 'bar'],
+            ['x-fooBar', 'baz'],
+            ['x-rePlace', 'yes'],
+            ['x-again', 'hello']
+        ], $message->getRawHeaders());
+    }
+
     public function testGetHeader()
     {
         $message = new TestMessage([
