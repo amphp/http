@@ -7,27 +7,59 @@ use PHPUnit\Framework\TestCase;
 class Rfc7230Test extends TestCase
 {
     /** @dataProvider provideValidHeaders */
-    public function testValidHeaderParsing(string $rawHeaders, array $expectedResult)
+    public function testValidRawHeaderParsing(string $rawHeaders, array $expectedResult)
     {
-        $result = Rfc7230::parseHeaders($rawHeaders);
+        $result = Rfc7230::parseRawHeaders($rawHeaders);
         $this->assertSame($result, $expectedResult);
     }
 
     /** @dataProvider provideValidHeaders */
-    public function testValidHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult)
+    public function testValidHeaderParsing(string $rawHeaders, array $expectedResult)
     {
-        $result = Rfc7230::parseHeaders(Rfc7230::formatHeaders($expectedResult));
+        $result = Rfc7230::parseHeaders($rawHeaders);
+
+        $headers = [];
+        foreach ($expectedResult as [$name, $value]) {
+            $name = \strtolower($name);
+
+            $headers[$name] = $headers[$name] ?? [];
+            $headers[$name][] = $value;
+        }
+
+        $this->assertSame($result, $headers);
+    }
+
+    /** @dataProvider provideValidHeaders */
+    public function testValidRawHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult)
+    {
+        $result = Rfc7230::parseRawHeaders(Rfc7230::formatRawHeaders($expectedResult));
+        $this->assertSame($result, $expectedResult);
+    }
+
+    /** @dataProvider provideValidHeaders */
+    public function testValidHeaderFormattingDifferentCasing(string $rawHeaders /* ignored for this case */, array $expectedResult)
+    {
+        $headers = [];
+        foreach ($expectedResult as [$name, $value]) {
+            // No strtolower
+            $headers[$name] = $headers[$name] ?? [];
+            $headers[$name][] = $value;
+        }
+
+        $result = Rfc7230::parseRawHeaders(Rfc7230::formatHeaders($headers));
         $this->assertSame($result, $expectedResult);
     }
 
     public function provideValidHeaders()
     {
         return [
-            ["x:y\r\n", ["x" => ["y"]]],
-            ["server:\tamphp.org\r\n", ["server" => ["amphp.org"]]],
-            ["server: \tamphp.org  \t \r\n", ["server" => ["amphp.org"]]],
-            ["server: \tamphp.org  \t \r\nServer: amphp.org\r\n", ["server" => ["amphp.org", "amphp.org"]]],
-            ["ser124ver:\tamphp.org\r\n", ["ser124ver" => ["amphp.org"]]],
+            ["x:y\r\n", [["x", "y"]]],
+            ["server:\tamphp.org\r\n", [["server", "amphp.org"]]],
+            ["server: \tamphp.org  \t \r\n", [["server", "amphp.org"]]],
+            ["server: \tamphp.org  \t \r\nServer: amphp.org\r\n", [["server", "amphp.org"], ["Server", "amphp.org"]]],
+            ["ser124ver:\tamphp.org\r\n", [["ser124ver", "amphp.org"]]],
+            ["123: 321\r\n", [['123', '321']]],
+            ["AbC: Test\r\n", [['AbC', 'Test']]],
         ];
     }
 
