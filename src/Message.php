@@ -10,6 +10,9 @@ abstract class Message
     /** @var string[][] */
     private $headers = [];
 
+    /** @var string[][] */
+    private $headerCase = [];
+
     /**
      * Returns the headers as a string-indexed array of arrays of strings or an empty array if no headers
      * have been set.
@@ -19,6 +22,26 @@ abstract class Message
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * Returns the headers as list of [field, name] pairs in the original casing provided by the application or server.
+     *
+     * @return array
+     */
+    final public function getRawHeaders(): array
+    {
+        $headers = [];
+
+        foreach ($this->headers as $lcName => $values) {
+            $size = \count($values);
+
+            for ($i = 0; $i < $size; $i++) {
+                $headers[] = [$this->headerCase[$lcName][$i], $values[$i]];
+            }
+        }
+
+        return $headers;
     }
 
     /**
@@ -56,6 +79,7 @@ abstract class Message
     {
         // Ensure this is an atomic operation, either all headers are set or none.
         $before = $this->headers;
+        $beforeCase = $this->headerCase;
 
         try {
             foreach ($headers as $name => $value) {
@@ -63,6 +87,7 @@ abstract class Message
             }
         } catch (\Throwable $e) {
             $this->headers = $before;
+            $this->headerCase = $beforeCase;
 
             throw $e;
         }
@@ -93,8 +118,13 @@ abstract class Message
 
         \assert($this->isValueValid($value), "Invalid header value");
 
-        $name = \strtolower($name);
-        $this->headers[$name] = $value;
+        $lcName = \strtolower($name);
+        $this->headers[$lcName] = $value;
+        $this->headerCase[$lcName] = [];
+
+        foreach ($value as $_) {
+            $this->headerCase[$lcName][] = $name;
+        }
     }
 
     /**
@@ -121,11 +151,19 @@ abstract class Message
 
         \assert($this->isValueValid($value), "Invalid header value");
 
-        $name = \strtolower($name);
-        if (isset($this->headers[$name])) {
-            $this->headers[$name] = \array_merge($this->headers[$name], $value);
+        $lcName = \strtolower($name);
+        if (isset($this->headers[$lcName])) {
+            $this->headers[$lcName] = \array_merge($this->headers[$lcName], $value);
+
+            foreach ($value as $_) {
+                $this->headerCase[$lcName][] = $name;
+            }
         } else {
-            $this->headers[$name] = $value;
+            $this->headers[$lcName] = $value;
+
+            foreach ($value as $_) {
+                $this->headerCase[$lcName][] = $name;
+            }
         }
     }
 
@@ -136,7 +174,9 @@ abstract class Message
      */
     protected function removeHeader(string $name)
     {
-        unset($this->headers[\strtolower($name)]);
+        $lcName = \strtolower($name);
+
+        unset($this->headers[$lcName], $this->headerCase[$lcName]);
     }
 
     /**
