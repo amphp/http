@@ -71,23 +71,43 @@ final class Rfc7230
      */
     public static function formatHeaders(array $headers): string
     {
+        $headerList = [];
+
+        foreach ($headers as $name => $values) {
+            foreach ($values as $value) {
+                // PHP casts integer-like keys to integers
+                $headerList[] = [(string) $name, $value];
+            }
+        }
+
+        return self::formatRawHeaders($headerList);
+    }
+
+    /**
+     * Format headers in to their on-the-wire HTTP/1 format.
+     *
+     * Headers are always validated syntactically. This protects against response splitting and header injection
+     * attacks.
+     *
+     * @param array $headers List of headers in [field, value] format as returned by {@see Message::getRawHeaders()}.
+     *
+     * @return string Formatted headers.
+     *
+     * @throws InvalidHeaderException If header names or values are invalid.
+     */
+    public static function formatRawHeaders(array $headers): string
+    {
         $buffer = "";
         $lines = 0;
 
-        foreach ($headers as $name => $values) {
-            // PHP casts integer-like keys to integers
-            $name =  (string) $name;
-
+        foreach ($headers as [$name, $value]) {
             // Ignore any HTTP/2 pseudo headers
-            if ($name[0] === ":") {
+            if (($name[0] ?? '') === ':') {
                 continue;
             }
 
-            /** @var array $values */
-            foreach ($values as $value) {
-                $buffer .= "{$name}: {$value}\r\n";
-                $lines++;
-            }
+            $buffer .= "{$name}: {$value}\r\n";
+            $lines++;
         }
 
         $count = \preg_match_all(self::HEADER_REGEX, $buffer);
