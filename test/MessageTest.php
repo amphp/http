@@ -114,4 +114,19 @@ class MessageTest extends TestCase
         $message = new TestMessage;
         $message->setHeader('foo', "te\0st");
     }
+
+    public function testRawHeaders()
+    {
+        $message = new TestMessage([
+            'Foo' => 'bar',
+        ]);
+
+        $this->assertSame(['foo' => ['Foo: bar']], $message->getRawHeaders());
+
+        $message->addHeader('foO', 'Bar');
+        $this->assertSame(['foo' => ['Foo: bar', 'foO: Bar']], $message->getRawHeaders());
+
+        $message->removeHeader('foo');
+        $this->assertSame([], $message->getRawHeaders());
+    }
 }

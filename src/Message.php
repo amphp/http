@@ -10,6 +10,9 @@ abstract class Message
     /** @var string[][] */
     private $headers = [];
 
+    /** @var string[][] */
+    private $rawHeaders = [];
+
     /**
      * Returns the headers as a string-indexed array of arrays of strings or an empty array if no headers
      * have been set.
@@ -48,6 +51,20 @@ abstract class Message
     }
 
     /**
+     * Returns the headers as a string-indexed array of arrays of strings or an empty array if no headers
+     * have been set.
+     *
+     * Contrary to getHeaders(), the values in the returned arrays do contain the header names before their values,
+     * separated by a colon.
+     *
+     * @return string[][]
+     */
+    public function getRawHeaders(): array
+    {
+        return $this->rawHeaders;
+    }
+
+    /**
      * Sets the headers from the given array.
      *
      * @param string[]|string[][] $headers
@@ -56,6 +73,7 @@ abstract class Message
     {
         // Ensure this is an atomic operation, either all headers are set or none.
         $before = $this->headers;
+        $rawBefore = $this->rawHeaders;
 
         try {
             foreach ($headers as $name => $value) {
@@ -63,6 +81,7 @@ abstract class Message
             }
         } catch (\Throwable $e) {
             $this->headers = $before;
+            $this->rawHeaders = $rawBefore;
 
             throw $e;
         }
@@ -93,8 +112,14 @@ abstract class Message
 
         \assert($this->isValueValid($value), "Invalid header value");
 
+        $rawValue = [];
+        foreach ($value as $v) {
+            $rawValue[] = $name.': '.$v;
+        }
+
         $name = \strtolower($name);
         $this->headers[$name] = $value;
+        $this->rawHeaders[$name] = $rawValue;
     }
 
     /**
@@ -121,11 +146,18 @@ abstract class Message
 
         \assert($this->isValueValid($value), "Invalid header value");
 
+        $rawValue = [];
+        foreach ($value as $v) {
+            $rawValue[] = $name.': '.$v;
+        }
+
         $name = \strtolower($name);
         if (isset($this->headers[$name])) {
             $this->headers[$name] = \array_merge($this->headers[$name], $value);
+            $this->rawHeaders[$name] = \array_merge($this->rawHeaders[$name], $rawValue);
         } else {
             $this->headers[$name] = $value;
+            $this->rawHeaders[$name] = $rawValue;
         }
     }
 
@@ -136,7 +168,8 @@ abstract class Message
      */
     protected function removeHeader(string $name)
     {
-        unset($this->headers[\strtolower($name)]);
+        $name = \strtolower($name);
+        unset($this->headers[$name], $this->rawHeaders[$name]);
     }
 
     /**
