@@ -33,5 +33,10 @@
     "scripts": {
         "test": "php vendor/bin/phpunit",
         "code-style": "php vendor/bin/php-cs-fixer fix"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
     }
 }
