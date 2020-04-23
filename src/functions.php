@@ -3,6 +3,34 @@
 namespace Amp\Http;
 
 /**
+ * Splits comma-separated fields into individual components.
+ *
+ * @param Message $message
+ * @param string  $headerName
+ *
+ * @return string[]
+ */
+function splitField(Message $message, string $headerName): array
+{
+    $header = \implode(', ', $message->getHeaderArray($headerName));
+
+    if ($header === '') {
+        return [];
+    }
+
+    \preg_match_all('(([^",]+(?:"((?:[^\\\\"]|\\\\.)*)"|([^,]*))?),?\s*)', $header, $matches, \PREG_SET_ORDER);
+
+    $values = [];
+
+    foreach ($matches as $match) {
+        // decode escaped characters
+        $values[] = \preg_replace('(\\\\(.))', '\1', \trim($match[1]));
+    }
+
+    return $values;
+}
+
+/**
  * @param Message $message
  * @param string  $headerName
  *
