@@ -232,7 +232,7 @@ final class Http2Parser
 
                     case self::GOAWAY:
                         $this->parseGoAway($frameBuffer, $frameLength, $streamId);
-                        return;
+                        break;
 
                     case self::WINDOW_UPDATE:
                         $this->parseWindowUpdate($frameBuffer, $frameLength, $streamId);
