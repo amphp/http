@@ -144,10 +144,6 @@ final class Http2Parser
 
     public function parse(string $settings = null): \Generator
     {
-        $lastReset = \time();
-        $totalBytesReceivedSinceReset = 0;
-        $payloadBytesReceivedSinceReset = 0;
-
         if ($settings !== null) {
             $this->parseSettings($settings, \strlen($settings), self::NO_FLAG, 0);
         }
@@ -180,37 +176,16 @@ final class Http2Parser
                     throw new Http2ConnectionException("Expected continuation frame", self::PROTOCOL_ERROR);
                 }
 
-                $now = \time();
-                if ($lastReset === $now) {
-                    // Inspired by nginx flood detection:
-                    // https://github.com/nginx/nginx/commit/af0e284b967d0ecff1abcdce6558ed4635e3e757
-                    if ($totalBytesReceivedSinceReset / 2 > $payloadBytesReceivedSinceReset + 1024) {
-                        throw new Http2ConnectionException(
-                            "Flood detected",
-                            self::ENHANCE_YOUR_CALM
-                        );
-                    }
-                } else {
-                    $lastReset = $now;
-                    $totalBytesReceivedSinceReset = 0;
-                    $payloadBytesReceivedSinceReset = 0;
-                }
-
-                $totalBytesReceivedSinceReset += 9 + $frameLength;
-
                 switch ($frameType) {
                     case self::DATA:
-                        $payloadBytesReceivedSinceReset += $frameLength;
                         $this->parseDataFrame($frameBuffer, $frameLength, $frameFlags, $streamId);
                         break;
 
                     case self::PUSH_PROMISE:
-                        $payloadBytesReceivedSinceReset += $frameLength;
                         $this->parsePushPromise($frameBuffer, $frameLength, $frameFlags, $streamId);
                         break;
 
                     case self::HEADERS:
-                        $payloadBytesReceivedSinceReset += $frameLength;
                         $this->parseHeaders($frameBuffer, $frameLength, $frameFlags, $streamId);
                         break;
 
@@ -239,7 +214,6 @@ final class Http2Parser
                         break;
 
                     case self::CONTINUATION:
-                        $payloadBytesReceivedSinceReset += $frameLength;
                         $this->parseContinuation($frameBuffer, $frameFlags, $streamId);
                         break;
 
