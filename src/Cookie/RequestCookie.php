@@ -34,6 +34,11 @@ final class RequestCookie
 
         try {
             foreach ($cookies as $cookie) {
+                // Ignore zero-length cookie.
+                if ($cookie === '') {
+                    continue;
+                }
+
                 $parts = \explode('=', $cookie, 2);
 
                 if (2 !== \count($parts)) {
