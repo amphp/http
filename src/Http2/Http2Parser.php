@@ -136,10 +136,26 @@ final class Http2Parser
     /** @var Http2Processor */
     private $handler;
 
+    /** @var int */
+    private $receivedFrameCount = 0;
+
+    /** @var int */
+    private $receivedByteCount = 0;
+
     public function __construct(Http2Processor $handler)
     {
         $this->hpack = new HPack;
         $this->handler = $handler;
+    }
+
+    public function getReceivedByteCount(): int
+    {
+        return $this->receivedByteCount;
+    }
+
+    public function getReceivedFrameCount(): int
+    {
+        return $this->receivedFrameCount;
     }
 
     public function parse(string $settings = null): \Generator
@@ -163,6 +179,8 @@ final class Http2Parser
             $streamId &= 0x7fffffff;
 
             $frameBuffer = $frameLength === 0 ? '' : yield from $this->consume($frameLength);
+
+            $this->receivedFrameCount++;
 
             \assert(self::logDebugFrame('recv', $frameType, $frameFlags, $streamId, $frameLength));
 
@@ -246,6 +264,8 @@ final class Http2Parser
         } else {
             $this->bufferOffset += $bytes;
         }
+
+        $this->receivedByteCount += $bytes;
 
         return $consumed;
     }
