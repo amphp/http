@@ -26,7 +26,7 @@
         "amphp/php-cs-fixer-config": "^2-dev"
     },
     "scripts": {
-        "test": "php vendor/bin/phpunit",
+        "test": "php -dzend.assertions=1 vendor/bin/phpunit",
         "code-style": "php vendor/bin/php-cs-fixer fix"
     },
     "extra": {
