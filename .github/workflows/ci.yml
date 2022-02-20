@@ -11,12 +11,15 @@ jobs:
         include:
           - operating-system: 'ubuntu-latest'
             php-version: '7.1'
+            php-cs-fixer: none
 
           - operating-system: 'ubuntu-latest'
             php-version: '7.2'
+            php-cs-fixer: none
 
           - operating-system: 'ubuntu-latest'
             php-version: '7.3'
+            php-cs-fixer: none
 
           - operating-system: 'ubuntu-latest'
             php-version: '7.4'
@@ -68,6 +71,10 @@ jobs:
             composer-${{ runner.os }}-
             composer-
 
+      - name: Remove style fixer
+        run: composer remove --no-update --dev amphp/php-cs-fixer-config
+        if: matrix.php-cs-fixer == 'none'
+
       - name: Install dependencies
         uses: nick-invision/retry@v2
         with:
@@ -85,4 +92,4 @@ jobs:
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
         run: vendor/bin/php-cs-fixer --diff --dry-run -v fix
-        if: runner.os != 'Windows'
+        if: matrix.php-cs-fixer != 'none'
