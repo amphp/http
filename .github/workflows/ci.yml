@@ -86,7 +86,7 @@ jobs:
             composer info -D
 
       - name: Run tests
-        run: vendor/bin/phpunit -dzend.assertions=1 ${{ matrix.phpunit-flags }}
+        run: vendor/bin/phpunit -dzend.assertions=1 -dassert.exception=1 ${{ matrix.phpunit-flags }}
 
       - name: Run style fixer
         env:
