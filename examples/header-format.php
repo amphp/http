@@ -13,9 +13,9 @@ $headers = Rfc7230::formatHeaders([
         "https://github.com/",
     ],
     "set-cookie" => [
-        new ResponseCookie("session", \bin2hex(\random_bytes(16))),
+        new ResponseCookie("session", bin2hex(random_bytes(16))),
         new ResponseCookie("user", "amphp"),
     ]
 ]);
 
-\var_dump($headers);
+var_dump($headers);

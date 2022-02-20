@@ -26,8 +26,6 @@ abstract class Message
 
     /**
      * Returns the headers as list of [field, name] pairs in the original casing provided by the application or server.
-     *
-     * @return array
      */
     final public function getRawHeaders(): array
     {
@@ -47,8 +45,6 @@ abstract class Message
     /**
      * Returns the array of values for the given header or an empty array if the header does not exist.
      *
-     * @param string $name
-     *
      * @return string[]
      */
     public function getHeaderArray(string $name): array
@@ -60,8 +56,6 @@ abstract class Message
      * Returns the value of the given header. If multiple headers are present for the named header, only the first
      * header value will be returned. Use getHeaderArray() to return an array of all values for the particular header.
      * Returns null if the header does not exist.
-     *
-     * @param string $name
      *
      * @return string|null
      */
@@ -96,7 +90,6 @@ abstract class Message
     /**
      * Sets the named header to the given value.
      *
-     * @param string $name
      * @param string|string[] $value
      *
      * @throws \Error If the header name or value is invalid.
@@ -130,7 +123,6 @@ abstract class Message
     /**
      * Adds the value to the named header, or creates the header with the given value if it did not exist.
      *
-     * @param string $name
      * @param string|string[] $value
      *
      * @throws \Error If the header name or value is invalid.
@@ -169,8 +161,6 @@ abstract class Message
 
     /**
      * Removes the given header if it exists.
-     *
-     * @param string $name
      */
     protected function removeHeader(string $name)
     {
@@ -181,21 +171,12 @@ abstract class Message
 
     /**
      * Checks if given header exists.
-     *
-     * @param string $name
-     *
-     * @return bool
      */
     public function hasHeader(string $name): bool
     {
         return isset($this->headers[\strtolower($name)]);
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
     private function isNameValid(string $name): bool
     {
         return (bool) \preg_match('/^[A-Za-z0-9`~!#$%^&_|\'\-:]+$/', $name);
@@ -205,8 +186,6 @@ abstract class Message
      * Determines if the given value is a valid header value.
      *
      * @param string[] $values
-     *
-     * @return bool
      *
      * @throws \Error If the given value cannot be converted to a string and is not an array of values that can be
      *     converted to strings.
