@@ -7,6 +7,33 @@ namespace Amp\Http;
  */
 abstract class Message
 {
+    private const HEADER_LOWER = [
+        'Accept' => 'accept',
+        'accept' => 'accept',
+        'Accept-Encoding' => 'accept-encoding',
+        'accept-encoding' => 'accept-encoding',
+        'Accept-Language' => 'accept-language',
+        'accept-language' => 'accept-language',
+        'Connection' => 'connection',
+        'connection' => 'connection',
+        'Cookie' => 'cookie',
+        'cookie' => 'cookie',
+        'Host' => 'host',
+        'host' => 'host',
+        'Sec-Fetch-Dest' => 'sec-fetch-dest',
+        'sec-fetch-dest' => 'sec-fetch-dest',
+        'Sec-Fetch-Mode' => 'sec-fetch-mode',
+        'sec-fetch-mode' => 'sec-fetch-mode',
+        'Sec-Fetch-Site' => 'sec-fetch-site',
+        'sec-fetch-site' => 'sec-fetch-site',
+        'Sec-Fetch-User' => 'sec-fetch-user',
+        'sec-fetch-user' => 'sec-fetch-user',
+        'Upgrade-Insecure-Requests' => 'upgrade-insecure-requests',
+        'upgrade-insecure-requests' => 'upgrade-insecure-requests',
+        'User-Agent' => 'user-agent',
+        'user-agent' => 'user-agent',
+    ];
+
     /** @var string[][] */
     private $headers = [];
 
@@ -49,7 +76,7 @@ abstract class Message
      */
     public function getHeaderArray(string $name): array
     {
-        return $this->headers[\strtolower($name)] ?? [];
+        return $this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)] ?? [];
     }
 
     /**
@@ -61,7 +88,7 @@ abstract class Message
      */
     public function getHeader(string $name)
     {
-        return $this->headers[\strtolower($name)][0] ?? null;
+        return $this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)][0] ?? null;
     }
 
     /**
@@ -111,7 +138,7 @@ abstract class Message
 
         \assert($this->isValueValid($value), "Invalid header value");
 
-        $lcName = \strtolower($name);
+        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
         $this->headers[$lcName] = $value;
         $this->headerCase[$lcName] = [];
 
@@ -143,7 +170,7 @@ abstract class Message
 
         \assert($this->isValueValid($value), "Invalid header value");
 
-        $lcName = \strtolower($name);
+        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
         if (isset($this->headers[$lcName])) {
             $this->headers[$lcName] = \array_merge($this->headers[$lcName], $value);
 
@@ -164,7 +191,7 @@ abstract class Message
      */
     protected function removeHeader(string $name)
     {
-        $lcName = \strtolower($name);
+        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
 
         unset($this->headers[$lcName], $this->headerCase[$lcName]);
     }
@@ -174,7 +201,7 @@ abstract class Message
      */
     public function hasHeader(string $name): bool
     {
-        return isset($this->headers[\strtolower($name)]);
+        return isset($this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)]);
     }
 
     private function isNameValid(string $name): bool
