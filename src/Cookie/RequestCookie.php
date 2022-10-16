@@ -35,7 +35,7 @@ final class RequestCookie
         try {
             foreach ($cookies as $cookie) {
                 // Ignore zero-length cookie.
-                if ($cookie === '') {
+                if (\trim($cookie) === '') {
                     continue;
                 }
 

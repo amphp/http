@@ -21,12 +21,21 @@ class RequestCookieTest extends TestCase
     }
 
     /**
-     * Tests that when a zero-length phantom cookie is trailing due to the terminating semi-colon, it is simply
+     * Tests that when a zero-length phantom cookie is trailing due to the terminating semicolon, it is simply
      * discarded without impacting any other cookies present.
      */
     public function testZeroLengthTrailingCookie(): void
     {
         self::assertCount(1, $cookies = RequestCookie::fromHeader('a=1;'));
+        self::assertEquals([new RequestCookie('a', '1')], $cookies);
+    }
+
+    /**
+     * Tests that trailing whitespace is ignored.
+     */
+    public function testWhitespaceTrailingCookie(): void
+    {
+        self::assertCount(1, $cookies = RequestCookie::fromHeader('a=1; '));
         self::assertEquals([new RequestCookie('a', '1')], $cookies);
     }
 
