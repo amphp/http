@@ -98,8 +98,7 @@ final class Http2Parser
         int $streamId,
         int $frameLength
     ): bool {
-        $env = \getenv("AMP_DEBUG_HTTP2_FRAMES") ?: "0";
-        if (($env !== "0" && $env !== "false") || (\defined("AMP_DEBUG_HTTP2_FRAMES") && \AMP_DEBUG_HTTP2_FRAMES)) {
+        if (self::isDebugLoggingEnabled()) {
             \fwrite(
                 \STDERR,
                 $action . ' ' . self::getFrameName($frameType) . ' <flags = ' . \bin2hex(\chr($frameFlags)) . ', stream = ' . $streamId . ', length = ' . $frameLength . '>' . "\r\n"
@@ -107,6 +106,12 @@ final class Http2Parser
         }
 
         return true;
+    }
+
+    private static function isDebugLoggingEnabled(): bool
+    {
+        $env = \getenv("AMP_DEBUG_HTTP2_FRAMES") ?: "0";
+        return ($env !== "0" && $env !== "false") || (\defined("AMP_DEBUG_HTTP2_FRAMES") && \AMP_DEBUG_HTTP2_FRAMES);
     }
 
     /** @var string */
@@ -601,6 +606,15 @@ final class Http2Parser
         }
 
         ['last' => $lastId, 'error' => $error] = \unpack("Nlast/Nerror", $frameBuffer);
+
+        \assert((function () use ($frameBuffer): bool {
+            $message = \substr($frameBuffer, 8);
+            if (self::isDebugLoggingEnabled() && $message !== '') {
+                \fwrite(\STDERR, "GOAWAY frame message: " . $message . "\r\n");
+            }
+
+            return true;
+        })());
 
         $this->handler->handleShutdown($lastId & 0x7fffffff, $error);
     }
