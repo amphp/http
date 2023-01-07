@@ -7,8 +7,9 @@
 namespace Amp\Http\Http2;
 
 use Amp\Http\HPack;
+use Amp\Parser\Parser;
 
-final class Http2Parser
+final class Http2Parser extends Parser
 {
     public const PREFACE = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
 
@@ -109,43 +110,32 @@ final class Http2Parser
         return true;
     }
 
-    /** @var string */
-    private $buffer = '';
+    private int $headerSizeLimit = self::DEFAULT_MAX_FRAME_SIZE; // Should be configurable?
 
-    /** @var int */
-    private $bufferOffset = 0;
+    private bool $continuationExpected = false;
 
-    /** @var int */
-    private $headerSizeLimit = self::DEFAULT_MAX_FRAME_SIZE; // Should be configurable?
+    private int $headerFrameType = 0;
 
-    /** @var bool */
-    private $continuationExpected = false;
+    /** @var list<string> */
+    private array $headerBuffer = [];
 
-    /** @var int */
-    private $headerFrameType = 0;
+    private int $headerLength = 0;
 
-    /** @var string */
-    private $headerBuffer = '';
+    private int $headerStream = 0;
 
-    /** @var int */
-    private $headerStream = 0;
+    private readonly HPack $hpack;
 
-    /** @var HPack */
-    private $hpack;
+    private int $receivedFrameCount = 0;
 
-    /** @var Http2Processor */
-    private $handler;
+    private int $receivedByteCount = 0;
 
-    /** @var int */
-    private $receivedFrameCount = 0;
-
-    /** @var int */
-    private $receivedByteCount = 0;
-
-    public function __construct(Http2Processor $handler)
-    {
+    public function __construct(
+        private readonly Http2Processor $handler,
+        ?string $settings = null,
+    ) {
         $this->hpack = new HPack;
-        $this->handler = $handler;
+
+        parent::__construct($this->parse($settings));
     }
 
     public function getReceivedByteCount(): int
@@ -158,16 +148,15 @@ final class Http2Parser
         return $this->receivedFrameCount;
     }
 
-    public function parse(string $settings = null): \Generator
+    private function parse(?string $settings = null): \Generator
     {
         if ($settings !== null) {
             $this->parseSettings($settings, \strlen($settings), self::NO_FLAG, 0);
         }
 
-        $this->buffer = yield;
-
         while (true) {
-            $frameHeader = yield from $this->consume(9);
+            $frameHeader = yield 9;
+            $this->receivedByteCount += 9;
 
             [
                 'length' => $frameLength,
@@ -178,7 +167,8 @@ final class Http2Parser
 
             $streamId &= 0x7fffffff;
 
-            $frameBuffer = $frameLength === 0 ? '' : yield from $this->consume($frameLength);
+            $frameBuffer = $frameLength === 0 ? '' : yield $frameLength;
+            $this->receivedByteCount += $frameLength;
 
             $this->receivedFrameCount++;
 
@@ -246,28 +236,6 @@ final class Http2Parser
                 throw $exception;
             }
         }
-    }
-
-    private function consume(int $bytes): \Generator
-    {
-        $bufferEnd = $this->bufferOffset + $bytes;
-
-        while (\strlen($this->buffer) < $bufferEnd) {
-            $this->buffer .= yield;
-        }
-
-        $consumed = \substr($this->buffer, $this->bufferOffset, $bytes);
-
-        if ($bufferEnd > 2048) {
-            $this->buffer = \substr($this->buffer, $bufferEnd);
-            $this->bufferOffset = 0;
-        } else {
-            $this->bufferOffset += $bytes;
-        }
-
-        $this->receivedByteCount += $bytes;
-
-        return $consumed;
     }
 
     private function parseDataFrame(string $frameBuffer, int $frameLength, int $frameFlags, int $streamId): void
@@ -350,11 +318,11 @@ final class Http2Parser
             throw new Http2ConnectionException('Invalid stream ID 0 for header block', self::PROTOCOL_ERROR);
         }
 
-        if ($this->headerBuffer === '') {
+        if (!$this->headerBuffer) {
             throw new Http2StreamException('Invalid empty header section', $this->headerStream, self::PROTOCOL_ERROR);
         }
 
-        $decoded = $this->hpack->decode($this->headerBuffer, $this->headerSizeLimit);
+        $decoded = $this->hpack->decode(\implode($this->headerBuffer), $this->headerSizeLimit);
 
         if ($decoded === null) {
             throw new Http2ConnectionException("Compression error in headers", self::COMPRESSION_ERROR);
@@ -390,7 +358,8 @@ final class Http2Parser
             $headers[$name][] = $value;
         }
 
-        $this->headerBuffer = '';
+        $this->headerBuffer = [];
+        $this->headerLength = 0;
         $this->headerStream = 0;
 
         return [$pseudo, $headers];
@@ -406,7 +375,8 @@ final class Http2Parser
         }
 
         $this->headerStream = $streamId;
-        $this->headerBuffer .= $buffer;
+        $this->headerBuffer[] = $buffer;
+        $this->headerLength += \strlen($buffer);
     }
 
     /** @see https://http2.github.io/http2-spec/#HEADERS */
@@ -464,7 +434,7 @@ final class Http2Parser
         if ($frameFlags & self::END_HEADERS) {
             $this->continuationExpected = false;
 
-            $headersTooLarge = \strlen($this->headerBuffer) > $this->headerSizeLimit;
+            $headersTooLarge = $this->headerLength > $this->headerSizeLimit;
 
             [$pseudo, $headers] = $this->parseHeaderBuffer();
 
@@ -602,7 +572,7 @@ final class Http2Parser
 
         ['last' => $lastId, 'error' => $error] = \unpack("Nlast/Nerror", $frameBuffer);
 
-        $this->handler->handleShutdown($lastId & 0x7fffffff, $error);
+        $this->handler->handleShutdown($lastId & 0x7fffffff, $error, \substr($frameBuffer, 8));
     }
 
     /** @see https://http2.github.io/http2-spec/#rfc.section.6.9 */
@@ -643,7 +613,7 @@ final class Http2Parser
             );
         }
 
-        if ($this->headerBuffer === '') {
+        if (!$this->headerBuffer) {
             throw new Http2ConnectionException(
                 "Unexpected CONTINUATION frame for stream ID " . $this->headerStream,
                 self::PROTOCOL_ERROR

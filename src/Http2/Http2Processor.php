@@ -8,7 +8,7 @@ interface Http2Processor
 
     public function handlePing(string $data): void;
 
-    public function handleShutdown(int $lastId, int $error): void;
+    public function handleShutdown(int $lastId, int $error, string $message): void;
 
     public function handleStreamWindowIncrement(int $streamId, int $windowSize): void;
 
