@@ -184,50 +184,19 @@ final class Http2Parser extends Parser
                     throw new Http2ConnectionException("Expected continuation frame", self::PROTOCOL_ERROR);
                 }
 
-                switch ($frameType) {
-                    case self::DATA:
-                        $this->parseDataFrame($frameBuffer, $frameLength, $frameFlags, $streamId);
-                        break;
-
-                    case self::PUSH_PROMISE:
-                        $this->parsePushPromise($frameBuffer, $frameLength, $frameFlags, $streamId);
-                        break;
-
-                    case self::HEADERS:
-                        $this->parseHeaders($frameBuffer, $frameLength, $frameFlags, $streamId);
-                        break;
-
-                    case self::PRIORITY:
-                        $this->parsePriorityFrame($frameBuffer, $frameLength, $streamId);
-                        break;
-
-                    case self::RST_STREAM:
-                        $this->parseStreamReset($frameBuffer, $frameLength, $streamId);
-                        break;
-
-                    case self::SETTINGS:
-                        $this->parseSettings($frameBuffer, $frameLength, $frameFlags, $streamId);
-                        break;
-
-                    case self::PING:
-                        $this->parsePing($frameBuffer, $frameLength, $frameFlags, $streamId);
-                        break;
-
-                    case self::GOAWAY:
-                        $this->parseGoAway($frameBuffer, $frameLength, $streamId);
-                        break;
-
-                    case self::WINDOW_UPDATE:
-                        $this->parseWindowUpdate($frameBuffer, $frameLength, $streamId);
-                        break;
-
-                    case self::CONTINUATION:
-                        $this->parseContinuation($frameBuffer, $frameFlags, $streamId);
-                        break;
-
-                    default: // Ignore and discard unknown frame per spec
-                        break;
-                }
+                match ($frameType) {
+                    self::DATA => $this->parseDataFrame($frameBuffer, $frameLength, $frameFlags, $streamId),
+                    self::PUSH_PROMISE => $this->parsePushPromise($frameBuffer, $frameLength, $frameFlags, $streamId),
+                    self::HEADERS => $this->parseHeaders($frameBuffer, $frameLength, $frameFlags, $streamId),
+                    self::PRIORITY => $this->parsePriorityFrame($frameBuffer, $frameLength, $streamId),
+                    self::RST_STREAM => $this->parseStreamReset($frameBuffer, $frameLength, $streamId),
+                    self::SETTINGS => $this->parseSettings($frameBuffer, $frameLength, $frameFlags, $streamId),
+                    self::PING => $this->parsePing($frameBuffer, $frameLength, $frameFlags, $streamId),
+                    self::GOAWAY => $this->parseGoAway($frameBuffer, $frameLength, $streamId),
+                    self::WINDOW_UPDATE => $this->parseWindowUpdate($frameBuffer, $frameLength, $streamId),
+                    self::CONTINUATION => $this->parseContinuation($frameBuffer, $frameFlags, $streamId),
+                    default => null, // Ignore and discard unknown frame per spec
+                };
             } catch (Http2StreamException $exception) {
                 $this->handler->handleStreamException($exception);
             } catch (Http2ConnectionException $exception) {
@@ -644,12 +613,12 @@ final class Http2Parser extends Parser
         }
     }
 
-    private function throwInvalidFrameSizeError(): void
+    private function throwInvalidFrameSizeError(): never
     {
         throw new Http2ConnectionException("Invalid frame length", self::PROTOCOL_ERROR);
     }
 
-    private function throwInvalidRecursiveDependency(int $streamId): void
+    private function throwInvalidRecursiveDependency(int $streamId): never
     {
         throw new Http2ConnectionException(
             "Invalid recursive dependency for stream {$streamId}",
@@ -657,17 +626,17 @@ final class Http2Parser extends Parser
         );
     }
 
-    private function throwInvalidPaddingError(): void
+    private function throwInvalidPaddingError(): never
     {
         throw new Http2ConnectionException("Padding greater than length", self::PROTOCOL_ERROR);
     }
 
-    private function throwInvalidZeroStreamIdError(): void
+    private function throwInvalidZeroStreamIdError(): never
     {
         throw new Http2ConnectionException("Invalid zero stream ID", self::PROTOCOL_ERROR);
     }
 
-    private function throwInvalidNonZeroStreamIdError(): void
+    private function throwInvalidNonZeroStreamIdError(): never
     {
         throw new Http2ConnectionException("Invalid non-zero stream ID", self::PROTOCOL_ERROR);
     }
