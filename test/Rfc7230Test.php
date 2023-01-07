@@ -7,14 +7,14 @@ use PHPUnit\Framework\TestCase;
 class Rfc7230Test extends TestCase
 {
     /** @dataProvider provideValidHeaders */
-    public function testValidRawHeaderParsing(string $rawHeaders, array $expectedResult)
+    public function testValidRawHeaderParsing(string $rawHeaders, array $expectedResult): void
     {
         $result = Rfc7230::parseRawHeaders($rawHeaders);
         $this->assertSame($result, $expectedResult);
     }
 
     /** @dataProvider provideValidHeaders */
-    public function testValidHeaderParsing(string $rawHeaders, array $expectedResult)
+    public function testValidHeaderParsing(string $rawHeaders, array $expectedResult): void
     {
         $result = Rfc7230::parseHeaders($rawHeaders);
 
@@ -30,14 +30,14 @@ class Rfc7230Test extends TestCase
     }
 
     /** @dataProvider provideValidHeaders */
-    public function testValidRawHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult)
+    public function testValidRawHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult): void
     {
         $result = Rfc7230::parseRawHeaders(Rfc7230::formatRawHeaders($expectedResult));
         $this->assertSame($result, $expectedResult);
     }
 
     /** @dataProvider provideValidHeaders */
-    public function testValidHeaderFormattingDifferentCasing(string $rawHeaders /* ignored for this case */, array $expectedResult)
+    public function testValidHeaderFormattingDifferentCasing(string $rawHeaders /* ignored for this case */, array $expectedResult): void
     {
         $headers = [];
         foreach ($expectedResult as [$name, $value]) {
@@ -50,7 +50,7 @@ class Rfc7230Test extends TestCase
         $this->assertSame($result, $expectedResult);
     }
 
-    public function provideValidHeaders()
+    public function provideValidHeaders(): array
     {
         return [
             ["x:y\r\n", [["x", "y"]]],
@@ -64,13 +64,13 @@ class Rfc7230Test extends TestCase
     }
 
     /** @dataProvider provideInvalidHeaders */
-    public function testInvalidHeaderParsing(string $rawHeaders)
+    public function testInvalidHeaderParsing(string $rawHeaders): void
     {
         $this->expectException(InvalidHeaderException::class);
         Rfc7230::parseHeaders($rawHeaders);
     }
 
-    public function provideInvalidHeaders()
+    public function provideInvalidHeaders(): array
     {
         return [
             [" x:y\r\n"],
@@ -83,7 +83,7 @@ class Rfc7230Test extends TestCase
         ];
     }
 
-    public function testIgnoresHttp2PseudoHeaders()
+    public function testIgnoresHttp2PseudoHeaders(): void
     {
         $headers = [
             "foobar" => ["bar"],
@@ -94,7 +94,7 @@ class Rfc7230Test extends TestCase
         $this->assertSame("foobar: bar\r\nx: y\r\n", Rfc7230::formatHeaders($headers));
     }
 
-    public function testDetectsHeaderInjectionsWithLfInValue()
+    public function testDetectsHeaderInjectionsWithLfInValue(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -102,7 +102,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar" => ["test\nbar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrInValue()
+    public function testDetectsHeaderInjectionsWithCrInValue(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -110,7 +110,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar" => ["test\rbar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfInValue()
+    public function testDetectsHeaderInjectionsWithCrLfInValue(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -118,7 +118,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar" => ["test\r\nbar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfAndColonInValue()
+    public function testDetectsHeaderInjectionsWithCrLfAndColonInValue(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -126,7 +126,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar" => ["test\r\nfoo: bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrInName()
+    public function testDetectsHeaderInjectionsWithCrInName(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -134,7 +134,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar\rfoobar" => ["bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithLfInName()
+    public function testDetectsHeaderInjectionsWithLfInName(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -142,7 +142,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar\nfoobar" => ["bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfInName()
+    public function testDetectsHeaderInjectionsWithCrLfInName(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -150,7 +150,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar\r\nfoobar" => ["bar"]]);
     }
 
-    public function testDetectsHeaderInjectionsWithCrLfAndColonInName()
+    public function testDetectsHeaderInjectionsWithCrLfAndColonInName(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");
@@ -158,7 +158,7 @@ class Rfc7230Test extends TestCase
         Rfc7230::formatHeaders(["foobar: test\r\nfoobar" => ["bar"]]);
     }
 
-    public function testDetectsInvalidHeaderSyntax()
+    public function testDetectsInvalidHeaderSyntax(): void
     {
         $this->expectException(InvalidHeaderException::class);
         $this->expectExceptionMessage("Invalid headers");

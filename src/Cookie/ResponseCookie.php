@@ -12,7 +12,7 @@ namespace Amp\Http\Cookie;
  */
 final class ResponseCookie
 {
-    private static $dateFormats = [
+    private static array $dateFormats = [
         'D, d M Y H:i:s T',
         'D, d-M-y H:i:s T',
         'D, d-M-Y H:i:s T',
@@ -147,14 +147,10 @@ final class ResponseCookie
         return null;
     }
 
-    /** @var string[] */
-    private $unknownAttributes = [];
-    /** @var string */
-    private $name;
-    /** @var string */
-    private $value;
-    /** @var CookieAttributes */
-    private $attributes;
+    /** @var list<string> */
+    private array $unknownAttributes = [];
+
+    private CookieAttributes $attributes;
 
     /**
      * @param string           $name Name of the cookie.
@@ -164,9 +160,9 @@ final class ResponseCookie
      * @throws InvalidCookieException If name or value is invalid.
      */
     public function __construct(
-        string $name,
-        string $value = '',
-        CookieAttributes $attributes = null
+        private string $name,
+        private string $value = '',
+        CookieAttributes $attributes = null,
     ) {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");
@@ -176,8 +172,6 @@ final class ResponseCookie
             throw new InvalidCookieException("Invalid cookie value: '{$value}'");
         }
 
-        $this->name = $name;
-        $this->value = $value;
         $this->attributes = $attributes ?? CookieAttributes::default();
     }
 

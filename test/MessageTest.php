@@ -12,22 +12,22 @@ class TestMessage extends Message
         $this->setHeaders($headers);
     }
 
-    public function setHeaders(array $headers)
+    public function setHeaders(array $headers): void
     {
         parent::setHeaders($headers);
     }
 
-    public function setHeader(string $name, $value)
+    public function setHeader(string $name, $value): void
     {
         parent::setHeader($name, $value);
     }
 
-    public function addHeader(string $name, $value)
+    public function addHeader(string $name, $value): void
     {
         parent::addHeader($name, $value);
     }
 
-    public function removeHeader(string $name)
+    public function removeHeader(string $name): void
     {
         parent::removeHeader($name);
     }
@@ -35,7 +35,7 @@ class TestMessage extends Message
 
 class MessageTest extends TestCase
 {
-    public function testGetRawHeaders()
+    public function testGetRawHeaders(): void
     {
         $message = new TestMessage([
             'X-FooBar' => 'bar',
@@ -59,7 +59,7 @@ class MessageTest extends TestCase
         ], $message->getRawHeaders());
     }
 
-    public function testGetHeader()
+    public function testGetHeader(): void
     {
         $message = new TestMessage([
             'foo' => 'bar',
@@ -76,7 +76,7 @@ class MessageTest extends TestCase
         $this->assertSame([], $message->getHeaderArray('bar'));
     }
 
-    public function testAddHeader()
+    public function testAddHeader(): void
     {
         $message = new TestMessage([
             'foo' => 'bar',
@@ -97,7 +97,7 @@ class MessageTest extends TestCase
         $this->assertSame(['bar', 'baz'], $message->getHeaderArray('bar'));
     }
 
-    public function testSetHeader()
+    public function testSetHeader(): void
     {
         $message = new TestMessage([
             'foo' => 'bar',
@@ -121,7 +121,7 @@ class MessageTest extends TestCase
         $this->assertSame('biz', $message->getHeader('bar'));
     }
 
-    public function testInvalidName()
+    public function testInvalidName(): void
     {
         $this->expectException(\AssertionError::class);
         $this->expectExceptionMessage('Invalid header name');
@@ -130,7 +130,7 @@ class MessageTest extends TestCase
         $message->setHeader("te\0st", 'value');
     }
 
-    public function testInvalidValue()
+    public function testInvalidValue(): void
     {
         $this->expectException(\AssertionError::class);
         $this->expectExceptionMessage('Invalid header value');

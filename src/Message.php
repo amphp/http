@@ -34,17 +34,17 @@ abstract class Message
         'user-agent' => 'user-agent',
     ];
 
-    /** @var string[][] */
-    private $headers = [];
+    /** @var array<string, list<string>> */
+    private array $headers = [];
 
-    /** @var string[][] */
-    private $headerCase = [];
+    /** @var array<string, string> */
+    private array $headerCase = [];
 
     /**
      * Returns the headers as a string-indexed array of arrays of strings or an empty array if no headers
      * have been set.
      *
-     * @return string[][]
+     * @return array<string, list<string>>
      */
     public function getHeaders(): array
     {
@@ -72,7 +72,7 @@ abstract class Message
     /**
      * Returns the array of values for the given header or an empty array if the header does not exist.
      *
-     * @return string[]
+     * @return list<string>
      */
     public function getHeaderArray(string $name): array
     {
@@ -86,7 +86,7 @@ abstract class Message
      *
      * @return string|null
      */
-    public function getHeader(string $name)
+    public function getHeader(string $name): ?string
     {
         return $this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)][0] ?? null;
     }
@@ -94,9 +94,9 @@ abstract class Message
     /**
      * Sets the headers from the given array.
      *
-     * @param string[]|string[][] $headers
+     * @param array<string, string|list<string>> $headers
      */
-    protected function setHeaders(array $headers)
+    protected function setHeaders(array $headers): void
     {
         // Ensure this is an atomic operation, either all headers are set or none.
         $before = $this->headers;
@@ -117,11 +117,11 @@ abstract class Message
     /**
      * Sets the named header to the given value.
      *
-     * @param string|string[] $value
+     * @param string|list<string> $value
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function setHeader(string $name, $value)
+    protected function setHeader(string $name, array|string $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
@@ -131,9 +131,9 @@ abstract class Message
                 return;
             }
 
-            $value = \array_values(\array_map("strval", $value));
+            $value = \array_values(\array_map(\strval(...), $value));
         } else {
-            $value = [(string) $value];
+            $value = [$value];
         }
 
         \assert($this->isValueValid($value), "Invalid header value");
@@ -150,11 +150,11 @@ abstract class Message
     /**
      * Adds the value to the named header, or creates the header with the given value if it did not exist.
      *
-     * @param string|string[] $value
+     * @param string|list<string> $value
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function addHeader(string $name, $value)
+    protected function addHeader(string $name, array|string $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
@@ -163,9 +163,9 @@ abstract class Message
                 return;
             }
 
-            $value = \array_values(\array_map("strval", $value));
+            $value = \array_values(\array_map(\strval(...), $value));
         } else {
-            $value = [(string) $value];
+            $value = [$value];
         }
 
         \assert($this->isValueValid($value), "Invalid header value");
@@ -173,23 +173,19 @@ abstract class Message
         $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
         if (isset($this->headers[$lcName])) {
             $this->headers[$lcName] = \array_merge($this->headers[$lcName], $value);
-
-            foreach ($value as $_) {
-                $this->headerCase[$lcName][] = $name;
-            }
         } else {
             $this->headers[$lcName] = $value;
-
-            foreach ($value as $_) {
-                $this->headerCase[$lcName][] = $name;
-            }
+        }
+        
+        foreach ($value as $_) {
+            $this->headerCase[$lcName][] = $name;
         }
     }
 
     /**
      * Removes the given header if it exists.
      */
-    protected function removeHeader(string $name)
+    protected function removeHeader(string $name): void
     {
         $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
 
@@ -212,7 +208,7 @@ abstract class Message
     /**
      * Determines if the given value is a valid header value.
      *
-     * @param string[] $values
+     * @param list<string> $values
      *
      * @throws \Error If the given value cannot be converted to a string and is not an array of values that can be
      *     converted to strings.

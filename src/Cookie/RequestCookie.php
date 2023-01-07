@@ -12,12 +12,6 @@ namespace Amp\Http\Cookie;
  */
 final class RequestCookie
 {
-    /** @var string */
-    private $name;
-
-    /** @var string */
-    private $value;
-
     /**
      * Parses the cookies from a 'cookie' header.
      *
@@ -25,7 +19,7 @@ final class RequestCookie
      *
      * @param string $string Valid 'cookie' header line.
      *
-     * @return RequestCookie[]
+     * @return list<RequestCookie>
      */
     public static function fromHeader(string $string): array
     {
@@ -63,7 +57,7 @@ final class RequestCookie
      *
      * @throws InvalidCookieException If name or value is invalid.
      */
-    public function __construct(string $name, string $value = '')
+    public function __construct(private string $name, private string $value = '')
     {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]*+$)', $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");
@@ -72,9 +66,6 @@ final class RequestCookie
         if (!\preg_match('(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)', $value)) {
             throw new InvalidCookieException("Invalid cookie value: '{$value}'");
         }
-
-        $this->name = $name;
-        $this->value = $value;
     }
 
     /**

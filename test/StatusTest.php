@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class StatusTest extends TestCase
 {
-    public function testEachDefinedStatusHasDefaultReason()
+    public function testEachDefinedStatusHasDefaultReason(): void
     {
         $class = new \ReflectionClass(Status::class);
 
@@ -15,7 +15,7 @@ class StatusTest extends TestCase
         }
     }
 
-    public function testEachDefaultReasonHasCorrespondingConstant()
+    public function testEachDefaultReasonHasCorrespondingConstant(): void
     {
         $class = new \ReflectionClass(Status::class);
         $constants = $class->getConstants();
@@ -29,7 +29,7 @@ class StatusTest extends TestCase
         }
     }
 
-    public function testNoDuplicateDefinition()
+    public function testNoDuplicateDefinition(): void
     {
         $class = new \ReflectionClass(Status::class);
         $constants = $class->getConstants();

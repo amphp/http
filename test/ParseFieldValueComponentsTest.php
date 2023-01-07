@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class ParseFieldValueComponentsTest extends TestCase
 {
-    public function test()
+    public function test(): void
     {
         self::assertSame([
             ['no-cache', ''],
@@ -47,7 +47,7 @@ class ParseFieldValueComponentsTest extends TestCase
         ], $this->parse('private="foo", private=bar'));
     }
 
-    private function parse(string $headerValue)
+    private function parse(string $headerValue): ?array
     {
         return parseFieldValueComponents($this->createMessage(['cache-control' => $headerValue]), 'cache-control');
     }

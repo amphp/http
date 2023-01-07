@@ -43,16 +43,16 @@ final class Rfc7230
      *
      * Allows empty header values, as HTTP/1.0 allows that.
      *
-     * @return array List of [field, value] header pairs.
+     * @return list<array{string, string}> List of [field, value] header pairs.
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
     public static function parseRawHeaders(string $rawHeaders): array
     {
         // Ensure that the last line also ends with a newline, this is important.
-        \assert(\substr($rawHeaders, -2) === "\r\n", "Argument 1 must end with CRLF: " . \bin2hex($rawHeaders));
+        \assert(\str_ends_with($rawHeaders, "\r\n"), "Argument 1 must end with CRLF: " . \bin2hex($rawHeaders));
 
-        /** @var array[] $matches */
+        /** @var list<int, list<string>> $matches */
         $count = \preg_match_all(self::HEADER_REGEX, $rawHeaders, $matches, \PREG_SET_ORDER);
 
         // If these aren't the same, then one line didn't match and there's an invalid header.

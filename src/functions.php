@@ -4,6 +4,8 @@ namespace Amp\Http;
 
 /**
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
+ *
+ * @return list<array{non-empty-string, string}>|null
  */
 function parseFieldValueComponents(Message $message, string $headerName): ?array
 {
@@ -40,9 +42,10 @@ function parseFieldValueComponents(Message $message, string $headerName): ?array
 }
 
 /**
- * @param array $pairs Output of {@code parseFieldValueComponents}. Keys are handled case-insensitively.
+ * @param list<array{non-empty-string, string}>|null $pairs Output of {@see parseFieldValueComponents()}.
+ *      Keys are handled case-insensitively.
  *
- * @return array|null Map of keys to values or {@code null} if incompatible duplicates are found.
+ * @return array<string, list<string>>|null Map of keys to values or {@code null} if incompatible duplicates are found.
  */
 function createFieldValueComponentMap(?array $pairs): ?array
 {
