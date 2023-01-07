@@ -32,7 +32,7 @@ final class Rfc7230
             // Unfortunately, we can't avoid the \strtolower() calls due to \array_change_key_case() behavior
             // when equal headers are present with different casing, e.g. 'set-cookie' and 'Set-Cookie'.
             // Accessing headers directly instead of using foreach (... as list(...)) is slightly faster.
-            $headers[\strtolower($header[0])][] = $header[1];
+            $headers[Message::HEADER_LOWER[$header[0]] ?? \strtolower($header[0])][] = $header[1];
         }
 
         return $headers;

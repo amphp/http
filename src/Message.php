@@ -7,17 +7,25 @@ namespace Amp\Http;
  */
 abstract class Message
 {
-    private const HEADER_LOWER = [
+    public const HEADER_LOWER = [
         'Accept' => 'accept',
         'accept' => 'accept',
         'Accept-Encoding' => 'accept-encoding',
         'accept-encoding' => 'accept-encoding',
         'Accept-Language' => 'accept-language',
         'accept-language' => 'accept-language',
+        'Authorization' => 'authorization',
+        'authorization' => 'authorization',
+        'Cache-Control' => 'cache-control',
+        'cache-control' => 'cache-control',
         'Connection' => 'connection',
         'connection' => 'connection',
+        'Content-Encoding' => 'content-encoding',
+        'content-encoding' => 'content-encoding',
         'Cookie' => 'cookie',
         'cookie' => 'cookie',
+        'Date' => 'date',
+        'date' => 'date',
         'Host' => 'host',
         'host' => 'host',
         'Sec-Fetch-Dest' => 'sec-fetch-dest',
@@ -28,10 +36,16 @@ abstract class Message
         'sec-fetch-site' => 'sec-fetch-site',
         'Sec-Fetch-User' => 'sec-fetch-user',
         'sec-fetch-user' => 'sec-fetch-user',
+        'Set-Cookie' => 'set-cookie',
+        'set-cookie' => 'set-cookie',
+        'Strict-Transport-Security' => 'strict-transport-security',
+        'strict-transport-security' => 'strict-transport-security',
         'Upgrade-Insecure-Requests' => 'upgrade-insecure-requests',
         'upgrade-insecure-requests' => 'upgrade-insecure-requests',
         'User-Agent' => 'user-agent',
         'user-agent' => 'user-agent',
+        'Vary' => 'vary',
+        'vary' => 'vary',
     ];
 
     /** @var array<string, list<string>> */
@@ -176,7 +190,7 @@ abstract class Message
         } else {
             $this->headers[$lcName] = $value;
         }
-        
+
         foreach ($value as $_) {
             $this->headerCase[$lcName][] = $name;
         }
