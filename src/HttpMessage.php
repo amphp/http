@@ -143,6 +143,7 @@ abstract class HttpMessage
                 return;
             }
 
+            /** @psalm-suppress RedundantFunctionCall */
             $value = \array_values(\array_map(\strval(...), $value));
         } else {
             $value = [$value];
@@ -175,6 +176,7 @@ abstract class HttpMessage
                 return;
             }
 
+            /** @psalm-suppress RedundantFunctionCall */
             $value = \array_values(\array_map(\strval(...), $value));
         } else {
             $value = [$value];

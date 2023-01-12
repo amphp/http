@@ -38,7 +38,7 @@ class CookieAttributesTest extends TestCase
         $expiry = new \DateTimeImmutable("now+10s");
 
         $attributes = CookieAttributes::default()->withExpiry($expiry);
-        $this->assertSame($expiry, $attributes->getExpiry());
+        $this->assertSame($expiry->getTimestamp(), $attributes->getExpiry()->getTimestamp());
         $this->assertNull($attributes->getMaxAge());
 
         $attributes = $attributes->withoutExpiry();

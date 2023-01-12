@@ -36,20 +36,19 @@ final class CookieAttributes
         return new self;
     }
 
-    /** @var string */
-    private $path = '';
-    /** @var string */
-    private $domain = '';
-    /** @var int|null */
-    private $maxAge;
-    /** @var \DateTimeImmutable */
-    private $expiry;
-    /** @var bool */
-    private $secure = false;
-    /** @var bool */
-    private $httpOnly = true;
-    /** @var string|null */
-    private $sameSite;
+    private string $path = '';
+
+    private string $domain = '';
+
+    private ?int $maxAge = null;
+
+    private ?\DateTimeImmutable $expiry = null;
+
+    private bool $secure = false;
+
+    private bool $httpOnly = true;
+
+    private ?string $sameSite = null;
 
     private function __construct()
     {
@@ -170,14 +169,7 @@ final class CookieAttributes
     public function withExpiry(\DateTimeInterface $date): self
     {
         $new = clone $this;
-
-        if ($date instanceof \DateTimeImmutable) {
-            $new->expiry = $date;
-        } elseif ($date instanceof \DateTime) {
-            $new->expiry = \DateTimeImmutable::createFromMutable($date);
-        } else {
-            $new->expiry = new \DateTimeImmutable("@" . $date->getTimestamp());
-        }
+        $new->expiry = \DateTimeImmutable::createFromInterface($date);
 
         return $new;
     }

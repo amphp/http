@@ -1,9 +1,5 @@
 <?php declare(strict_types=1);
 
-/** @noinspection PhpUnusedPrivateFieldInspection */
-/** @noinspection PhpDocSignatureInspection */
-/** @noinspection PhpUnhandledExceptionInspection */
-
 namespace Amp\Http\Http2;
 
 use Amp\Http\HPack;
@@ -100,11 +96,18 @@ final class Http2Parser extends Parser
         int $frameLength
     ): bool {
         $env = \getenv("AMP_DEBUG_HTTP2_FRAMES") ?: "0";
-        if (($env !== "0" && $env !== "false") || (\defined("AMP_DEBUG_HTTP2_FRAMES") && \AMP_DEBUG_HTTP2_FRAMES)) {
-            \fwrite(
-                \STDERR,
-                $action . ' ' . self::getFrameName($frameType) . ' <flags = ' . \bin2hex(\chr($frameFlags)) . ', stream = ' . $streamId . ', length = ' . $frameLength . '>' . "\r\n"
-            );
+        if (match ($env) {
+            "0", "false", "off" => false,
+            default => $env || \defined("AMP_DEBUG_HTTP2_FRAMES") && \AMP_DEBUG_HTTP2_FRAMES,
+        }) {
+            \fwrite(\STDERR, \sprintf(
+                "%s %s <flags = %s, stream = %d, length = %d>\r\n",
+                $action,
+                self::getFrameName($frameType),
+                \bin2hex(\chr($frameFlags)),
+                $streamId,
+                $frameLength,
+            ));
         }
 
         return true;
@@ -281,6 +284,9 @@ final class Http2Parser extends Parser
         }
     }
 
+    /**
+     * @return array{array<string, string>, array<string, list<string>>}
+     */
     private function parseHeaderBuffer(): array
     {
         if ($this->headerStream === 0) {
@@ -291,6 +297,7 @@ final class Http2Parser extends Parser
             throw new Http2StreamException('Invalid empty header section', $this->headerStream, self::PROTOCOL_ERROR);
         }
 
+        /** @var list<array{string, string}>|null $decoded */
         $decoded = $this->hpack->decode(\implode($this->headerBuffer), $this->headerSizeLimit);
 
         if ($decoded === null) {
@@ -417,7 +424,7 @@ final class Http2Parser extends Parser
                 );
             }
 
-            $this->handler->handleHeaders($streamId, $pseudo, $headers, $ended);
+            $this->handler->handleHeaders($streamId, $pseudo, $headers, (bool) $ended);
         } else {
             $this->continuationExpected = true;
         }
@@ -604,7 +611,7 @@ final class Http2Parser extends Parser
             if ($isPush) {
                 $this->handler->handlePushPromise($streamId, $pushId, $pseudo, $headers);
             } else {
-                $this->handler->handleHeaders($streamId, $pseudo, $headers, $ended);
+                $this->handler->handleHeaders($streamId, $pseudo, $headers, (bool) $ended);
             }
         }
 

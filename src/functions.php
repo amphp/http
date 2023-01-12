@@ -28,9 +28,10 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
 
         if (($match[2] ?? '') !== '') {
             // decode escaped characters
-            $value = \preg_replace('(\\\\(.))', '\1', $value);
+            $value = (string) \preg_replace('(\\\\(.))', '\1', $value);
         }
 
+        \assert($key !== '');
         $pairs[] = [$key, $value];
     }
 
@@ -45,7 +46,7 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
  * @param list<array{non-empty-string, string}>|null $pairs Output of {@see parseFieldValueComponents()}.
  *      Keys are handled case-insensitively.
  *
- * @return array<string, list<string>>|null Map of keys to values or {@code null} if incompatible duplicates are found.
+ * @return array<non-empty-string, string>|null Map of keys to values or {@code null} if incompatible duplicates are found.
  */
 function createFieldValueComponentMap(?array $pairs): ?array
 {
@@ -55,11 +56,16 @@ function createFieldValueComponentMap(?array $pairs): ?array
 
     $map = [];
 
-    foreach ($pairs as $pair) {
-        \assert(\count($pair) === 2);
-        \assert(\is_string($pair[0]));
-        \assert(\is_string($pair[1]));
-    }
+    /** @psalm-suppress RedundantCondition */
+    \assert((static function () use ($pairs): bool {
+        foreach ($pairs as $pair) {
+            \assert(\count($pair) === 2);
+            \assert(\is_string($pair[0]));
+            \assert(\is_string($pair[1]));
+        }
+
+        return true;
+    })());
 
     foreach ($pairs as [$key, $value]) {
         $key = HttpMessage::HEADER_LOWER[$key] ?? \strtolower($key);
