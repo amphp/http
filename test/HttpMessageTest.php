@@ -2,10 +2,10 @@
 
 namespace Amp\Http\Test;
 
-use Amp\Http\Message;
+use Amp\Http\HttpMessage;
 use PHPUnit\Framework\TestCase;
 
-class TestMessage extends Message
+class TestHttpMessage extends HttpMessage
 {
     public function __construct(array $headers = [])
     {
@@ -33,11 +33,11 @@ class TestMessage extends Message
     }
 }
 
-class MessageTest extends TestCase
+class HttpMessageTest extends TestCase
 {
     public function testGetRawHeaders(): void
     {
-        $message = new TestMessage([
+        $message = new TestHttpMessage([
             'X-FooBar' => 'bar',
             'X-Replace' => 'none'
         ]);
@@ -61,7 +61,7 @@ class MessageTest extends TestCase
 
     public function testGetHeader(): void
     {
-        $message = new TestMessage([
+        $message = new TestHttpMessage([
             'foo' => 'bar',
         ]);
 
@@ -78,7 +78,7 @@ class MessageTest extends TestCase
 
     public function testAddHeader(): void
     {
-        $message = new TestMessage([
+        $message = new TestHttpMessage([
             'foo' => 'bar',
         ]);
 
@@ -99,7 +99,7 @@ class MessageTest extends TestCase
 
     public function testSetHeader(): void
     {
-        $message = new TestMessage([
+        $message = new TestHttpMessage([
             'foo' => 'bar',
         ]);
 
@@ -126,7 +126,7 @@ class MessageTest extends TestCase
         $this->expectException(\AssertionError::class);
         $this->expectExceptionMessage('Invalid header name');
 
-        $message = new TestMessage;
+        $message = new TestHttpMessage;
         $message->setHeader("te\0st", 'value');
     }
 
@@ -135,7 +135,7 @@ class MessageTest extends TestCase
         $this->expectException(\AssertionError::class);
         $this->expectExceptionMessage('Invalid header value');
 
-        $message = new TestMessage;
+        $message = new TestHttpMessage;
         $message->setHeader('foo', "te\0st");
     }
 }

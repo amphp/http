@@ -52,9 +52,9 @@ class ParseFieldValueComponentsTest extends TestCase
         return parseFieldValueComponents($this->createMessage(['cache-control' => $headerValue]), 'cache-control');
     }
 
-    private function createMessage(array $headers): Message
+    private function createMessage(array $headers): HttpMessage
     {
-        return new class($headers) extends Message {
+        return new class($headers) extends HttpMessage {
             public function __construct(array $headers)
             {
                 $this->setHeaders($headers);

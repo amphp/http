@@ -4,24 +4,24 @@ namespace Amp\Http;
 
 use PHPUnit\Framework\TestCase;
 
-class StatusTest extends TestCase
+class HttpStatusTest extends TestCase
 {
     public function testEachDefinedStatusHasDefaultReason(): void
     {
-        $class = new \ReflectionClass(Status::class);
+        $class = new \ReflectionClass(HttpStatus::class);
 
         foreach ($class->getConstants() as $statusCode) {
-            $this->assertNotEmpty(Status::getReason($statusCode), "{$statusCode} doesn't have a default reason.");
+            $this->assertNotEmpty(HttpStatus::getReason($statusCode), "{$statusCode} doesn't have a default reason.");
         }
     }
 
     public function testEachDefaultReasonHasCorrespondingConstant(): void
     {
-        $class = new \ReflectionClass(Status::class);
+        $class = new \ReflectionClass(HttpStatus::class);
         $constants = $class->getConstants();
 
         for ($i = 0; $i < 600; $i++) {
-            $reason = Status::getReason($i);
+            $reason = HttpStatus::getReason($i);
 
             if ($reason !== "") {
                 $this->assertContains($i, $constants);
@@ -31,7 +31,7 @@ class StatusTest extends TestCase
 
     public function testNoDuplicateDefinition(): void
     {
-        $class = new \ReflectionClass(Status::class);
+        $class = new \ReflectionClass(HttpStatus::class);
         $constants = $class->getConstants();
 
         // Double array_flip removes any duplicates.

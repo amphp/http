@@ -7,7 +7,7 @@ namespace Amp\Http;
  *
  * @return list<array{non-empty-string, string}>|null
  */
-function parseFieldValueComponents(Message $message, string $headerName): ?array
+function parseFieldValueComponents(HttpMessage $message, string $headerName): ?array
 {
     $header = \implode(', ', $message->getHeaderArray($headerName));
 
@@ -62,7 +62,7 @@ function createFieldValueComponentMap(?array $pairs): ?array
     }
 
     foreach ($pairs as [$key, $value]) {
-        $key = Message::HEADER_LOWER[$key] ?? \strtolower($key);
+        $key = HttpMessage::HEADER_LOWER[$key] ?? \strtolower($key);
 
         if (isset($map[$key]) && $map[$key] !== $value) {
             return null; // incompatible duplicates
