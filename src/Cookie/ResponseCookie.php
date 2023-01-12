@@ -89,7 +89,7 @@ final class ResponseCookie
                             break; // break is correct, see https://tools.ietf.org/html/rfc6265#section-5.2.2
                         }
 
-                        $meta = $meta->withMaxAge($maxAge);
+                        $meta = $meta->withMaxAge((int) $maxAge);
                         break;
 
                     case 'path':
