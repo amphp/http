@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 // This implementation doesn't do any validation and just splits at the first colon in each line.
 function parse(string $rawHeaders): array

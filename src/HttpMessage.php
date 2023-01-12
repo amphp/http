@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Amp\Http;
 
@@ -97,8 +97,6 @@ abstract class HttpMessage
      * Returns the value of the given header. If multiple headers are present for the named header, only the first
      * header value will be returned. Use getHeaderArray() to return an array of all values for the particular header.
      * Returns null if the header does not exist.
-     *
-     * @return string|null
      */
     public function getHeader(string $name): ?string
     {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Amp\Http\Cookie\ResponseCookie;
 use Amp\Http\Rfc7230;
