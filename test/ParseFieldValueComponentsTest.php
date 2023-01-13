@@ -57,7 +57,7 @@ class ParseFieldValueComponentsTest extends TestCase
         return new class($headers) extends HttpMessage {
             public function __construct(array $headers)
             {
-                $this->setHeaders($headers);
+                $this->replaceHeaders($headers);
             }
         };
     }

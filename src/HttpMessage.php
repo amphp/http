@@ -104,13 +104,39 @@ abstract class HttpMessage
     }
 
     /**
-     * Sets the headers from the given array.
+     * Removes all current headers and sets new headers from the given array.
      *
-     * @param array<string, string|list<string>> $headers
+     * @param array<string, string|array<string>> $headers
      */
     protected function setHeaders(array $headers): void
     {
         // Ensure this is an atomic operation, either all headers are set or none.
+        $before = $this->headers;
+        $beforeCase = $this->headerCase;
+
+        $this->headers = [];
+        $this->headerCase = [];
+
+        try {
+            foreach ($headers as $name => $value) {
+                $this->setHeader($name, $value);
+            }
+        } catch (\Throwable $e) {
+            $this->headers = $before;
+            $this->headerCase = $beforeCase;
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Replaces headers from the given array. Header names not contained in the array are not changed.
+     *
+     * @param array<string, string|array<string>> $headers
+     */
+    protected function replaceHeaders(array $headers): void
+    {
+        // Ensure this is an atomic operation, either all given headers are replaced or none.
         $before = $this->headers;
         $beforeCase = $this->headerCase;
 
@@ -129,7 +155,7 @@ abstract class HttpMessage
     /**
      * Sets the named header to the given value.
      *
-     * @param string|list<string> $value
+     * @param string|array<string> $value
      *
      * @throws \Error If the header name or value is invalid.
      */
@@ -137,33 +163,32 @@ abstract class HttpMessage
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
-        if (\is_array($value)) {
-            if (!$value) {
-                $this->removeHeader($name);
-                return;
-            }
+        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
 
-            /** @psalm-suppress RedundantFunctionCall */
-            $value = \array_values(\array_map(\strval(...), $value));
-        } else {
-            $value = [$value];
+        if (!\is_array($value)) {
+            \assert($this->isValueValid([$value]), "Invalid header value");
+            $this->headers[$lcName] = [$value];
+            $this->headerCase[$lcName] = [$name];
+            return;
         }
+
+        if (!$value) {
+            $this->removeHeader($name);
+            return;
+        }
+
+        $value = \array_values(\array_map(\strval(...), $value));
 
         \assert($this->isValueValid($value), "Invalid header value");
 
-        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
         $this->headers[$lcName] = $value;
-        $this->headerCase[$lcName] = [];
-
-        foreach ($value as $_) {
-            $this->headerCase[$lcName][] = $name;
-        }
+        $this->headerCase[$lcName] = \array_fill(0, \count($value), $name);
     }
 
     /**
      * Adds the value to the named header, or creates the header with the given value if it did not exist.
      *
-     * @param string|list<string> $value
+     * @param string|array<string> $value
      *
      * @throws \Error If the header name or value is invalid.
      */
@@ -171,27 +196,21 @@ abstract class HttpMessage
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
-        if (\is_array($value)) {
-            if (!$value) {
-                return;
-            }
+        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
 
-            /** @psalm-suppress RedundantFunctionCall */
-            $value = \array_values(\array_map(\strval(...), $value));
-        } else {
-            $value = [$value];
+        if (!\is_array($value)) {
+            \assert($this->isValueValid([$value]), "Invalid header value");
+            $this->headers[$lcName][] = $value;
+            $this->headerCase[$lcName][] = $name;
+            return;
         }
+
+        $value = \array_values(\array_map(\strval(...), $value));
 
         \assert($this->isValueValid($value), "Invalid header value");
 
-        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
-        if (isset($this->headers[$lcName])) {
-            $this->headers[$lcName] = \array_merge($this->headers[$lcName], $value);
-        } else {
-            $this->headers[$lcName] = $value;
-        }
-
-        foreach ($value as $_) {
+        foreach ($value as $header) {
+            $this->headers[$lcName][] = $header;
             $this->headerCase[$lcName][] = $name;
         }
     }

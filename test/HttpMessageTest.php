@@ -9,12 +9,17 @@ class TestHttpMessage extends HttpMessage
 {
     public function __construct(array $headers = [])
     {
-        $this->setHeaders($headers);
+        $this->replaceHeaders($headers);
     }
 
     public function setHeaders(array $headers): void
     {
         parent::setHeaders($headers);
+    }
+
+    public function replaceHeaders(array $headers): void
+    {
+        parent::replaceHeaders($headers);
     }
 
     public function setHeader(string $name, $value): void
@@ -97,7 +102,7 @@ class HttpMessageTest extends TestCase
         $this->assertSame(['bar', 'baz'], $message->getHeaderArray('bar'));
     }
 
-    public function testSetHeader(): void
+    public function testSetAndReplaceHeaders(): void
     {
         $message = new TestHttpMessage([
             'foo' => 'bar',
@@ -111,10 +116,19 @@ class HttpMessageTest extends TestCase
         $message->setHeader('bar', 'bar');
         $this->assertSame(['bar'], $message->getHeaderArray('bar'));
 
-        $message->setHeaders(['bar' => []]);
+        $message->replaceHeaders(['bar' => [], 'baz' => ['baz']]);
         $this->assertSame(['bar'], $message->getHeaderArray('foo'));
         $this->assertFalse($message->hasHeader('bar'));
         $this->assertSame([], $message->getHeaderArray('bar'));
+        $this->assertTrue($message->hasHeader('baz'));
+        $this->assertSame(['baz'], $message->getHeaderArray('baz'));
+
+        $message->setHeaders(['foo' => ['new']]);
+        $this->assertSame(['new'], $message->getHeaderArray('foo'));
+        $this->assertFalse($message->hasHeader('bar'));
+        $this->assertSame([], $message->getHeaderArray('bar'));
+        $this->assertFalse($message->hasHeader('baz'));
+        $this->assertSame([], $message->getHeaderArray('baz'));
 
         $message->setHeader('bar', ['biz', 'baz']);
         $this->assertSame(['biz', 'baz'], $message->getHeaderArray('bar'));
