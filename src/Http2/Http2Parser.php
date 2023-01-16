@@ -5,7 +5,7 @@ namespace Amp\Http\Http2;
 use Amp\Http\HPack;
 use Amp\Parser\Parser;
 
-final class Http2Parser extends Parser
+final class Http2Parser
 {
     public const PREFACE = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
 
@@ -128,6 +128,8 @@ final class Http2Parser extends Parser
 
     private readonly HPack $hpack;
 
+    private readonly Parser $parser;
+
     private int $receivedFrameCount = 0;
 
     private int $receivedByteCount = 0;
@@ -137,8 +139,7 @@ final class Http2Parser extends Parser
         ?string $settings = null,
     ) {
         $this->hpack = new HPack;
-
-        parent::__construct($this->parse($settings));
+        $this->parser = new Parser($this->parse($settings));
     }
 
     public function getReceivedByteCount(): int
@@ -149,6 +150,14 @@ final class Http2Parser extends Parser
     public function getReceivedFrameCount(): int
     {
         return $this->receivedFrameCount;
+    }
+
+    /**
+     * @throws Http2ConnectionException
+     */
+    public function push(string $data): void
+    {
+        $this->parser->push($data);
     }
 
     private function parse(?string $settings = null): \Generator
