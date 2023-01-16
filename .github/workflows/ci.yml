@@ -41,6 +41,8 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           ini-values: zend.assertions=1, assert.exception=1
+        env:
+          update: true
 
       - name: Get Composer cache directory
         id: composer-cache
