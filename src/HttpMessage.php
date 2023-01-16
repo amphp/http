@@ -124,7 +124,7 @@ abstract class HttpMessage
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
-        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
+        $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
             \assert($this->isValueValid([$value]), "Invalid header value");
@@ -157,7 +157,7 @@ abstract class HttpMessage
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
-        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
+        $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
             \assert($this->isValueValid([$value]), "Invalid header value");
