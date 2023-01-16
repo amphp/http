@@ -14,7 +14,8 @@
             "Amp\\Http\\": "src"
         },
         "files": [
-            "src/functions.php"
+            "src/functions.php",
+            "src/Internal/constants.php"
         ]
     },
     "require": {

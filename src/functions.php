@@ -68,7 +68,7 @@ function createFieldValueComponentMap(?array $pairs): ?array
     })());
 
     foreach ($pairs as [$key, $value]) {
-        $key = HttpMessage::HEADER_LOWER[$key] ?? \strtolower($key);
+        $key = \strtolower($key);
 
         if (isset($map[$key]) && $map[$key] !== $value) {
             return null; // incompatible duplicates

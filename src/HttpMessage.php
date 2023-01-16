@@ -2,52 +2,13 @@
 
 namespace Amp\Http;
 
+use const Amp\Http\Internal\HEADER_LOWER;
+
 /**
  * Base class for HTTP request and response messages.
  */
 abstract class HttpMessage
 {
-    public const HEADER_LOWER = [
-        'Accept' => 'accept',
-        'accept' => 'accept',
-        'Accept-Encoding' => 'accept-encoding',
-        'accept-encoding' => 'accept-encoding',
-        'Accept-Language' => 'accept-language',
-        'accept-language' => 'accept-language',
-        'Authorization' => 'authorization',
-        'authorization' => 'authorization',
-        'Cache-Control' => 'cache-control',
-        'cache-control' => 'cache-control',
-        'Connection' => 'connection',
-        'connection' => 'connection',
-        'Content-Encoding' => 'content-encoding',
-        'content-encoding' => 'content-encoding',
-        'Cookie' => 'cookie',
-        'cookie' => 'cookie',
-        'Date' => 'date',
-        'date' => 'date',
-        'Host' => 'host',
-        'host' => 'host',
-        'Sec-Fetch-Dest' => 'sec-fetch-dest',
-        'sec-fetch-dest' => 'sec-fetch-dest',
-        'Sec-Fetch-Mode' => 'sec-fetch-mode',
-        'sec-fetch-mode' => 'sec-fetch-mode',
-        'Sec-Fetch-Site' => 'sec-fetch-site',
-        'sec-fetch-site' => 'sec-fetch-site',
-        'Sec-Fetch-User' => 'sec-fetch-user',
-        'sec-fetch-user' => 'sec-fetch-user',
-        'Set-Cookie' => 'set-cookie',
-        'set-cookie' => 'set-cookie',
-        'Strict-Transport-Security' => 'strict-transport-security',
-        'strict-transport-security' => 'strict-transport-security',
-        'Upgrade-Insecure-Requests' => 'upgrade-insecure-requests',
-        'upgrade-insecure-requests' => 'upgrade-insecure-requests',
-        'User-Agent' => 'user-agent',
-        'user-agent' => 'user-agent',
-        'Vary' => 'vary',
-        'vary' => 'vary',
-    ];
-
     /** @var array<string, list<string>> */
     private array $headers = [];
 
@@ -90,7 +51,7 @@ abstract class HttpMessage
      */
     public function getHeaderArray(string $name): array
     {
-        return $this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)] ?? [];
+        return $this->headers[HEADER_LOWER[$name] ?? \strtolower($name)] ?? [];
     }
 
     /**
@@ -100,7 +61,7 @@ abstract class HttpMessage
      */
     public function getHeader(string $name): ?string
     {
-        return $this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)][0] ?? null;
+        return $this->headers[HEADER_LOWER[$name] ?? \strtolower($name)][0] ?? null;
     }
 
     /**
@@ -220,7 +181,7 @@ abstract class HttpMessage
      */
     protected function removeHeader(string $name): void
     {
-        $lcName = self::HEADER_LOWER[$name] ?? \strtolower($name);
+        $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         unset($this->headers[$lcName], $this->headerCase[$lcName]);
     }
@@ -230,7 +191,7 @@ abstract class HttpMessage
      */
     public function hasHeader(string $name): bool
     {
-        return isset($this->headers[self::HEADER_LOWER[$name] ?? \strtolower($name)]);
+        return isset($this->headers[HEADER_LOWER[$name] ?? \strtolower($name)]);
     }
 
     private function isNameValid(string $name): bool
