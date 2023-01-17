@@ -124,7 +124,8 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param list<array{0: string, 1: string}> $headers List of headers in [field, value] format as returned by {@see HttpMessage::getRawHeaders()}.
+     * @param list<array{0: string, 1: string}> $headers List of headers in [field, value] format as returned by
+     * {@see HttpMessage::getRawHeaders()}.
      *
      * @return string Formatted headers.
      *
@@ -133,7 +134,10 @@ final class Rfc7230
     public static function formatRawHeaders(array $headers): string
     {
         $lines = \count($headers);
-        $bytes = \sprintf(self::HEADER_SPRINTF[$lines] ?? \str_repeat(self::HEADER_SPRINTF[1], $lines), ...\array_merge(...$headers));
+        $bytes = \sprintf(
+            self::HEADER_SPRINTF[$lines] ?? \str_repeat(self::HEADER_SPRINTF[1], $lines),
+            ...\array_merge(...$headers),
+        );
         $count = \preg_match_all(self::HEADER_REGEX, $bytes);
 
         if ($lines !== $count || $lines !== \substr_count($bytes, "\n")) {
