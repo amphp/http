@@ -178,10 +178,12 @@ final class Http2Parser
 
             [
                 'length' => $frameLength,
-                'type' => $frameType,
                 'flags' => $frameFlags,
                 'id' => $streamId,
-            ] = \unpack('Nlength/ctype/cflags/Nid', "\0" . $frameHeader);
+            ] = \unpack('Nlength/cflags/Nid', $frameHeader);
+
+            $frameType = $frameLength & 0xff;
+            $frameLength >>= 8;
 
             $streamId &= 0x7fffffff;
 
