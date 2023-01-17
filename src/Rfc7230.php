@@ -118,8 +118,7 @@ final class Rfc7230
      */
     public static function formatRawHeaders(array $headers): string
     {
-        $buffer = "";
-        $lines = 0;
+        $buffer = [];
 
         foreach ($headers as [$name, $value]) {
             // Ignore any HTTP/2 pseudo headers
@@ -127,16 +126,17 @@ final class Rfc7230
                 continue;
             }
 
-            $buffer .= "{$name}: {$value}\r\n";
-            $lines++;
+            $buffer[] = $name . ": " . $value . "\r\n";
         }
 
-        $count = \preg_match_all(self::HEADER_REGEX, $buffer);
+        $bytes = \implode($buffer);
+        $count = \preg_match_all(self::HEADER_REGEX, $bytes);
+        $lines = \count($buffer);
 
-        if ($lines !== $count || $lines !== \substr_count($buffer, "\n")) {
+        if ($lines !== $count || $lines !== \substr_count($bytes, "\n")) {
             throw new InvalidHeaderException("Invalid headers");
         }
 
-        return $buffer;
+        return $bytes;
     }
 }
