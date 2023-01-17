@@ -17,6 +17,20 @@ final class Rfc7230
     public const HEADER_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++):[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+\r\n)m";
     public const HEADER_FOLD_REGEX = "(\r\n[ \t]++)";
 
+    private const HEADER_SPRINTF = [
+        0 => "",
+        1 => "%s: %s\r\n",
+        2 => "%s: %s\r\n%s: %s\r\n",
+        3 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        4 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        5 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        6 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        7 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        8 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        9 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+        10 => "%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n%s: %s\r\n",
+    ];
+
     /**
      * Parses headers according to RFC 7230 and 2616.
      *
@@ -118,20 +132,9 @@ final class Rfc7230
      */
     public static function formatRawHeaders(array $headers): string
     {
-        $buffer = [];
-
-        foreach ($headers as [$name, $value]) {
-            // Ignore any HTTP/2 pseudo headers
-            if (($name[0] ?? '') === ':') {
-                continue;
-            }
-
-            $buffer[] = $name . ": " . $value . "\r\n";
-        }
-
-        $bytes = \implode($buffer);
+        $lines = \count($headers);
+        $bytes = \sprintf(self::HEADER_SPRINTF[$lines] ?? \str_repeat(self::HEADER_SPRINTF[1], $lines), ...\array_merge(...$headers));
         $count = \preg_match_all(self::HEADER_REGEX, $bytes);
-        $lines = \count($buffer);
 
         if ($lines !== $count || $lines !== \substr_count($bytes, "\n")) {
             throw new InvalidHeaderException("Invalid headers");
