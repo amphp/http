@@ -111,7 +111,7 @@ final class Rfc7230
         foreach ($headers as $name => $values) {
             foreach ($values as $value) {
                 // PHP casts integer-like keys to integers
-                $headerList[] = [(string) $name, $value];
+                $headerList[] = [(string) $name, (string) $value];
             }
         }
 
@@ -124,7 +124,7 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param array $headers List of headers in [field, value] format as returned by {@see HttpMessage::getRawHeaders()}.
+     * @param list<array{0: string, 1: string}> $headers List of headers in [field, value] format as returned by {@see HttpMessage::getRawHeaders()}.
      *
      * @return string Formatted headers.
      *
