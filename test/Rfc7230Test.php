@@ -83,7 +83,7 @@ class Rfc7230Test extends TestCase
         ];
     }
 
-    public function testIgnoresHttp2PseudoHeaders(): void
+    public function testThrowsOnHttp2PseudoHeaders(): void
     {
         $headers = [
             "foobar" => ["bar"],
@@ -91,7 +91,9 @@ class Rfc7230Test extends TestCase
             "x" => ["y"],
         ];
 
-        $this->assertSame("foobar: bar\r\nx: y\r\n", Rfc7230::formatHeaders($headers));
+        $this->expectException(InvalidHeaderException::class);
+
+        Rfc7230::formatHeaders($headers);
     }
 
     public function testDetectsHeaderInjectionsWithLfInValue(): void
