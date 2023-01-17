@@ -70,6 +70,12 @@ final class Http2Parser
     public const INADEQUATE_SECURITY = 0xc;
     public const HTTP_1_1_REQUIRED = 0xd;
 
+    public static function compileFrame(string $data, int $type, int $flags, int $stream = 0): string
+    {
+        \assert(Http2Parser::logDebugFrame('send', $type, $flags, $stream, \strlen($data)));
+        return \pack("NcN", (\strlen($data) << 8) | ($type & 0xff), $flags, $stream) . $data;
+    }
+
     public static function getFrameName(int $type): string
     {
         $names = [
@@ -88,7 +94,7 @@ final class Http2Parser
         return $names[$type] ?? ('0x' . \bin2hex(\chr($type)));
     }
 
-    public static function logDebugFrame(
+    private static function logDebugFrame(
         string $action,
         int $frameType,
         int $frameFlags,
