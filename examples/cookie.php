@@ -14,7 +14,7 @@ var_dump($cookie->getValue());
 var_dump($cookie->isHttpOnly());
 var_dump("set-cookie: " . $cookie);
 
-$cookie = ResponseCookie::fromHeader($cookie);
+$cookie = ResponseCookie::fromHeader((string) $cookie);
 $cookie = new RequestCookie("session", $cookie->getValue());
 
 var_dump($cookie->getName());
