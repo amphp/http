@@ -23,7 +23,7 @@ Documentation can be found on [amphp.org/http](https://amphp.org/http) as well a
 
 ## Requirements
 
-- PHP 7.1+
+- PHP 8.1+
 
 ## Security
 
