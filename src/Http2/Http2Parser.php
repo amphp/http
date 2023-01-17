@@ -173,6 +173,7 @@ final class Http2Parser
         }
 
         while (true) {
+            /** @var string $frameHeader */
             $frameHeader = yield 9;
             $this->receivedByteCount += 9;
 
