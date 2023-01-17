@@ -33,7 +33,7 @@ HTTP cookies are specified by [RFC 6265](https://tools.ietf.org/html/rfc6265).
 This package implements parsers for the `set-cookie` and `cookie` headers.
 It further has a developer friendly API for creating such headers.
 
-> **Note:**
+> **Note**
 > This library doesn't set standards regarding the cookie encoding.
 > As such, the limitations of RFC 6265 apply to names and values.
 > If you need to set arbitrary values for certain cookies, it's recommended to use an encoding mechanism like URL encoding or Base64.
@@ -45,7 +45,7 @@ Servers send this header in responses and clients parse the headers if a respons
 Every header contains exactly one header.
 Hence, the responsible class is called `ResponseCookie`.
 
-> **Note:**
+> **Note**
 > More information about `set-cookie` can be obtained from the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie) or other sources.
 
 `ResponseCookie::fromHeader()` accepts a header value and attempts to parse it.
@@ -77,7 +77,7 @@ Clients send this header in requests and servers parse the header if a request c
 Clients must not send more than one such header.
 Hence, the responsible class is called `RequestCookie`.
 
-> **Note:**
+> **Note**
 > More information about `cookie` can be obtained from the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cookie) or other sources.
 
 `RequestCookie::fromHeader()` accepts a header value and attempts to parse it.
@@ -195,7 +195,8 @@ set-cookie: user=amphp; HttpOnly
 
 `amphp/http` follows the [semver](http://semver.org/) semantic versioning specification like all other `amphp` packages.
 
-> **Note:** BC breaks that are strictly required for RFC compliance are not considered BC breaks.
+> **Note**
+> BC breaks that are strictly required for RFC compliance are not considered BC breaks.
 > These include cases like wrong quote handling for cookies, where the RFC isn't too clear.
 >
 > A lax parser will however not be changed unless it is necessary for security reasons.
