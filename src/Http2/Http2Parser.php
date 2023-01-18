@@ -119,8 +119,6 @@ final class Http2Parser
         return true;
     }
 
-    private int $headerSizeLimit = self::DEFAULT_MAX_FRAME_SIZE; // Should be configurable?
-
     private bool $continuationExpected = false;
 
     private int $headerFrameType = 0;
@@ -140,12 +138,18 @@ final class Http2Parser
 
     private int $receivedByteCount = 0;
 
+    /**
+     * @param positive-int $headerSizeLimit
+     * @param positive-int $frameSizeLimit
+     */
     public function __construct(
         private readonly Http2Processor $handler,
-        ?string $settings = null,
+        ?string $peerSettings = null,
+        private readonly int $headerSizeLimit = self::DEFAULT_MAX_FRAME_SIZE,
+        private readonly int $frameSizeLimit = self::DEFAULT_MAX_FRAME_SIZE,
     ) {
         $this->hpack = new HPack;
-        $this->parser = new Parser($this->parse($settings));
+        $this->parser = new Parser($this->parse($peerSettings));
     }
 
     public function getReceivedByteCount(): int
@@ -197,7 +201,7 @@ final class Http2Parser
 
             try {
                 // Do we want to allow increasing the maximum frame size?
-                if ($frameLength > self::DEFAULT_MAX_FRAME_SIZE) {
+                if ($frameLength > $this->frameSizeLimit) {
                     throw new Http2ConnectionException("Frame size limit exceeded", self::FRAME_SIZE_ERROR);
                 }
 
