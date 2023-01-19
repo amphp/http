@@ -170,6 +170,11 @@ final class Http2Parser
         $this->parser->push($data);
     }
 
+    public function cancel(): void
+    {
+        $this->parser->cancel();
+    }
+
     private function parse(?string $settings = null): \Generator
     {
         if ($settings !== null) {
