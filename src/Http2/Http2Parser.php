@@ -130,13 +130,11 @@ final class Http2Parser
 
     private int $headerStream = 0;
 
-    private readonly HPack $hpack;
-
-    private readonly Parser $parser;
-
     private int $receivedFrameCount = 0;
 
     private int $receivedByteCount = 0;
+
+    private readonly Parser $parser;
 
     /**
      * @param positive-int $headerSizeLimit
@@ -144,11 +142,11 @@ final class Http2Parser
      */
     public function __construct(
         private readonly Http2Processor $handler,
+        private readonly HPack $hpack,
         ?string $peerSettings = null,
         private readonly int $headerSizeLimit = self::DEFAULT_MAX_FRAME_SIZE,
         private readonly int $frameSizeLimit = self::DEFAULT_MAX_FRAME_SIZE,
     ) {
-        $this->hpack = new HPack;
         $this->parser = new Parser($this->parse($peerSettings));
     }
 
