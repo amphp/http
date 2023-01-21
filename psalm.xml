@@ -21,6 +21,12 @@
             </errorLevel>
         </MissingClosureReturnType>
 
+        <RedundantCastGivenDocblockType>
+            <errorLevel type="suppress">
+                <directory name="src" />
+            </errorLevel>
+        </RedundantCastGivenDocblockType>
+
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <directory name="src" />

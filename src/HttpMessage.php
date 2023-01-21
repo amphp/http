@@ -9,10 +9,10 @@ use const Amp\Http\Internal\HEADER_LOWER;
  */
 abstract class HttpMessage
 {
-    /** @var array<string, list<string>> */
+    /** @var array<non-empty-string, list<string>> */
     private array $headers = [];
 
-    /** @var array<string, list<string>> */
+    /** @var array<non-empty-string, list<non-empty-string>> */
     private array $headerCase = [];
 
     /**
@@ -28,6 +28,8 @@ abstract class HttpMessage
 
     /**
      * Returns the headers as list of [field, name] pairs in the original casing provided by the application or server.
+     *
+     * @return list<array{non-empty-string, string}>
      */
     final public function getRawHeaders(): array
     {
@@ -48,6 +50,8 @@ abstract class HttpMessage
      * Returns the array of values for the given header or an empty array if the header does not exist.
      *
      * @return list<string>
+     *
+     * @psalm-suppress InvalidArrayOffset Using an empty string will not cause an error.
      */
     public function getHeaderArray(string $name): array
     {
@@ -58,6 +62,8 @@ abstract class HttpMessage
      * Returns the value of the given header. If multiple headers are present for the named header, only the first
      * header value will be returned. Use getHeaderArray() to return an array of all values for the particular header.
      * Returns null if the header does not exist.
+     *
+     * @psalm-suppress InvalidArrayOffset Using an empty string will not cause an error.
      */
     public function getHeader(string $name): ?string
     {
@@ -67,7 +73,7 @@ abstract class HttpMessage
     /**
      * Removes all current headers and sets new headers from the given array.
      *
-     * @param array<string, string|array<string>> $headers
+     * @param array<non-empty-string, string|array<string>> $headers
      */
     protected function setHeaders(array $headers): void
     {
@@ -93,7 +99,7 @@ abstract class HttpMessage
     /**
      * Replaces headers from the given array. Header names not contained in the array are not changed.
      *
-     * @param array<string, string|array<string>> $headers
+     * @param array<non-empty-string, string|array<string>> $headers
      */
     protected function replaceHeaders(array $headers): void
     {
@@ -116,6 +122,7 @@ abstract class HttpMessage
     /**
      * Sets the named header to the given value.
      *
+     * @param non-empty-string $name
      * @param string|array<string> $value
      *
      * @throws \Error If the header name or value is invalid.
@@ -149,6 +156,7 @@ abstract class HttpMessage
     /**
      * Adds the value to the named header, or creates the header with the given value if it did not exist.
      *
+     * @param non-empty-string $name
      * @param string|array<string> $value
      *
      * @throws \Error If the header name or value is invalid.
@@ -178,6 +186,8 @@ abstract class HttpMessage
 
     /**
      * Removes the given header if it exists.
+     *
+     * @psalm-suppress InvalidArrayOffset Using an empty string will not cause an error.
      */
     protected function removeHeader(string $name): void
     {
@@ -188,6 +198,8 @@ abstract class HttpMessage
 
     /**
      * Checks if given header exists.
+     *
+     * @psalm-suppress InvalidArrayOffset Using an empty string will not cause an error.
      */
     public function hasHeader(string $name): bool
     {

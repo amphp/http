@@ -36,7 +36,7 @@ final class Rfc7230
      *
      * Allows empty header values, as HTTP/1.0 allows that.
      *
-     * @return array Associative array mapping header names to arrays of values.
+     * @return array<non-empty-string, list<string>> Associative array mapping header names to arrays of values.
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
@@ -59,7 +59,7 @@ final class Rfc7230
      *
      * Allows empty header values, as HTTP/1.0 allows that.
      *
-     * @return list<array{string, string}> List of [field, value] header pairs.
+     * @return list<array{non-empty-string, string}> List of [field, value] header pairs.
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
@@ -84,6 +84,8 @@ final class Rfc7230
         $headers = [];
 
         foreach ($matches as $match) {
+            \assert($match[1] !== ''); // For Psalm.
+
             // We avoid a call to \trim() here due to the regex.
             // Accessing matches directly instead of using foreach (... as list(...)) is slightly faster.
             $headers[] = [$match[1], $match[2]];
@@ -98,7 +100,7 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param array $headers Headers in a format as returned by {@see parseHeaders()}.
+     * @param array<non-empty-string, list<string>> $headers Headers in a format as returned by {@see parseHeaders()}.
      *
      * @return string Formatted headers.
      *
@@ -124,7 +126,7 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param list<array{0: string, 1: string}> $headers List of headers in [field, value] format as returned by
+     * @param list<array{non-empty-string, string}> $headers List of headers in [field, value] format as returned by
      * {@see HttpMessage::getRawHeaders()}.
      *
      * @return string Formatted headers.
