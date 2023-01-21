@@ -19,7 +19,7 @@ abstract class HttpMessage
      * Returns the headers as a string-indexed array of arrays of strings or an empty array if no headers
      * have been set.
      *
-     * @return array<string, list<string>>
+     * @return array<non-empty-string, list<string>>
      */
     public function getHeaders(): array
     {
