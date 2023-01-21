@@ -10,7 +10,7 @@ namespace Amp\Http\Cookie;
  *
  * @link https://tools.ietf.org/html/rfc6265#section-5.4
  */
-final class RequestCookie
+final class RequestCookie implements \Stringable
 {
     /**
      * Parses the cookies from a 'cookie' header.
@@ -35,16 +35,21 @@ final class RequestCookie
 
                 $parts = \explode('=', $cookie, 2);
 
-                if (2 !== \count($parts)) {
+                if (\count($parts) !== 2) {
                     return [];
                 }
 
-                list($name, $value) = $parts;
+                [$name, $value] = $parts;
+
+                $name = \trim($name);
+                if ($name === '') {
+                    return [];
+                }
 
                 // We can safely trim quotes, as they're not allowed within cookie values
-                $result[] = new self(\trim($name), \trim($value, " \t\""));
+                $result[] = new self($name, \trim($value, " \t\""));
             }
-        } catch (InvalidCookieException $e) {
+        } catch (InvalidCookieException) {
             return [];
         }
 
@@ -52,7 +57,7 @@ final class RequestCookie
     }
 
     /**
-     * @param string $name Cookie name in its decoded form.
+     * @param non-empty-string $name Cookie name in its decoded form.
      * @param string $value Cookie value in its decoded form.
      *
      * @throws InvalidCookieException If name or value is invalid.
@@ -69,13 +74,16 @@ final class RequestCookie
     }
 
     /**
-     * @return string Name of the cookie.
+     * @return non-empty-string Name of the cookie.
      */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public function withName(string $name): self
     {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {

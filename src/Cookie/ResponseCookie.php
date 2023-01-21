@@ -10,7 +10,7 @@ namespace Amp\Http\Cookie;
  *
  * @link https://tools.ietf.org/html/rfc6265#section-5.2
  */
-final class ResponseCookie
+final class ResponseCookie implements \Stringable
 {
     private static array $dateFormats = [
         'D, d M Y H:i:s T',
@@ -126,7 +126,7 @@ final class ResponseCookie
             $cookie->unknownAttributes = $unknownAttributes;
 
             return $cookie;
-        } catch (InvalidCookieException $e) {
+        } catch (InvalidCookieException) {
             return null;
         }
     }
@@ -153,8 +153,8 @@ final class ResponseCookie
     private CookieAttributes $attributes;
 
     /**
-     * @param string           $name Name of the cookie.
-     * @param string           $value Value of the cookie.
+     * @param non-empty-string $name Name of the cookie.
+     * @param string $value Value of the cookie.
      * @param CookieAttributes $attributes Attributes of the cookie.
      *
      * @throws InvalidCookieException If name or value is invalid.
@@ -176,13 +176,16 @@ final class ResponseCookie
     }
 
     /**
-     * @return string Name of the cookie.
+     * @return non-empty-string Name of the cookie.
      */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @param non-empty-string $name
+     */
     public function withName(string $name): self
     {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
