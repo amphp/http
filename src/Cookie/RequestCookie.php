@@ -119,8 +119,16 @@ final class RequestCookie implements \Stringable
     /**
      * @return string Representation of the cookie as in a 'cookie' header.
      */
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->name . '=' . $this->value;
+    }
+
+    /**
+     * @see toString()
+     */
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 }

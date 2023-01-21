@@ -362,7 +362,7 @@ final class ResponseCookie implements \Stringable
     /**
      * @return string Representation of the cookie as in a 'set-cookie' header.
      */
-    public function __toString(): string
+    public function toString(): string
     {
         $line = $this->name . '=' . $this->value;
         $line .= $this->attributes;
@@ -373,5 +373,13 @@ final class ResponseCookie implements \Stringable
         }
 
         return $line;
+    }
+
+    /**
+     * @see toString()
+     */
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 }
