@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Amp\Http\Test;
+namespace Amp\Http;
 
-use Amp\Http\HttpMessage;
 use PHPUnit\Framework\TestCase;
 
 class TestHttpMessage extends HttpMessage
