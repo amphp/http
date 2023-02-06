@@ -208,7 +208,7 @@ abstract class HttpMessage
 
     private function isNameValid(string $name): bool
     {
-        return (bool) \preg_match('/^[A-Za-z0-9`~!#$%^&_|\'\-:]+$/', $name);
+        return (bool) \preg_match('/^[A-Za-z0-9`~!#$%^&_|\'\-*+.]+$/', $name);
     }
 
     /**
