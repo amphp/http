@@ -55,7 +55,7 @@ final class ResponseCookie implements \Stringable
             $pieces = \array_map('trim', \explode('=', $part, 2));
             $key = \strtolower($pieces[0]);
 
-            if (1 === \count($pieces)) {
+            if (\count($pieces) < 2) {
                 switch ($key) {
                     case 'secure':
                         $meta = $meta->withSecure();
