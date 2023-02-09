@@ -4,15 +4,21 @@ namespace Amp\Http;
 
 use League\Uri\Http;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriInterface as PsrUri;
 
 class TestHttpRequest extends HttpRequest
 {
-    public function setQueryParameter(string $key, string $value): void
+    public function setUri(PsrUri $uri): void
+    {
+        parent::setUri($uri);
+    }
+
+    public function setQueryParameter(string $key, ?string $value): void
     {
         parent::setQueryParameter($key, $value);
     }
 
-    public function addQueryParameter(string $key, string $value): void
+    public function addQueryParameter(string $key, ?string $value): void
     {
         parent::addQueryParameter($key, $value);
     }
@@ -53,7 +59,29 @@ class HttpRequestTest extends TestCase
         self::assertSame('value', $request->getQueryParameter('key'));
     }
 
-    public function testQueryWithMultiplePairs(): void
+    public function testQueryWithEmptyValues(): void
+    {
+        $query = 'key1&key2&key3=3.1';
+        $request = $this->createTestRequest($query);
+        self::assertNull($request->getQueryParameter('key1'));
+        self::assertNull($request->getQueryParameter('key2'));
+        self::assertSame('3.1', $request->getQueryParameter('key3'));
+        self::assertSame($query, $request->getUri()->getQuery());
+    }
+
+    public function testQueryWithEncodedChars(): void
+    {
+        $query = 'key%5B1%5D=1%201&key%5B2%5D=2%261&key%5B3%5D=3%5B1%5D';
+        $request = $this->createTestRequest($query);
+        self::assertSame('1 1', $request->getQueryParameter('key[1]'));
+        self::assertSame('2&1', $request->getQueryParameter('key[2]'));
+        self::assertSame('3[1]', $request->getQueryParameter('key[3]'));
+
+        $request->setQueryParameter('key[3]', '3[2]');
+        self::assertSame(str_replace('3%5B1%5D', '3%5B2%5D', $query), $request->getUri()->getQuery());
+    }
+
+    public function testQueryWithMultipleKeyValues(): void
     {
         $request = $this->createTestRequest('key1=1.1&key1=1.2&key2=2.1&key2=2.2');
 
@@ -69,31 +97,57 @@ class HttpRequestTest extends TestCase
 
         $request->addQueryParameter('key1', '1.3');
         self::assertSame(['key1' => ['1.1', '1.2', '1.3'], 'key2' => ['2.1', '2.2']], $request->getQueryParameters());
+
+        $request->replaceQueryParameters(['key1' => '1.4']);
+        self::assertSame(['key1' => ['1.4'], 'key2' => ['2.1', '2.2']], $request->getQueryParameters());
+        self::assertSame('key1=1.4&key2=2.1&key2=2.2', $request->getUri()->getQuery());
+
+        $request->setQueryParameters(['key2' => '2.3']);
+        self::assertSame(['key2' => ['2.3']], $request->getQueryParameters());
+        self::assertSame('key2=2.3', $request->getUri()->getQuery());
     }
 
-    public function testQueryWithArrayKeys(): void
+    public function testEmptyQuery(): void
     {
-        $request = $this->createTestRequest('key1[]=1.1&key1[]=1.2&key2[]=2.1&key2[]=2.2');
+        $request = $this->createTestRequest('');
+        self::assertSame([], $request->getQueryParameters());
+    }
 
-        self::assertTrue($request->hasQueryParameter('key1[]'));
-        self::assertSame('1.1', $request->getQueryParameter('key1[]'));
-        self::assertSame(['1.1', '1.2'], $request->getQueryParameterArray('key1[]'));
+    public function testRemoveQuery(): void
+    {
+        $query = 'key=value';
+        $request = $this->createTestRequest($query);
+        self::assertSame($query, $request->getUri()->getQuery());
 
-        self::assertTrue($request->hasQueryParameter('key2[]'));
-        self::assertSame(['2.1', '2.2'], $request->getQueryParameterArray('key2[]'));
-        self::assertSame(['key1[]' => ['1.1', '1.2'], 'key2[]' => ['2.1', '2.2']], $request->getQueryParameters());
-
-        $request->addQueryParameter('key1[]', '1.3');
-        self::assertSame(['key1[]' => ['1.1', '1.2', '1.3'], 'key2[]' => ['2.1', '2.2']], $request->getQueryParameters());
+        $request->removeQuery();
+        self::assertSame([], $request->getQueryParameters());
+        self::assertSame('', $request->getUri()->getQuery());
     }
 
     public function testQueryWithEmptyPairs(): void
     {
-        $request = $this->createTestRequest('&&&=to&&key=value');
+        $request = $this->createTestRequest('&&&=to&&key=value&empty');
 
         self::assertSame([
             '' => [null, null, null, 'to', null],
             'key' => ['value'],
+            'empty' => [null],
         ], $request->getQueryParameters());
+
+        self::assertTrue($request->hasQueryParameter(''));
+        self::assertTrue($request->hasQueryParameter('empty'));
+
+        $request->setQueryParameter('key', 'test');
+        self::assertSame('&&&=to&&key=test&empty', $request->getUri()->getQuery());
+    }
+
+    public function testSetUri(): void
+    {
+        $request = $this->createTestRequest('key1=value1');
+        self::assertSame('value1', $request->getQueryParameter('key1'));
+
+        $request->setUri(Http::createFromComponents(['query' => 'key2=value2']));
+        self::assertNull($request->getQueryParameter('key1'));
+        self::assertSame('value2', $request->getQueryParameter('key2'));
     }
 }

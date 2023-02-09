@@ -2,17 +2,16 @@
 
 namespace Amp\Http;
 
-use League\Uri\Components\Query as QueryComponent;
-use League\Uri\Contracts\QueryInterface as QueryContract;
+use League\Uri\QueryString;
 use Psr\Http\Message\UriInterface as PsrUri;
 
 abstract class HttpRequest extends HttpMessage
 {
-    private ?QueryContract $query = null;
+    /** @var array<string, list<string|null>>|null  */
+    private ?array $query = null;
 
     /**
      * @param non-empty-string $method
-     * @param PsrUri $uri
      */
     public function __construct(
         private string $method,
@@ -43,18 +42,21 @@ abstract class HttpRequest extends HttpMessage
 
     protected function setUri(PsrUri $uri): void
     {
+        if ($this->uri->getQuery() !== $uri->getQuery()) {
+            $this->query = null;
+        }
+
         $this->uri = $uri;
-        $this->query = null;
     }
 
     public function hasQueryParameter(string $key): bool
     {
-        return $this->getQuery()->has($key);
+        return isset($this->getQueryParameters()[$key]);
     }
 
     public function getQueryParameter(string $key): ?string
     {
-        return $this->getQuery()->get($key);
+        return $this->getQueryParameters()[$key][0] ?? null;
     }
 
     /**
@@ -62,7 +64,7 @@ abstract class HttpRequest extends HttpMessage
      */
     public function getQueryParameterArray(string $key): array
     {
-        return \array_values($this->getQuery()->getAll($key));
+        return $this->getQueryParameters()[$key] ?? [];
     }
 
     /**
@@ -70,59 +72,100 @@ abstract class HttpRequest extends HttpMessage
      */
     public function getQueryParameters(): array
     {
-        $parameters = [];
-        foreach ($this->getQuery()->pairs() as $key => $value) {
-            $parameters[$key] ??= [];
-            $parameters[$key][] = $value;
-        }
-
-        return $parameters;
+        return $this->query ??= $this->buildQueryFromUri();
     }
 
-    protected function setQueryParameter(string $key, string $value): void
+    protected function setQueryParameter(string $key, ?string $value): void
     {
-        $this->updateUriWithQuery($this->getQuery()->withPair($key, $value));
+        $query = $this->getQueryParameters();
+        $query[$key] = [$value];
+        $this->updateUriWithQuery($query);
     }
 
-    protected function addQueryParameter(string $key, string $value): void
+    protected function addQueryParameter(string $key, ?string $value): void
     {
-        $this->updateUriWithQuery($this->getQuery()->appendTo($key, $value));
+        $query = $this->getQueryParameters();
+        $query[$key][] = $value;
+        $this->updateUriWithQuery($query);
     }
 
     /**
-     * @param array<string, string|array<string>> $parameters
+     * @param array<string, string|array<string|null>> $parameters
      */
     protected function setQueryParameters(array $parameters): void
     {
-        $this->updateUriWithQuery(QueryComponent::createFromParams($parameters));
+        $query = $this->buildQueryFromParameters($parameters);
+        $this->updateUriWithQuery($query);
     }
 
     /**
-     * @param array<string, string|array<string>> $parameters
+     * @param array<string, string|array<string|null>> $parameters
      */
     protected function replaceQueryParameters(array $parameters): void
     {
-        $query = QueryComponent::createFromParams($parameters);
-        $this->updateUriWithQuery($this->getQuery()->merge($query->toRFC3986() ?? ''));
+        $this->updateUriWithQuery([
+            ...$this->getQueryParameters(),
+            ...$this->buildQueryFromParameters($parameters),
+        ]);
+    }
+
+    private function buildQueryFromParameters(array $parameters): array
+    {
+        $query = [];
+        foreach ($parameters as $key => $values) {
+            $values = \is_array($values) ? $values : [$values];
+            if ($values !== \array_filter($values, static fn ($value) => \is_string($value) || \is_null($value))) {
+                throw new \TypeError('Query parameter values must be a string or an array of strings');
+            }
+
+            $query[$key] = $values;
+        }
+
+        return $query;
     }
 
     protected function removeQueryParameters(string $key): void
     {
-        $this->updateUriWithQuery($this->getQuery()->withoutPair($key));
+        $query = $this->getQueryParameters();
+        unset($query[$key]);
+        $this->updateUriWithQuery($query);
     }
 
     protected function removeQuery(): void
     {
-        $this->setUri($this->uri->withQuery(''));
+        $this->uri = $this->uri->withQuery('');
+        $this->query = [];
     }
 
-    private function getQuery(): QueryContract
+    /**
+     * @return array<string, list<string|null>>
+     */
+    private function buildQueryFromUri(): array
     {
-        return $this->query ??= QueryComponent::createFromUri($this->uri);
+        $queryString = $this->uri->getQuery();
+        if ($queryString === '') {
+            return [];
+        }
+
+        $query = [];
+        foreach (QueryString::parse($queryString) as [$key, $value]) {
+            $query[$key][] = $value;
+        }
+
+        return $query;
     }
 
-    private function updateUriWithQuery(QueryContract $query): void
+    /**
+     * @param array<string, list<string|null>> $query
+     */
+    private function updateUriWithQuery(array $query): void
     {
-        $this->setUri($this->uri->withQuery($query->toRFC3986() ?? ''));
+        $pairs = [];
+        foreach ($query as $key => $values) {
+            \array_push($pairs, ...\array_map(static fn ($value) => [$key, $value], $values));
+        }
+
+        $this->uri = $this->uri->withQuery(QueryString::build($pairs) ?? '');
+        $this->query = $query;
     }
 }

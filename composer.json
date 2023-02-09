@@ -23,7 +23,6 @@
         "amphp/hpack": "^3",
         "amphp/parser": "^1.1",
         "league/uri-components": "^2.4",
-        "league/uri-interfaces": "^2.3",
         "psr/http-message": "^1"
     },
     "require-dev": {
