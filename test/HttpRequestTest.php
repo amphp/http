@@ -78,7 +78,7 @@ class HttpRequestTest extends TestCase
         self::assertSame('3[1]', $request->getQueryParameter('key[3]'));
 
         $request->setQueryParameter('key[3]', '3[2]');
-        self::assertSame(str_replace('3%5B1%5D', '3%5B2%5D', $query), $request->getUri()->getQuery());
+        self::assertSame(\str_replace('3%5B1%5D', '3%5B2%5D', $query), $request->getUri()->getQuery());
     }
 
     public function testQueryWithMultipleKeyValues(): void
@@ -105,6 +105,27 @@ class HttpRequestTest extends TestCase
         $request->setQueryParameters(['key2' => '2.3']);
         self::assertSame(['key2' => ['2.3']], $request->getQueryParameters());
         self::assertSame('key2=2.3', $request->getUri()->getQuery());
+    }
+
+    public function testQueryWithArrayKeys(): void
+    {
+        $request = $this->createTestRequest('key[0]=0&key[1]=1&key[2]=2&key[3]=3');
+        self::assertSame(
+            ['key[0]' => ['0'], 'key[1]' => ['1'], 'key[2]' => ['2'], 'key[3]' => ['3']],
+            $request->getQueryParameters(),
+        );
+    }
+
+    public function testQueryWithIntegerKeys(): void
+    {
+        $request = $this->createTestRequest('0=0&1=1&2=2');
+        self::assertSame([0 => ['0'], 1 => ['1'], 2 => ['2']], $request->getQueryParameters());
+        self::assertSame('0', $request->getQueryParameter('0'));
+        self::assertSame('1', $request->getQueryParameter('1'));
+        self::assertSame('2', $request->getQueryParameter('2'));
+
+        $request->setQueryParameters(['a', 'b']);
+        self::assertSame('0=a&1=b', $request->getUri()->getQuery());
     }
 
     public function testEmptyQuery(): void
@@ -135,9 +156,12 @@ class HttpRequestTest extends TestCase
         ], $request->getQueryParameters());
 
         self::assertTrue($request->hasQueryParameter(''));
+        self::assertNull($request->getQueryParameter(''));
         self::assertTrue($request->hasQueryParameter('empty'));
+        self::assertNull($request->getQueryParameter('empty'));
 
         $request->setQueryParameter('key', 'test');
+        self::assertSame('test', $request->getQueryParameter('key'));
         self::assertSame('&&&=to&&key=test&empty', $request->getUri()->getQuery());
     }
 
