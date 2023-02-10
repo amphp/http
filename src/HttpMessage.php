@@ -123,17 +123,18 @@ abstract class HttpMessage
      * Sets the named header to the given value.
      *
      * @param non-empty-string $name
-     * @param string|array<string> $value
+     * @param string|array<string>|int|float $value
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function setHeader(string $name, array|string $value): void
+    protected function setHeader(string $name, array|string|int|float $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
         $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
+            $value = \strval($value);
             \assert($this->isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName] = [$value];
             $this->headerCase[$lcName] = [$name];
@@ -157,17 +158,18 @@ abstract class HttpMessage
      * Adds the value to the named header, or creates the header with the given value if it did not exist.
      *
      * @param non-empty-string $name
-     * @param string|array<string> $value
+     * @param string|array<string>|int|float $value
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function addHeader(string $name, array|string $value): void
+    protected function addHeader(string $name, array|string|int|float $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
         $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
+            $value = \strval($value);
             \assert($this->isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName][] = $value;
             $this->headerCase[$lcName][] = $name;
