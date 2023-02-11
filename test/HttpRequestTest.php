@@ -13,12 +13,12 @@ class TestHttpRequest extends HttpRequest
         parent::setUri($uri);
     }
 
-    public function setQueryParameter(string $key, ?string $value): void
+    public function setQueryParameter(string $key, array|string|int|float|null $value): void
     {
         parent::setQueryParameter($key, $value);
     }
 
-    public function addQueryParameter(string $key, ?string $value): void
+    public function addQueryParameter(string $key, array|string|int|float|null $value): void
     {
         parent::addQueryParameter($key, $value);
     }
@@ -173,5 +173,22 @@ class HttpRequestTest extends TestCase
         $request->setUri(Http::createFromComponents(['query' => 'key2=value2']));
         self::assertNull($request->getQueryParameter('key1'));
         self::assertSame('value2', $request->getQueryParameter('key2'));
+    }
+
+    public function testSettingNonStringValues(): void
+    {
+        $request = $this->createTestRequest('');
+        $request->setQueryParameter('key1', 1);
+        $request->setQueryParameter('key2', 3.14);
+        $request->setQueryParameter('key3', [1, 2, 3]);
+
+        self::assertSame('1', $request->getQueryParameter('key1'));
+        self::assertSame('3.14', $request->getQueryParameter('key2'));
+        self::assertSame(['1', '2', '3'], $request->getQueryParameterArray('key3'));
+
+        self::assertSame('key1=1&key2=3.14&key3=1&key3=2&key3=3', $request->getUri()->getQuery());
+
+        $this->expectException(\TypeError::class);
+        $request->setQueryParameter('key4', [true]);
     }
 }

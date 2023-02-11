@@ -75,17 +75,20 @@ abstract class HttpRequest extends HttpMessage
         return $this->query ??= $this->buildQueryFromUri();
     }
 
-    protected function setQueryParameter(string $key, ?string $value): void
+    protected function setQueryParameter(string $key, array|string|int|float|null $value): void
     {
         $query = $this->getQueryParameters();
-        $query[$key] = [$value];
+        $query[$key] = self::castQueryArrayValues(\is_array($value) ? $value : [$value]);
         $this->updateUriWithQuery($query);
     }
 
-    protected function addQueryParameter(string $key, ?string $value): void
+    protected function addQueryParameter(string $key, array|string|int|float|null $value): void
     {
         $query = $this->getQueryParameters();
-        $query[$key][] = $value;
+        $query[$key] = [
+            ...($query[$key] ?? []),
+            ...self::castQueryArrayValues(\is_array($value) ? $value : [$value]),
+        ];
         $this->updateUriWithQuery($query);
     }
 
@@ -94,7 +97,7 @@ abstract class HttpRequest extends HttpMessage
      */
     protected function setQueryParameters(array $parameters): void
     {
-        $query = $this->buildQueryFromParameters($parameters);
+        $query = self::buildQueryFromParameters($parameters);
         $this->updateUriWithQuery($query);
     }
 
@@ -105,20 +108,36 @@ abstract class HttpRequest extends HttpMessage
     {
         $this->updateUriWithQuery([
             ...$this->getQueryParameters(),
-            ...$this->buildQueryFromParameters($parameters),
+            ...self::buildQueryFromParameters($parameters),
         ]);
     }
 
-    private function buildQueryFromParameters(array $parameters): array
+    /**
+     * @param array<string|int|float|null> $values
+     * @return list<string|null>
+     */
+    private static function castQueryArrayValues(array $values): array
+    {
+        static $mapper;
+
+        $mapper ??= static fn (mixed $value) => match (true) {
+            \is_string($value) => $value,
+            \is_null($value) => $value, // string and null check on separate lines for Psalm.
+            \is_int($value), \is_float($value) => (string) $value,
+            default => throw new \TypeError(\sprintf(
+                'Query array may contain only string, integer, float, or null values; got "%s"',
+                \get_debug_type($value),
+            )),
+        };
+
+        return \array_map($mapper, \array_values($values));
+    }
+
+    private static function buildQueryFromParameters(array $parameters): array
     {
         $query = [];
         foreach ($parameters as $key => $values) {
-            $values = \is_array($values) ? $values : [$values];
-            if ($values !== \array_filter($values, static fn ($value) => \is_string($value) || \is_null($value))) {
-                throw new \TypeError('Query parameter values must be a string or an array of strings');
-            }
-
-            $query[$key] = $values;
+            $query[$key] = self::castQueryArrayValues(\is_array($values) ? $values : [$values]);
         }
 
         return $query;
