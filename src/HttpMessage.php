@@ -6,10 +6,14 @@ use const Amp\Http\Internal\HEADER_LOWER;
 
 /**
  * Base class for HTTP request and response messages.
+ *
+ * @psalm-type HeaderParamValueType = int|float|string|array<int|float|string>
+ * @psalm-type HeaderParamArrayType = array<non-empty-string, HeaderParamValueType>
+ * @psalm-type HeaderMapType = array<non-empty-string, list<string>>
  */
 abstract class HttpMessage
 {
-    /** @var array<non-empty-string, list<string>> */
+    /** @var HeaderMapType */
     private array $headers = [];
 
     /** @var array<non-empty-string, list<non-empty-string>> */
@@ -19,7 +23,7 @@ abstract class HttpMessage
      * Returns the headers as a string-indexed array of arrays of strings or an empty array if no headers
      * have been set.
      *
-     * @return array<non-empty-string, list<string>>
+     * @return HeaderMapType
      */
     public function getHeaders(): array
     {
@@ -73,7 +77,7 @@ abstract class HttpMessage
     /**
      * Removes all current headers and sets new headers from the given array.
      *
-     * @param array<non-empty-string, string|array<string>> $headers
+     * @param HeaderParamArrayType $headers
      */
     protected function setHeaders(array $headers): void
     {
@@ -99,7 +103,7 @@ abstract class HttpMessage
     /**
      * Replaces headers from the given array. Header names not contained in the array are not changed.
      *
-     * @param array<non-empty-string, string|array<string>> $headers
+     * @param HeaderParamArrayType $headers
      */
     protected function replaceHeaders(array $headers): void
     {
@@ -123,7 +127,7 @@ abstract class HttpMessage
      * Sets the named header to the given value.
      *
      * @param non-empty-string $name
-     * @param string|array<string>|int|float $value
+     * @param HeaderParamValueType $value
      *
      * @throws \Error If the header name or value is invalid.
      */
@@ -134,7 +138,7 @@ abstract class HttpMessage
         $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
-            $value = \strval($value);
+            $value = (string) $value;
             \assert($this->isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName] = [$value];
             $this->headerCase[$lcName] = [$name];
@@ -158,7 +162,7 @@ abstract class HttpMessage
      * Adds the value to the named header, or creates the header with the given value if it did not exist.
      *
      * @param non-empty-string $name
-     * @param string|array<string>|int|float $value
+     * @param HeaderParamValueType $value
      *
      * @throws \Error If the header name or value is invalid.
      */
@@ -169,7 +173,7 @@ abstract class HttpMessage
         $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
-            $value = \strval($value);
+            $value = (string) $value;
             \assert($this->isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName][] = $value;
             $this->headerCase[$lcName][] = $name;
