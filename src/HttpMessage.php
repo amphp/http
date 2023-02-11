@@ -139,7 +139,7 @@ abstract class HttpMessage
 
         if (!\is_array($value)) {
             $value = (string) $value;
-            \assert($this->isValueValid([$value]), "Invalid header value");
+            \assert(self::isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName] = [$value];
             $this->headerCase[$lcName] = [$name];
             return;
@@ -150,9 +150,9 @@ abstract class HttpMessage
             return;
         }
 
-        $value = \array_values(\array_map(\strval(...), $value));
+        $value = self::castHeaderArrayValues($value);
 
-        \assert($this->isValueValid($value), "Invalid header value");
+        \assert(self::isValueValid($value), "Invalid header value");
 
         $this->headers[$lcName] = $value;
         $this->headerCase[$lcName] = \array_fill(0, \count($value), $name);
@@ -174,15 +174,15 @@ abstract class HttpMessage
 
         if (!\is_array($value)) {
             $value = (string) $value;
-            \assert($this->isValueValid([$value]), "Invalid header value");
+            \assert(self::isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName][] = $value;
             $this->headerCase[$lcName][] = $name;
             return;
         }
 
-        $value = \array_values(\array_map(\strval(...), $value));
+        $value = self::castHeaderArrayValues($value);
 
-        \assert($this->isValueValid($value), "Invalid header value");
+        \assert(self::isValueValid($value), "Invalid header value");
 
         foreach ($value as $header) {
             $this->headers[$lcName][] = $header;
@@ -218,6 +218,26 @@ abstract class HttpMessage
     }
 
     /**
+     * @param array<int|float|string> $values
+     * @return list<string>
+     */
+    private static function castHeaderArrayValues(array $values): array
+    {
+        static $mapper;
+
+        $mapper ??= static fn (mixed $value) => match (true) {
+            \is_string($value) => $value,
+            \is_int($value), \is_float($value) => (string) $value,
+            default => throw new \TypeError(\sprintf(
+                'Header array may contain only string, integer, or float values; got "%s"',
+                \get_debug_type($value),
+            )),
+        };
+
+        return \array_map($mapper, \array_values($values));
+    }
+
+    /**
      * Determines if the given value is a valid header value.
      *
      * @param list<string> $values
@@ -225,7 +245,7 @@ abstract class HttpMessage
      * @throws \Error If the given value cannot be converted to a string and is not an array of values that can be
      *     converted to strings.
      */
-    private function isValueValid(array $values): bool
+    private static function isValueValid(array $values): bool
     {
         foreach ($values as $value) {
             if (\preg_match("/[^\t\r\n\x20-\x7e\x80-\xfe]|\r\n/", $value)) {
