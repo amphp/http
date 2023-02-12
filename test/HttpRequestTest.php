@@ -33,9 +33,9 @@ class TestHttpRequest extends HttpRequest
         parent::replaceQueryParameters($parameters);
     }
 
-    public function removeQueryParameters(string $key): void
+    public function removeQueryParameter(string $key): void
     {
-        parent::removeQueryParameters($key);
+        parent::removeQueryParameter($key);
     }
 
     public function removeQuery(): void
@@ -101,6 +101,10 @@ class HttpRequestTest extends TestCase
         $request->replaceQueryParameters(['key1' => '1.4']);
         self::assertSame(['key1' => ['1.4'], 'key2' => ['2.1', '2.2']], $request->getQueryParameters());
         self::assertSame('key1=1.4&key2=2.1&key2=2.2', $request->getUri()->getQuery());
+
+        $request->removeQueryParameter('key2');
+        self::assertSame(['key1' => ['1.4']], $request->getQueryParameters());
+        self::assertSame('key1=1.4', $request->getUri()->getQuery());
 
         $request->setQueryParameters(['key2' => '2.3']);
         self::assertSame(['key2' => ['2.3']], $request->getQueryParameters());

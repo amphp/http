@@ -154,7 +154,7 @@ abstract class HttpRequest extends HttpMessage
         return $query;
     }
 
-    protected function removeQueryParameters(string $key): void
+    protected function removeQueryParameter(string $key): void
     {
         $query = $this->getQueryParameters();
         unset($query[$key]);
