@@ -5,9 +5,14 @@ namespace Amp\Http;
 use League\Uri\QueryString;
 use Psr\Http\Message\UriInterface as PsrUri;
 
+/**
+ * @psalm-type QueryValueType = int|float|string|array<int|float|string|null>|null
+ * @psalm-type QueryArrayType = array<string, QueryValueType>
+ * @psalm-type QueryMapType = array<string, list<string|null>>
+ */
 abstract class HttpRequest extends HttpMessage
 {
-    /** @var array<string, list<string|null>>|null  */
+    /** @var QueryMapType|null  */
     private ?array $query = null;
 
     /**
@@ -68,13 +73,16 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @return array<string, list<string|null>>
+     * @return QueryMapType
      */
     public function getQueryParameters(): array
     {
         return $this->query ??= $this->buildQueryFromUri();
     }
 
+    /**
+     * @param QueryValueType $value
+     */
     protected function setQueryParameter(string $key, array|string|int|float|null $value): void
     {
         $query = $this->getQueryParameters();
@@ -82,6 +90,9 @@ abstract class HttpRequest extends HttpMessage
         $this->updateUriWithQuery($query);
     }
 
+    /**
+     * @param QueryValueType $value
+     */
     protected function addQueryParameter(string $key, array|string|int|float|null $value): void
     {
         $query = $this->getQueryParameters();
@@ -93,7 +104,7 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @param array<string, string|array<string|null>> $parameters
+     * @param QueryArrayType $parameters
      */
     protected function setQueryParameters(array $parameters): void
     {
@@ -102,7 +113,7 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @param array<string, string|array<string|null>> $parameters
+     * @param QueryArrayType $parameters
      */
     protected function replaceQueryParameters(array $parameters): void
     {
