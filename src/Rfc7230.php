@@ -8,6 +8,9 @@ use const Amp\Http\Internal\HEADER_LOWER;
  * @link https://tools.ietf.org/html/rfc7230
  * @link https://tools.ietf.org/html/rfc2616
  * @link https://tools.ietf.org/html/rfc5234
+ *
+ * @psalm-type RawHeaderType = list<array{non-empty-string, string}>
+ * @psalm-type HeaderMapType = array<non-empty-string, list<string>>
  */
 final class Rfc7230
 {
@@ -36,19 +39,21 @@ final class Rfc7230
      *
      * Allows empty header values, as HTTP/1.0 allows that.
      *
-     * @return array<non-empty-string, list<string>> Associative array mapping header names to arrays of values.
+     * @return HeaderMapType Associative array mapping header names to arrays of values.
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
     public static function parseHeaders(string $rawHeaders): array
     {
+        $matches = self::matchHeaders($rawHeaders);
+
         $headers = [];
 
-        foreach (self::parseRawHeaders($rawHeaders) as $header) {
+        foreach ($matches as $header) {
             // Unfortunately, we can't avoid the \strtolower() calls due to \array_change_key_case() behavior
             // when equal headers are present with different casing, e.g. 'set-cookie' and 'Set-Cookie'.
-            // Accessing headers directly instead of using foreach (... as list(...)) is slightly faster.
-            $headers[HEADER_LOWER[$header[0]] ?? \strtolower($header[0])][] = $header[1];
+            // Accessing matches directly is slightly faster vs. using foreach (... as [...]).
+            $headers[HEADER_LOWER[$header[1]] ?? \strtolower($header[1])][] = $header[2];
         }
 
         return $headers;
@@ -59,16 +64,35 @@ final class Rfc7230
      *
      * Allows empty header values, as HTTP/1.0 allows that.
      *
-     * @return list<array{non-empty-string, string}> List of [field, value] header pairs.
+     * @return RawHeaderType List of [field, value] header pairs.
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
     public static function parseRawHeaders(string $rawHeaders): array
     {
+        $matches = self::matchHeaders($rawHeaders);
+
+        $headers = [];
+
+        foreach ($matches as $match) {
+            // We avoid a call to \trim() here due to the regex.
+            // Accessing matches directly is slightly faster vs. using foreach (... as [...]).
+            $headers[] = [$match[1], $match[2]];
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @psalm-type MatchListType = list<array{non-empty-string, non-empty-string, string}>
+     *
+     * @return MatchListType
+     */
+    private static function matchHeaders(string $rawHeaders): array
+    {
         // Ensure that the last line also ends with a newline, this is important.
         \assert(\str_ends_with($rawHeaders, "\r\n"), "Argument 1 must end with CRLF: " . \bin2hex($rawHeaders));
 
-        /** @var list<int, list<string>> $matches */
         $count = \preg_match_all(self::HEADER_REGEX, $rawHeaders, $matches, \PREG_SET_ORDER);
 
         // If these aren't the same, then one line didn't match and there's an invalid header.
@@ -81,14 +105,30 @@ final class Rfc7230
             throw new InvalidHeaderException("Invalid header syntax");
         }
 
+        /** @var MatchListType $matches */
+        return $matches;
+    }
+
+    /**
+     * Convert the output of {@see parseRawHeaders()} into the structure returned by {@see parseHeaders()}.
+     *
+     * @param RawHeaderType $rawHeaders
+     * @return HeaderMapType
+     */
+    public static function convertRawHeadersToMap(array $rawHeaders): array
+    {
         $headers = [];
 
-        foreach ($matches as $match) {
-            \assert($match[1] !== ''); // For Psalm.
+        foreach ($rawHeaders as $header) {
+            /** @psalm-suppress RedundantCondition */
+            \assert(
+                \count($header) === 2
+                && \array_is_list($header)
+                && \is_string($header[0])
+                && \is_string($header[1])
+            );
 
-            // We avoid a call to \trim() here due to the regex.
-            // Accessing matches directly instead of using foreach (... as list(...)) is slightly faster.
-            $headers[] = [$match[1], $match[2]];
+            $headers[HEADER_LOWER[$header[0]] ?? \strtolower($header[0])][] = $header[1];
         }
 
         return $headers;
@@ -100,7 +140,7 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param array<non-empty-string, list<string>> $headers Headers in a format as returned by {@see parseHeaders()}.
+     * @param HeaderMapType $headers Headers in a format as returned by {@see parseHeaders()}.
      *
      * @return string Formatted headers.
      *
@@ -126,7 +166,7 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param list<array{non-empty-string, string}> $headers List of headers in [field, value] format as returned by
+     * @param RawHeaderType $headers List of headers in [field, value] format as returned by
      * {@see HttpMessage::getRawHeaders()}.
      *
      * @return string Formatted headers.
