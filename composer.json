@@ -7,6 +7,10 @@
         {
             "name": "Niklas Keller",
             "email": "me@kelunik.com"
+        },
+        {
+            "name": "Aaron Piotrowski",
+            "email": "aaron@trowski.com"
         }
     ],
     "autoload": {
