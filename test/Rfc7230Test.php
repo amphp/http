@@ -17,15 +17,7 @@ class Rfc7230Test extends TestCase
     public function testValidHeaderParsing(string $rawHeaders, array $expectedResult): void
     {
         $result = Rfc7230::parseHeaders($rawHeaders);
-
-        $headers = [];
-        foreach ($expectedResult as [$name, $value]) {
-            $name = \strtolower($name);
-
-            $headers[$name] = $headers[$name] ?? [];
-            $headers[$name][] = $value;
-        }
-
+        $headers = Rfc7230::convertRawHeadersToMap($expectedResult);
         $this->assertSame($result, $headers);
     }
 
