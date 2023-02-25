@@ -7,7 +7,7 @@ namespace Amp\Http\Cookie;
  *
  * @link https://tools.ietf.org/html/rfc6265
  */
-final class CookieAttributes
+final class CookieAttributes implements \Stringable
 {
     public const SAMESITE_NONE = 'None';
     public const SAMESITE_LAX = 'Lax';
@@ -324,7 +324,7 @@ final class CookieAttributes
     /**
      * @return string Representation of the cookie attributes appended to key=value in a 'set-cookie' header.
      */
-    public function __toString(): string
+    public function toString(): string
     {
         $string = '';
 
@@ -357,5 +357,13 @@ final class CookieAttributes
         }
 
         return $string;
+    }
+
+    /**
+     * @see toString()
+     */
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 }
