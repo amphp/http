@@ -8,6 +8,11 @@ use Psr\Http\Message\UriInterface as PsrUri;
 
 class TestHttpRequest extends HttpRequest
 {
+    public function setMethod(string $method): void
+    {
+        parent::setMethod($method);
+    }
+
     public function setUri(PsrUri $uri): void
     {
         parent::setUri($uri);
@@ -50,6 +55,15 @@ class HttpRequestTest extends TestCase
     {
         $uri = Http::createFromComponents(['query' => $query]);
         return new TestHttpRequest($method, $uri);
+    }
+
+    public function testMethod(): void
+    {
+        $request = $this->createTestRequest('', 'PUT');
+        self::assertSame('PUT', $request->getMethod());
+
+        $request->setMethod('POST');
+        self::assertSame('POST', $request->getMethod());
     }
 
     public function testBasicQuery(): void
