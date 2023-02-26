@@ -4,14 +4,15 @@ namespace Amp\Http;
 
 abstract class HttpResponse extends HttpMessage
 {
+    private int $status;
+
     private string $reason;
 
     public function __construct(
-        private int $status,
+        int $status,
         ?string $reason = null,
     ) {
-        $this->status = $this->validateStatusCode($status);
-        $this->reason = $reason ?? HttpStatus::getReason($status);
+        $this->validateStatusCode($status, $reason);
     }
 
     /**
@@ -32,11 +33,10 @@ abstract class HttpResponse extends HttpMessage
 
     protected function setStatus(int $status, ?string $reason = null): void
     {
-        $this->status = $this->validateStatusCode($status);
-        $this->reason = $reason ?? HttpStatus::getReason($status);
+        $this->validateStatusCode($status, $reason);
     }
 
-    private function validateStatusCode(int $status): int
+    private function validateStatusCode(int $status, ?string $reason): void
     {
         if ($status < 100 || $status > 599) {
             throw new \ValueError(
@@ -44,6 +44,7 @@ abstract class HttpResponse extends HttpMessage
             );
         }
 
-        return $status;
+        $this->status = $status;
+        $this->reason = $reason ?? HttpStatus::getReason($status);
     }
 }
