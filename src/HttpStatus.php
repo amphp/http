@@ -72,13 +72,6 @@ final class HttpStatus
     public const NOT_EXTENDED = 510;
     public const NETWORK_AUTHENTICATION_REQUIRED = 511;
 
-    // @codeCoverageIgnoreStart
-    private function __construct()
-    {
-        // forbid instances
-    }
-    // @codeCoverageIgnoreEnd
-
     public static function getReason(int $code): string
     {
         return [
@@ -144,4 +137,51 @@ final class HttpStatus
             511 => 'Network Authentication Required',
         ][$code] ?? '';
     }
+
+    /**
+     * Status code is between 100 and 199, representing an informational response.
+     */
+    public static function isInformational(int $code): bool
+    {
+        return $code >= 100 && $code < 200;
+    }
+
+    /**
+     * Status code is between 200 and 299, representing a successful response.
+     */
+    public static function isSuccessful(int $code): bool
+    {
+        return $code >= 200 && $code < 300;
+    }
+
+    /**
+     * Status code is between 300 and 399, representing a redirect response.
+     */
+    public static function isRedirect(int $code): bool
+    {
+        return $code >= 300 && $code < 400;
+    }
+
+    /**
+     * Status code is between 400 and 499, representing a client error response.
+     */
+    public static function isClientError(int $code): bool
+    {
+        return $code >= 400 && $code < 500;
+    }
+
+    /**
+     * Status code is between 500 and 599, representing a server error response.
+     */
+    public static function isServerError(int $code): bool
+    {
+        return $code >= 500 && $code < 600;
+    }
+
+    // @codeCoverageIgnoreStart
+    private function __construct()
+    {
+        // forbid instances
+    }
+    // @codeCoverageIgnoreEnd
 }

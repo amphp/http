@@ -47,4 +47,49 @@ abstract class HttpResponse extends HttpMessage
         $this->status = $status;
         $this->reason = $reason ?? HttpStatus::getReason($status);
     }
+
+    /**
+     * Response has a status code between 100 and 199.
+     * @see HttpStatus::isInformational()
+     */
+    public function isInformational(): bool
+    {
+        return HttpStatus::isInformational($this->status);
+    }
+
+    /**
+     * Response has a status code between 200 and 299.
+     * @see HttpStatus::isSuccessful()
+     */
+    public function isSuccessful(): bool
+    {
+        return HttpStatus::isSuccessful($this->status);
+    }
+
+    /**
+     * Response has a status code between 300 and 399.
+     * @see HttpStatus::isRedirect()
+     */
+    public function isRedirect(): bool
+    {
+        return HttpStatus::isRedirect($this->status);
+    }
+
+    /**
+     * Response has a status code between 400 and 499.
+     * @see HttpStatus::isClientError()
+     */
+    public function isClientError(): bool
+    {
+        return HttpStatus::isClientError($this->status);
+    }
+
+    /**
+     * Response has a status code between 500 and 599.
+     * @see HttpStatus::isServerError()
+     */
+    public function isServerError(): bool
+    {
+        return HttpStatus::isServerError($this->status);
+    }
 }

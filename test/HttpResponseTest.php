@@ -37,4 +37,33 @@ class HttpResponseTest extends TestCase
         self::assertSame(480, $response->getStatus());
         self::assertSame($reason, $response->getReason());
     }
+
+    public function provideStatuses(): iterable
+    {
+        yield 'informational' => [100, true, false, false, false, false];
+        yield 'success' => [200, false, true, false, false, false];
+        yield 'redirect' => [300, false, false, true, false, false];
+        yield 'client-error' => [400, false, false, false, true, false];
+        yield 'server-error' => [500, false, false, false, false, true];
+    }
+
+    /**
+     * @dataProvider provideStatuses
+     */
+    public function testStatusMethods(
+        int $code,
+        bool $info,
+        bool $success,
+        bool $redirect,
+        bool $clientError,
+        bool $serverError
+    ): void {
+        $response = new TestHttpResponse($code);
+
+        self::assertSame($info, $response->isInformational());
+        self::assertSame($success, $response->isSuccessful());
+        self::assertSame($redirect, $response->isRedirect());
+        self::assertSame($clientError, $response->isClientError());
+        self::assertSame($serverError, $response->isServerError());
+    }
 }
