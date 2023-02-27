@@ -198,4 +198,12 @@ abstract class HttpRequest extends HttpMessage
         $this->uri = $this->uri->withQuery(QueryString::build($pairs) ?? '');
         $this->query = $query;
     }
+
+    /**
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+     */
+    public function isIdempotent(): bool
+    {
+        return \in_array($this->getMethod(), ['GET', 'HEAD', 'PUT', 'DELETE'], true);
+    }
 }

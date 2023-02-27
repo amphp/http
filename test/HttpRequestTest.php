@@ -209,4 +209,10 @@ class HttpRequestTest extends TestCase
         $this->expectException(\TypeError::class);
         $request->setQueryParameter('key4', [true]);
     }
+
+    public function testIsIdempotent(): void
+    {
+        self::assertTrue($this->createTestRequest('', 'HEAD')->isIdempotent());
+        self::assertFalse($this->createTestRequest('', 'POST')->isIdempotent());
+    }
 }
