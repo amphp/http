@@ -7,7 +7,7 @@ use const Amp\Http\Internal\HEADER_LOWER;
 /**
  * Base class for HTTP request and response messages.
  *
- * @psalm-type HeaderParamValueType = int|float|string|array<int|float|string>
+ * @psalm-type HeaderParamValueType = string|array<string>
  * @psalm-type HeaderParamArrayType = array<non-empty-string, HeaderParamValueType>
  * @psalm-type HeaderMapType = array<non-empty-string, list<string>>
  */
@@ -131,14 +131,13 @@ abstract class HttpMessage
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function setHeader(string $name, array|string|int|float $value): void
+    protected function setHeader(string $name, array|string $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
         $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
-            $value = (string) $value;
             \assert(self::isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName] = [$value];
             $this->headerCase[$lcName] = [$name];
@@ -166,14 +165,13 @@ abstract class HttpMessage
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function addHeader(string $name, array|string|int|float $value): void
+    protected function addHeader(string $name, array|string $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
         $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
-            $value = (string) $value;
             \assert(self::isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName][] = $value;
             $this->headerCase[$lcName][] = $name;
@@ -227,9 +225,9 @@ abstract class HttpMessage
 
         $mapper ??= static fn (mixed $value) => match (true) {
             \is_string($value) => $value,
-            \is_int($value), \is_float($value) => (string) $value,
+            \is_int($value), \is_float($value), $value instanceof \Stringable => (string) $value,
             default => throw new \TypeError(\sprintf(
-                'Header array may contain only string, integer, or float values; got "%s"',
+                'Header array may contain only types which may be cast to a string; got "%s"',
                 \get_debug_type($value),
             )),
         };
