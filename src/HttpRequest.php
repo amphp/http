@@ -6,7 +6,7 @@ use League\Uri\QueryString;
 use Psr\Http\Message\UriInterface as PsrUri;
 
 /**
- * @psalm-type QueryValueType = int|float|string|array<int|float|string|null>|null
+ * @psalm-type QueryValueType = string|array<string|null>|null
  * @psalm-type QueryArrayType = array<string, QueryValueType>
  * @psalm-type QueryMapType = array<string, list<string|null>>
  */
@@ -83,7 +83,7 @@ abstract class HttpRequest extends HttpMessage
     /**
      * @param QueryValueType $value
      */
-    protected function setQueryParameter(string $key, array|string|int|float|null $value): void
+    protected function setQueryParameter(string $key, array|string|null $value): void
     {
         $query = $this->getQueryParameters();
         $query[$key] = self::castQueryArrayValues(\is_array($value) ? $value : [$value]);
@@ -93,7 +93,7 @@ abstract class HttpRequest extends HttpMessage
     /**
      * @param QueryValueType $value
      */
-    protected function addQueryParameter(string $key, array|string|int|float|null $value): void
+    protected function addQueryParameter(string $key, array|string|null $value): void
     {
         $query = $this->getQueryParameters();
         $query[$key] = [
@@ -134,9 +134,9 @@ abstract class HttpRequest extends HttpMessage
         $mapper ??= static fn (mixed $value) => match (true) {
             \is_string($value) => $value,
             \is_null($value) => $value, // string and null check on separate lines for Psalm.
-            \is_int($value), \is_float($value) => (string) $value,
+            \is_int($value), \is_float($value), $value instanceof \Stringable => (string) $value,
             default => throw new \TypeError(\sprintf(
-                'Query array may contain only string, integer, float, or null values; got "%s"',
+                'Query array may contain only types which may be cast to a string; got "%s"',
                 \get_debug_type($value),
             )),
         };

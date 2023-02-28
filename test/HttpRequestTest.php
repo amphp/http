@@ -18,12 +18,12 @@ class TestHttpRequest extends HttpRequest
         parent::setUri($uri);
     }
 
-    public function setQueryParameter(string $key, array|string|int|float|null $value): void
+    public function setQueryParameter(string $key, array|string|null $value): void
     {
         parent::setQueryParameter($key, $value);
     }
 
-    public function addQueryParameter(string $key, array|string|int|float|null $value): void
+    public function addQueryParameter(string $key, array|string|null $value): void
     {
         parent::addQueryParameter($key, $value);
     }
@@ -196,8 +196,8 @@ class HttpRequestTest extends TestCase
     public function testSettingNonStringValues(): void
     {
         $request = $this->createTestRequest('');
-        $request->setQueryParameter('key1', 1);
-        $request->setQueryParameter('key2', 3.14);
+        $request->setQueryParameter('key1', [1]);
+        $request->setQueryParameter('key2', [3.14]);
         $request->setQueryParameter('key3', [1, 2, 3]);
 
         self::assertSame('1', $request->getQueryParameter('key1'));
