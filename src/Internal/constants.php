@@ -3,7 +3,7 @@
 namespace Amp\Http\Internal;
 
 /** @internal */
-const HEADER_LOWER = [
+const HEADER_LOWERCASE_MAP = [
     'Accept' => 'accept',
     'accept' => 'accept',
     'Accept-Encoding' => 'accept-encoding',

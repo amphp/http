@@ -2,7 +2,7 @@
 
 namespace Amp\Http;
 
-use const Amp\Http\Internal\HEADER_LOWER;
+use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
 
 /**
  * @link https://tools.ietf.org/html/rfc7230
@@ -53,7 +53,7 @@ final class Rfc7230
             // Unfortunately, we can't avoid the \strtolower() calls due to \array_change_key_case() behavior
             // when equal headers are present with different casing, e.g. 'set-cookie' and 'Set-Cookie'.
             // Accessing matches directly is slightly faster vs. using foreach (... as [...]).
-            $headers[HEADER_LOWER[$header[1]] ?? \strtolower($header[1])][] = $header[2];
+            $headers[HEADER_LOWERCASE_MAP[$header[1]] ?? \strtolower($header[1])][] = $header[2];
         }
 
         return $headers;
@@ -128,7 +128,7 @@ final class Rfc7230
                 && \is_string($header[1])
             );
 
-            $headers[HEADER_LOWER[$header[0]] ?? \strtolower($header[0])][] = $header[1];
+            $headers[HEADER_LOWERCASE_MAP[$header[0]] ?? \strtolower($header[0])][] = $header[1];
         }
 
         return $headers;

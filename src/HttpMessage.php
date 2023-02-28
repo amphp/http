@@ -2,7 +2,7 @@
 
 namespace Amp\Http;
 
-use const Amp\Http\Internal\HEADER_LOWER;
+use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
 
 /**
  * Base class for HTTP request and response messages.
@@ -59,7 +59,7 @@ abstract class HttpMessage
      */
     public function getHeaderArray(string $name): array
     {
-        return $this->headers[HEADER_LOWER[$name] ?? \strtolower($name)] ?? [];
+        return $this->headers[HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name)] ?? [];
     }
 
     /**
@@ -71,7 +71,7 @@ abstract class HttpMessage
      */
     public function getHeader(string $name): ?string
     {
-        return $this->headers[HEADER_LOWER[$name] ?? \strtolower($name)][0] ?? null;
+        return $this->headers[HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name)][0] ?? null;
     }
 
     /**
@@ -135,7 +135,7 @@ abstract class HttpMessage
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
-        $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
+        $lcName = HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
             \assert(self::isValueValid([$value]), "Invalid header value");
@@ -169,7 +169,7 @@ abstract class HttpMessage
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
-        $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
+        $lcName = HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
             \assert(self::isValueValid([$value]), "Invalid header value");
@@ -195,7 +195,7 @@ abstract class HttpMessage
      */
     protected function removeHeader(string $name): void
     {
-        $lcName = HEADER_LOWER[$name] ?? \strtolower($name);
+        $lcName = HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name);
 
         unset($this->headers[$lcName], $this->headerCase[$lcName]);
     }
@@ -207,7 +207,7 @@ abstract class HttpMessage
      */
     public function hasHeader(string $name): bool
     {
-        return isset($this->headers[HEADER_LOWER[$name] ?? \strtolower($name)]);
+        return isset($this->headers[HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name)]);
     }
 
     private function isNameValid(string $name): bool
