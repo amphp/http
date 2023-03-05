@@ -73,6 +73,15 @@ class HttpRequestTest extends TestCase
         self::assertSame('value', $request->getQueryParameter('key'));
     }
 
+    public function testQueryWithMissingKey(): void
+    {
+        $query = 'key=value';
+        $request = $this->createTestRequest($query);
+        self::assertNull($request->getQueryParameter('value'));
+        self::assertSame('value', $request->getQueryParameter('key'));
+        self::assertSame($query, $request->getUri()->getQuery());
+    }
+
     public function testQueryWithEmptyValues(): void
     {
         $query = 'key1&key2&key3=3.1';
