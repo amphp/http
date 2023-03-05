@@ -15,10 +15,8 @@ use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
 final class Rfc7230
 {
     // We make use of possessive modifiers, which gives a slight performance boost
-    public const HEADER_NAME_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++)$)";
-    public const HEADER_VALUE_REGEX = "(^[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+$)";
-    public const HEADER_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++):[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+\r\n)m";
-    public const HEADER_FOLD_REGEX = "(\r\n[ \t]++)";
+    private const HEADER_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++):[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+\r\n)m";
+    private const HEADER_FOLD_REGEX = "(\r\n[ \t]++)";
 
     private const HEADER_SPRINTF = [
         0 => "",
@@ -98,7 +96,7 @@ final class Rfc7230
         // If these aren't the same, then one line didn't match and there's an invalid header.
         if ($count !== \substr_count($rawHeaders, "\n")) {
             // Folding is deprecated, see https://tools.ietf.org/html/rfc7230#section-3.2.4
-            if (\preg_match(self::HEADER_FOLD_REGEX, $rawHeaders)) {
+            if (self::containsFoldedHeaders($rawHeaders)) {
                 throw new InvalidHeaderException("Invalid header syntax: Obsolete line folding");
             }
 
@@ -107,6 +105,18 @@ final class Rfc7230
 
         /** @var MatchListType $matches */
         return $matches;
+    }
+
+    /**
+     * Folding is deprecated, see https://tools.ietf.org/html/rfc7230#section-3.2.4.
+     */
+    public static function containsFoldedHeaders(string $rawHeaders): bool
+    {
+        if (\preg_match(self::HEADER_FOLD_REGEX, $rawHeaders)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
