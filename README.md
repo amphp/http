@@ -115,7 +115,7 @@ Every header line must end with `\r\n`, also the last one.
 ```php
 <?php
 
-use Amp\Http\Rfc7230;
+use Amp\Http\Http1\Rfc7230;
 
 require __DIR__ . "/../vendor/autoload.php";
 
@@ -162,8 +162,7 @@ It protects against header injections and other non-compliant header names and v
 ```php
 <?php
 
-use Amp\Http\Cookie\ResponseCookie;
-use Amp\Http\Rfc7230;
+use Amp\Http\Cookie\ResponseCookie;use Amp\Http\Http1\Rfc7230;
 
 require __DIR__ . "/../vendor/autoload.php";
 

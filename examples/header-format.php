@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use Amp\Http\Cookie\ResponseCookie;
-use Amp\Http\Rfc7230;
+use Amp\Http\Http1\Rfc7230;
 
 require __DIR__ . "/../vendor/autoload.php";
 

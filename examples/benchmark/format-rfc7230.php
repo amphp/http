@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Amp\Http\Rfc7230;
+use Amp\Http\Http1\Rfc7230;
 
 require __DIR__ . "/../../vendor/autoload.php";
 
@@ -11,7 +11,7 @@ Allow: GET, HEAD, POST, TRACE, OPTIONS
 Content-Length: 0
 X-No-Value:
 X-No-Whitespace: Test
-X-Trailing-Whitespace:  	Foobar		  
+X-Trailing-Whitespace:  	Foobar
 ";
 
 // Normalize line endings, which might be broken by Git otherwise

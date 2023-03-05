@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Amp\Http;
+namespace Amp\Http\Http1;
 
+use Amp\Http\InvalidHeaderException;
 use PHPUnit\Framework\TestCase;
 
 class Rfc7230Test extends TestCase

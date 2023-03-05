@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Amp\Http;
+namespace Amp\Http\Http1;
 
+use Amp\Http\InvalidHeaderException;
 use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
 
 /**
