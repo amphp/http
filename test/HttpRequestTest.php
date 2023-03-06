@@ -86,10 +86,18 @@ class HttpRequestTest extends TestCase
     {
         $query = 'key1&key2&key3=3.1';
         $request = $this->createTestRequest($query);
-        self::assertNull($request->getQueryParameter('key1'));
-        self::assertNull($request->getQueryParameter('key2'));
+        self::assertTrue($request->hasQueryParameter('key1'));
+        self::assertSame('', $request->getQueryParameter('key1'));
+
+        self::assertTrue($request->hasQueryParameter('key2'));
+        self::assertSame('', $request->getQueryParameter('key2'));
+
+        self::assertTrue($request->hasQueryParameter('key3'));
         self::assertSame('3.1', $request->getQueryParameter('key3'));
         self::assertSame($query, $request->getUri()->getQuery());
+
+        self::assertFalse($request->hasQueryParameter('key4'));
+        self::assertNull($request->getQueryParameter('key4'));
     }
 
     public function testQueryWithEncodedChars(): void
@@ -183,9 +191,9 @@ class HttpRequestTest extends TestCase
         ], $request->getQueryParameters());
 
         self::assertTrue($request->hasQueryParameter(''));
-        self::assertNull($request->getQueryParameter(''));
+        self::assertSame('', $request->getQueryParameter(''));
         self::assertTrue($request->hasQueryParameter('empty'));
-        self::assertNull($request->getQueryParameter('empty'));
+        self::assertSame('', $request->getQueryParameter('empty'));
 
         $request->setQueryParameter('key', 'test');
         self::assertSame('test', $request->getQueryParameter('key'));

@@ -61,7 +61,8 @@ abstract class HttpRequest extends HttpMessage
 
     public function getQueryParameter(string $key): ?string
     {
-        return $this->getQueryParameters()[$key][0] ?? null;
+        $values = $this->getQueryParameterArray($key);
+        return $values ? (string) $values[0] : null;
     }
 
     /**
