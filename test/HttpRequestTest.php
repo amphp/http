@@ -185,9 +185,9 @@ class HttpRequestTest extends TestCase
         $request = $this->createTestRequest('&&&=to&&key=value&empty');
 
         self::assertSame([
-            '' => [null, null, null, 'to', null],
+            '' => ['', '', '', 'to', ''],
             'key' => ['value'],
-            'empty' => [null],
+            'empty' => [''],
         ], $request->getQueryParameters());
 
         self::assertTrue($request->hasQueryParameter(''));

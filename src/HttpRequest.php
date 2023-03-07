@@ -61,12 +61,11 @@ abstract class HttpRequest extends HttpMessage
 
     public function getQueryParameter(string $key): ?string
     {
-        $values = $this->getQueryParameterArray($key);
-        return $values ? (string) $values[0] : null;
+        return $this->getQueryParameterArray($key)[0] ?? null;
     }
 
     /**
-     * @return list<string|null>
+     * @return list<string>
      */
     public function getQueryParameterArray(string $key): array
     {
@@ -74,11 +73,11 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @return QueryMapType
+     * @return array<string, list<string>>
      */
     public function getQueryParameters(): array
     {
-        return $this->query ??= $this->buildQueryFromUri();
+        return self::mapNullToEmptyString($this->getRawQueryParameters());
     }
 
     /**
@@ -86,7 +85,7 @@ abstract class HttpRequest extends HttpMessage
      */
     protected function setQueryParameter(string $key, array|string|null $value): void
     {
-        $query = $this->getQueryParameters();
+        $query = $this->getRawQueryParameters();
         $query[$key] = self::castQueryArrayValues(\is_array($value) ? $value : [$value]);
         $this->updateUriWithQuery($query);
     }
@@ -96,7 +95,7 @@ abstract class HttpRequest extends HttpMessage
      */
     protected function addQueryParameter(string $key, array|string|null $value): void
     {
-        $query = $this->getQueryParameters();
+        $query = $this->getRawQueryParameters();
         $query[$key] = [
             ...($query[$key] ?? []),
             ...self::castQueryArrayValues(\is_array($value) ? $value : [$value]),
@@ -119,7 +118,7 @@ abstract class HttpRequest extends HttpMessage
     protected function replaceQueryParameters(array $parameters): void
     {
         $this->updateUriWithQuery([
-            ...$this->getQueryParameters(),
+            ...$this->getRawQueryParameters(),
             ...self::buildQueryFromParameters($parameters),
         ]);
     }
@@ -155,9 +154,18 @@ abstract class HttpRequest extends HttpMessage
         return $query;
     }
 
+    private static function mapNullToEmptyString(array $values): array
+    {
+        static $mapper;
+
+        $mapper ??= static fn (array $v) => \array_map('strval', $v);
+
+        return \array_map($mapper, $values);
+    }
+
     protected function removeQueryParameter(string $key): void
     {
-        $query = $this->getQueryParameters();
+        $query = $this->getRawQueryParameters();
         unset($query[$key]);
         $this->updateUriWithQuery($query);
     }
@@ -169,7 +177,15 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @return array<string, list<string|null>>
+     * @return QueryMapType
+     */
+    private function getRawQueryParameters(): array
+    {
+        return $this->query ??= $this->buildQueryFromUri();
+    }
+
+    /**
+     * @return QueryMapType
      */
     private function buildQueryFromUri(): array
     {
@@ -187,7 +203,7 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @param array<string, list<string|null>> $query
+     * @param QueryMapType $query
      */
     private function updateUriWithQuery(array $query): void
     {
