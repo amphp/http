@@ -87,7 +87,10 @@ abstract class HttpRequest extends HttpMessage
     {
         static $mapper;
 
-        $mapper ??= static fn (array $values) => \array_map('strval', $values);
+        $mapper ??= static function (array $values): array {
+            \assert(\array_is_list($values));
+            return \array_map('strval', $values);
+        };
 
         return \array_map($mapper, $this->getRawQueryParameters());
     }
