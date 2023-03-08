@@ -54,6 +54,14 @@ abstract class HttpRequest extends HttpMessage
         $this->uri = $uri;
     }
 
+    /**
+     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+     */
+    public function isIdempotent(): bool
+    {
+        return \in_array($this->getMethod(), ['GET', 'HEAD', 'PUT', 'DELETE'], true);
+    }
+
     public function hasQueryParameter(string $key): bool
     {
         return isset($this->getQueryParameters()[$key]);
@@ -127,37 +135,6 @@ abstract class HttpRequest extends HttpMessage
         ]);
     }
 
-    /**
-     * @param array<string|int|float|null> $values
-     * @return list<string|null>
-     */
-    private static function castQueryArrayValues(array $values): array
-    {
-        static $mapper;
-
-        $mapper ??= static fn (mixed $value) => match (true) {
-            \is_string($value) => $value,
-            \is_null($value) => $value, // string and null check on separate lines for Psalm.
-            \is_int($value), \is_float($value), $value instanceof \Stringable => (string) $value,
-            default => throw new \TypeError(\sprintf(
-                'Query array may contain only types which may be cast to a string; got "%s"',
-                \get_debug_type($value),
-            )),
-        };
-
-        return \array_map($mapper, \array_values($values));
-    }
-
-    private static function buildQueryFromParameters(array $parameters): array
-    {
-        $query = [];
-        foreach ($parameters as $key => $values) {
-            $query[$key] = self::castQueryArrayValues(\is_array($values) ? $values : [$values]);
-        }
-
-        return $query;
-    }
-
     protected function removeQueryParameter(string $key): void
     {
         $query = $this->getRawQueryParameters();
@@ -212,10 +189,33 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @link https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+     * @param array<string|int|float|null> $values
+     * @return list<string|null>
      */
-    public function isIdempotent(): bool
+    private static function castQueryArrayValues(array $values): array
     {
-        return \in_array($this->getMethod(), ['GET', 'HEAD', 'PUT', 'DELETE'], true);
+        static $mapper;
+
+        $mapper ??= static fn (mixed $value) => match (true) {
+            \is_string($value) => $value,
+            \is_null($value) => $value, // string and null check on separate lines for Psalm.
+            \is_int($value), \is_float($value), $value instanceof \Stringable => (string) $value,
+            default => throw new \TypeError(\sprintf(
+                'Query array may contain only types which may be cast to a string; got "%s"',
+                \get_debug_type($value),
+            )),
+        };
+
+        return \array_map($mapper, \array_values($values));
+    }
+
+    private static function buildQueryFromParameters(array $parameters): array
+    {
+        $query = [];
+        foreach ($parameters as $key => $values) {
+            $query[$key] = self::castQueryArrayValues(\is_array($values) ? $values : [$values]);
+        }
+
+        return $query;
     }
 }
