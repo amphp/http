@@ -77,7 +77,11 @@ abstract class HttpRequest extends HttpMessage
      */
     public function getQueryParameters(): array
     {
-        return self::mapNullToEmptyString($this->getRawQueryParameters());
+        static $mapper;
+
+        $mapper ??= static fn (array $values) => \array_map('strval', $values);
+
+        return \array_map($mapper, $this->getRawQueryParameters());
     }
 
     /**
@@ -152,15 +156,6 @@ abstract class HttpRequest extends HttpMessage
         }
 
         return $query;
-    }
-
-    private static function mapNullToEmptyString(array $values): array
-    {
-        static $mapper;
-
-        $mapper ??= static fn (array $v) => \array_map('strval', $v);
-
-        return \array_map($mapper, $values);
     }
 
     protected function removeQueryParameter(string $key): void
