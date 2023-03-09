@@ -2,6 +2,8 @@
 
 namespace Amp\Http;
 
+use Amp\Http\Http1\Rfc7230;
+
 /**
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  *
@@ -97,4 +99,30 @@ function formatDateHeader(?int $timestamp = null): string
     }
 
     return $cachedFormattedDate = \gmdate("D, d M Y H:i:s", $cachedTimestamp = $timestamp) . " GMT";
+}
+
+/**
+ * Convert the output of {@see Rfc7230::parseRawHeaders()} or {@see HttpMessage::getRawHeaders()} into the structure
+ * returned by {@see Rfc7230::parseHeaders()} or {@see HttpMessage::getHeaders()}.
+ *
+ * @param list<array{non-empty-string, string}> $rawHeaders
+ * @return array<non-empty-string, list<string>>
+ */
+function convertRawHeadersToMap(array $rawHeaders): array
+{
+    $headers = [];
+
+    foreach ($rawHeaders as $header) {
+        /** @psalm-suppress RedundantCondition */
+        \assert(
+            \count($header) === 2
+            && \array_is_list($header)
+            && \is_string($header[0])
+            && \is_string($header[1])
+        );
+
+        $headers[Internal\HEADER_LOWERCASE_MAP[$header[0]] ?? \strtolower($header[0])][] = $header[1];
+    }
+
+    return $headers;
 }

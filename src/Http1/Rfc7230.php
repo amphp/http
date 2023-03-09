@@ -2,6 +2,7 @@
 
 namespace Amp\Http\Http1;
 
+use Amp\Http\HttpMessage;
 use Amp\Http\InvalidHeaderException;
 use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
 
@@ -10,8 +11,8 @@ use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
  * @link https://tools.ietf.org/html/rfc2616
  * @link https://tools.ietf.org/html/rfc5234
  *
- * @psalm-type RawHeaderType = list<array{non-empty-string, string}>
- * @psalm-type HeaderMapType = array<non-empty-string, list<string>>
+ * @psalm-import-type RawHeaderType from HttpMessage
+ * @psalm-import-type HeaderMapType from HttpMessage
  */
 final class Rfc7230
 {
@@ -118,31 +119,6 @@ final class Rfc7230
         }
 
         return false;
-    }
-
-    /**
-     * Convert the output of {@see parseRawHeaders()} into the structure returned by {@see parseHeaders()}.
-     *
-     * @param RawHeaderType $rawHeaders
-     * @return HeaderMapType
-     */
-    public static function convertRawHeadersToMap(array $rawHeaders): array
-    {
-        $headers = [];
-
-        foreach ($rawHeaders as $header) {
-            /** @psalm-suppress RedundantCondition */
-            \assert(
-                \count($header) === 2
-                && \array_is_list($header)
-                && \is_string($header[0])
-                && \is_string($header[1])
-            );
-
-            $headers[HEADER_LOWERCASE_MAP[$header[0]] ?? \strtolower($header[0])][] = $header[1];
-        }
-
-        return $headers;
     }
 
     /**

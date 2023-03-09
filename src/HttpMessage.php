@@ -7,6 +7,7 @@ use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
 /**
  * Base class for HTTP request and response messages.
  *
+ * @psalm-type RawHeaderType = list<array{non-empty-string, string}>
  * @psalm-type HeaderParamValueType = string|array<string>
  * @psalm-type HeaderParamArrayType = array<non-empty-string, HeaderParamValueType>
  * @psalm-type HeaderMapType = array<non-empty-string, list<string>>
@@ -33,7 +34,7 @@ abstract class HttpMessage
     /**
      * Returns the headers as list of [field, name] pairs in the original casing provided by the application or server.
      *
-     * @return list<array{non-empty-string, string}>
+     * @return RawHeaderType
      */
     final public function getRawHeaders(): array
     {
