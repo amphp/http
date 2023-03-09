@@ -125,12 +125,14 @@ class HttpMessageTest extends TestCase
         $this->assertTrue($message->hasHeader('baz'));
         $this->assertSame(['baz'], $message->getHeaderArray('baz'));
 
-        $message->setHeaders(['foo' => ['new']]);
+        $message->setHeaders(['foo' => ['new'], 'qux' => 1]);
         $this->assertSame(['new'], $message->getHeaderArray('foo'));
         $this->assertFalse($message->hasHeader('bar'));
         $this->assertSame([], $message->getHeaderArray('bar'));
         $this->assertFalse($message->hasHeader('baz'));
         $this->assertSame([], $message->getHeaderArray('baz'));
+        $this->assertTrue($message->hasHeader('qux'));
+        $this->assertSame(['1'], $message->getHeaderArray('qux'));
 
         $message->setHeader('bar', ['biz', 'baz']);
         $this->assertSame(['biz', 'baz'], $message->getHeaderArray('bar'));

@@ -89,9 +89,7 @@ abstract class HttpMessage
         $this->headerCase = [];
 
         try {
-            foreach ($headers as $name => $value) {
-                $this->setHeader($name, $value);
-            }
+            $this->setHeadersFromArray($headers);
         } catch (\Throwable $e) {
             $this->headers = $before;
             $this->headerCase = $beforeCase;
@@ -112,14 +110,26 @@ abstract class HttpMessage
         $beforeCase = $this->headerCase;
 
         try {
-            foreach ($headers as $name => $value) {
-                $this->setHeader($name, $value);
-            }
+            $this->setHeadersFromArray($headers);
         } catch (\Throwable $e) {
             $this->headers = $before;
             $this->headerCase = $beforeCase;
 
             throw $e;
+        }
+    }
+
+    /**
+     * @param HeaderParamArrayType $headers
+     */
+    private function setHeadersFromArray(array $headers): void
+    {
+        foreach ($headers as $name => $value) {
+            if (!\is_string($value) && !\is_array($value)) {
+                $value = self::castHeaderValue($value);
+            }
+
+            $this->setHeader($name, $value);
         }
     }
 
@@ -210,9 +220,16 @@ abstract class HttpMessage
         return isset($this->headers[HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name)]);
     }
 
-    private function isNameValid(string $name): bool
+    private static function castHeaderValue(mixed $value): string
     {
-        return (bool) \preg_match('/^[A-Za-z0-9`~!#$%^&_|\'\-*+.]+$/', $name);
+        return match (true) {
+            \is_string($value) => $value,
+            \is_int($value), \is_float($value), $value instanceof \Stringable => (string) $value,
+            default => throw new \TypeError(\sprintf(
+                'Header array may contain only types which may be cast to a string; got "%s"',
+                \get_debug_type($value),
+            )),
+        };
     }
 
     /**
@@ -223,16 +240,12 @@ abstract class HttpMessage
     {
         static $mapper;
 
-        $mapper ??= static fn (mixed $value) => match (true) {
-            \is_string($value) => $value,
-            \is_int($value), \is_float($value), $value instanceof \Stringable => (string) $value,
-            default => throw new \TypeError(\sprintf(
-                'Header array may contain only types which may be cast to a string; got "%s"',
-                \get_debug_type($value),
-            )),
-        };
+        return \array_map($mapper ??= self::castHeaderValue(...), \array_values($values));
+    }
 
-        return \array_map($mapper, \array_values($values));
+    private function isNameValid(string $name): bool
+    {
+        return (bool) \preg_match('/^[A-Za-z0-9`~!#$%^&_|\'\-*+.]+$/', $name);
     }
 
     /**
