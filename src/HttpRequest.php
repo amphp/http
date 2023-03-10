@@ -6,6 +6,7 @@ use League\Uri\QueryString;
 use Psr\Http\Message\UriInterface as PsrUri;
 
 /**
+ * @psalm-type RawQueryType = list<array{string, string|null}>
  * @psalm-type QueryValueType = string|array<string|null>|null
  * @psalm-type QueryArrayType = array<string, QueryValueType>
  * @psalm-type QueryMapType = array<string, list<string|null>>
@@ -13,7 +14,10 @@ use Psr\Http\Message\UriInterface as PsrUri;
 abstract class HttpRequest extends HttpMessage
 {
     /** @var QueryMapType|null  */
-    private ?array $query = null;
+    private ?array $queryMap = null;
+
+    /** @var RawQueryType|null */
+    private ?array $queryPairs = null;
 
     /**
      * @param non-empty-string $method
@@ -48,7 +52,8 @@ abstract class HttpRequest extends HttpMessage
     protected function setUri(PsrUri $uri): void
     {
         if ($this->uri->getQuery() !== $uri->getQuery()) {
-            $this->query = null;
+            $this->queryMap = null;
+            $this->queryPairs = null;
         }
 
         $this->uri = $uri;
@@ -92,7 +97,20 @@ abstract class HttpRequest extends HttpMessage
             return \array_map('strval', $values);
         };
 
-        return \array_map($mapper, $this->getRawQueryParameters());
+        return \array_map($mapper, $this->getInternalQueryParameters());
+    }
+
+    /**
+     * @return RawQueryType
+     * @psalm-suppress PropertyTypeCoercion
+     */
+    public function getRawQueryParameters(): array
+    {
+        /** @var RawQueryType */
+        return $this->queryPairs ??= match ($queryString = $this->uri->getQuery()) {
+            '' => [],
+            default => QueryString::parse($queryString),
+        };
     }
 
     /**
@@ -100,7 +118,7 @@ abstract class HttpRequest extends HttpMessage
      */
     protected function setQueryParameter(string $key, array|string|null $value): void
     {
-        $query = $this->getRawQueryParameters();
+        $query = $this->getInternalQueryParameters();
         $query[$key] = self::castQueryArrayValues(\is_array($value) ? $value : [$value]);
         $this->updateUriWithQuery($query);
     }
@@ -110,7 +128,7 @@ abstract class HttpRequest extends HttpMessage
      */
     protected function addQueryParameter(string $key, array|string|null $value): void
     {
-        $query = $this->getRawQueryParameters();
+        $query = $this->getInternalQueryParameters();
         $query[$key] = [
             ...($query[$key] ?? []),
             ...self::castQueryArrayValues(\is_array($value) ? $value : [$value]),
@@ -133,14 +151,14 @@ abstract class HttpRequest extends HttpMessage
     protected function replaceQueryParameters(array $parameters): void
     {
         $this->updateUriWithQuery([
-            ...$this->getRawQueryParameters(),
+            ...$this->getInternalQueryParameters(),
             ...self::buildQueryFromParameters($parameters),
         ]);
     }
 
     protected function removeQueryParameter(string $key): void
     {
-        $query = $this->getRawQueryParameters();
+        $query = $this->getInternalQueryParameters();
         unset($query[$key]);
         $this->updateUriWithQuery($query);
     }
@@ -148,15 +166,16 @@ abstract class HttpRequest extends HttpMessage
     protected function removeQuery(): void
     {
         $this->uri = $this->uri->withQuery('');
-        $this->query = [];
+        $this->queryMap = [];
+        $this->queryPairs = [];
     }
 
     /**
      * @return QueryMapType
      */
-    private function getRawQueryParameters(): array
+    private function getInternalQueryParameters(): array
     {
-        return $this->query ??= $this->buildQueryFromUri();
+        return $this->queryMap ??= $this->buildQueryFromUri();
     }
 
     /**
@@ -164,13 +183,8 @@ abstract class HttpRequest extends HttpMessage
      */
     private function buildQueryFromUri(): array
     {
-        $queryString = $this->uri->getQuery();
-        if ($queryString === '') {
-            return [];
-        }
-
         $query = [];
-        foreach (QueryString::parse($queryString) as [$key, $value]) {
+        foreach ($this->getRawQueryParameters() as [$key, $value]) {
             $query[$key][] = $value;
         }
 
@@ -188,7 +202,8 @@ abstract class HttpRequest extends HttpMessage
         }
 
         $this->uri = $this->uri->withQuery(QueryString::build($pairs) ?? '');
-        $this->query = $query;
+        $this->queryMap = $query;
+        $this->queryPairs = $pairs;
     }
 
     /**
