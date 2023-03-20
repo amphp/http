@@ -126,10 +126,6 @@ abstract class HttpMessage
     private function setHeadersFromArray(array $headers): void
     {
         foreach ($headers as $name => $value) {
-            if (!\is_string($value) && !\is_array($value)) {
-                $value = self::castHeaderValue($value);
-            }
-
             $this->setHeader($name, $value);
         }
     }
@@ -142,13 +138,16 @@ abstract class HttpMessage
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function setHeader(string $name, array|string $value): void
+    protected function setHeader(string $name, array|string|int|float $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
         $lcName = HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
+            if (!\is_string($value)) {
+                $value = self::castHeaderValue($value);
+            }
             \assert(self::isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName] = [$value];
             $this->headerCase[$lcName] = [$name];
@@ -176,13 +175,16 @@ abstract class HttpMessage
      *
      * @throws \Error If the header name or value is invalid.
      */
-    protected function addHeader(string $name, array|string $value): void
+    protected function addHeader(string $name, array|string|int|float $value): void
     {
         \assert($this->isNameValid($name), "Invalid header name");
 
         $lcName = HEADER_LOWERCASE_MAP[$name] ?? \strtolower($name);
 
         if (!\is_array($value)) {
+            if (!\is_string($value)) {
+                $value = self::castHeaderValue($value);
+            }
             \assert(self::isValueValid([$value]), "Invalid header value");
             $this->headers[$lcName][] = $value;
             $this->headerCase[$lcName][] = $name;

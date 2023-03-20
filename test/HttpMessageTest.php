@@ -21,12 +21,12 @@ class TestHttpMessage extends HttpMessage
         parent::replaceHeaders($headers);
     }
 
-    public function setHeader(string $name, array|string $value): void
+    public function setHeader(string $name, array|string|int|float $value): void
     {
         parent::setHeader($name, $value);
     }
 
-    public function addHeader(string $name, array|string $value): void
+    public function addHeader(string $name, array|string|int|float $value): void
     {
         parent::addHeader($name, $value);
     }
@@ -102,6 +102,9 @@ class HttpMessageTest extends TestCase
 
         $message->addHeader('x-foo', [10]);
         $this->assertSame(['10'], $message->getHeaderArray('x-foo'));
+
+        $message->addHeader('x-foo', 20.1);
+        $this->assertSame(['10', '20.1'], $message->getHeaderArray('x-foo'));
     }
 
     public function testSetAndReplaceHeaders(): void
@@ -140,6 +143,9 @@ class HttpMessageTest extends TestCase
 
         $message->setHeader('x-foo', [10]);
         $this->assertSame('10', $message->getHeader('x-foo'));
+
+        $message->setHeader('x-foo', 10.1);
+        $this->assertSame('10.1', $message->getHeader('x-foo'));
     }
 
     public function testInvalidName(): void
