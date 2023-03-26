@@ -4,14 +4,14 @@ namespace Amp\Http\Http1;
 
 use Amp\Http\InvalidHeaderException;
 use PHPUnit\Framework\TestCase;
-use function Amp\Http\convertRawHeadersToMap;
+use function Amp\Http\convertHeaderPairsToMap;
 
 class Rfc7230Test extends TestCase
 {
     /** @dataProvider provideValidHeaders */
-    public function testValidRawHeaderParsing(string $rawHeaders, array $expectedResult): void
+    public function testValidHeaderPairParsing(string $rawHeaders, array $expectedResult): void
     {
-        $result = Rfc7230::parseRawHeaders($rawHeaders);
+        $result = Rfc7230::parseHeaderPairs($rawHeaders);
         $this->assertSame($result, $expectedResult);
     }
 
@@ -19,14 +19,14 @@ class Rfc7230Test extends TestCase
     public function testValidHeaderParsing(string $rawHeaders, array $expectedResult): void
     {
         $result = Rfc7230::parseHeaders($rawHeaders);
-        $headers = convertRawHeadersToMap($expectedResult);
+        $headers = convertHeaderPairsToMap($expectedResult);
         $this->assertSame($result, $headers);
     }
 
     /** @dataProvider provideValidHeaders */
-    public function testValidRawHeaderFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult): void
+    public function testValidHeaderPairFormatting(string $rawHeaders /* ignored for this case */, array $expectedResult): void
     {
-        $result = Rfc7230::parseRawHeaders(Rfc7230::formatRawHeaders($expectedResult));
+        $result = Rfc7230::parseHeaderPairs(Rfc7230::formatHeaderPairs($expectedResult));
         $this->assertSame($result, $expectedResult);
     }
 
@@ -40,7 +40,7 @@ class Rfc7230Test extends TestCase
             $headers[$name][] = $value;
         }
 
-        $result = Rfc7230::parseRawHeaders(Rfc7230::formatHeaders($headers));
+        $result = Rfc7230::parseHeaderPairs(Rfc7230::formatHeaders($headers));
         $this->assertSame($result, $expectedResult);
     }
 

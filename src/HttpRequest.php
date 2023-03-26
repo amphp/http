@@ -6,7 +6,7 @@ use League\Uri\QueryString;
 use Psr\Http\Message\UriInterface as PsrUri;
 
 /**
- * @psalm-type RawQueryType = list<array{string, string|null}>
+ * @psalm-type QueryPairsType = list<array{string, string|null}>
  * @psalm-type QueryValueType = string|array<string|null>|null
  * @psalm-type QueryArrayType = array<string, QueryValueType>
  * @psalm-type QueryMapType = array<string, list<string|null>>
@@ -16,7 +16,7 @@ abstract class HttpRequest extends HttpMessage
     /** @var QueryMapType|null  */
     private ?array $queryMap = null;
 
-    /** @var RawQueryType|null */
+    /** @var QueryPairsType|null */
     private ?array $queryPairs = null;
 
     /**
@@ -101,12 +101,12 @@ abstract class HttpRequest extends HttpMessage
     }
 
     /**
-     * @return RawQueryType
+     * @return QueryPairsType
      * @psalm-suppress PropertyTypeCoercion
      */
-    public function getRawQueryParameters(): array
+    public function getQueryParameterPairs(): array
     {
-        /** @var RawQueryType */
+        /** @var QueryPairsType */
         return $this->queryPairs ??= match ($queryString = $this->uri->getQuery()) {
             '' => [],
             default => QueryString::parse($queryString),
@@ -184,7 +184,7 @@ abstract class HttpRequest extends HttpMessage
     private function buildQueryFromUri(): array
     {
         $query = [];
-        foreach ($this->getRawQueryParameters() as [$key, $value]) {
+        foreach ($this->getQueryParameterPairs() as [$key, $value]) {
             $query[$key][] = $value;
         }
 

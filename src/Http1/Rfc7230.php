@@ -11,7 +11,7 @@ use const Amp\Http\Internal\HEADER_LOWERCASE_MAP;
  * @link https://tools.ietf.org/html/rfc2616
  * @link https://tools.ietf.org/html/rfc5234
  *
- * @psalm-import-type RawHeaderType from HttpMessage
+ * @psalm-import-type HeaderPairsType from HttpMessage
  * @psalm-import-type HeaderMapType from HttpMessage
  */
 final class Rfc7230
@@ -64,11 +64,11 @@ final class Rfc7230
      *
      * Allows empty header values, as HTTP/1.0 allows that.
      *
-     * @return RawHeaderType List of [field, value] header pairs.
+     * @return HeaderPairsType List of [field, value] header pairs.
      *
      * @throws InvalidHeaderException If invalid headers have been passed.
      */
-    public static function parseRawHeaders(string $rawHeaders): array
+    public static function parseHeaderPairs(string $rawHeaders): array
     {
         $matches = self::matchHeaders($rawHeaders);
 
@@ -144,7 +144,7 @@ final class Rfc7230
             }
         }
 
-        return self::formatRawHeaders($headerList);
+        return self::formatHeaderPairs($headerList);
     }
 
     /**
@@ -153,14 +153,14 @@ final class Rfc7230
      * Headers are always validated syntactically. This protects against response splitting and header injection
      * attacks.
      *
-     * @param RawHeaderType $headers List of headers in [field, value] format as returned by
-     * {@see HttpMessage::getRawHeaders()}.
+     * @param HeaderPairsType $headers List of headers in [field, value] format as returned by
+     * {@see HttpMessage::getHeaderPairs()}.
      *
      * @return string Formatted headers.
      *
      * @throws InvalidHeaderException If header names or values are invalid.
      */
-    public static function formatRawHeaders(array $headers): string
+    public static function formatHeaderPairs(array $headers): string
     {
         $lines = \count($headers);
         $bytes = \sprintf(

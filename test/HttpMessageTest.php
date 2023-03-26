@@ -39,7 +39,7 @@ class TestHttpMessage extends HttpMessage
 
 class HttpMessageTest extends TestCase
 {
-    public function testGetRawHeaders(): void
+    public function testGetHeaderPairs(): void
     {
         $message = new TestHttpMessage([
             'X-FooBar' => 'bar',
@@ -60,7 +60,7 @@ class HttpMessageTest extends TestCase
             ['x-fooBar', 'baz'],
             ['x-rePlace', 'yes'],
             ['x-again', 'hello']
-        ], $message->getRawHeaders());
+        ], $message->getHeaderPairs());
     }
 
     public function testGetHeader(): void

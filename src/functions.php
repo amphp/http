@@ -102,17 +102,18 @@ function formatDateHeader(?int $timestamp = null): string
 }
 
 /**
- * Convert the output of {@see Rfc7230::parseRawHeaders()} or {@see HttpMessage::getRawHeaders()} into the structure
+ * Convert the output of {@see Rfc7230::parseHeaderPairs()} or {@see HttpMessage::getHeaderPairs()} into the structure
  * returned by {@see Rfc7230::parseHeaders()} or {@see HttpMessage::getHeaders()}.
  *
- * @param list<array{non-empty-string, string}> $rawHeaders
+ * @param list<array{non-empty-string, string}> $pairs
+ *
  * @return array<non-empty-string, list<string>>
  */
-function convertRawHeadersToMap(array $rawHeaders): array
+function convertHeaderPairsToMap(array $pairs): array
 {
     $headers = [];
 
-    foreach ($rawHeaders as $header) {
+    foreach ($pairs as $header) {
         /** @psalm-suppress RedundantCondition */
         \assert(
             \count($header) === 2
