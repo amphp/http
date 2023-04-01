@@ -4,6 +4,13 @@ namespace Amp\Http;
 
 use Amp\Http\Http1\Rfc7230;
 
+/**
+ * Creates a list of key-value pairs from each comma-separated header value.
+ *
+ * @param non-empty-string $headerName
+ *
+ * @return list<list<array{non-empty-string, string|null}>>|null
+ */
 function parseFieldValueComponents(HttpMessage $message, string $headerName): ?array
 {
     $headers = splitHeader($message, $headerName);
@@ -23,52 +30,9 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
 }
 
 /**
- * @param list<list<array{non-empty-string, string}>>|null $sets Output of {@see parseFieldValueComponents()}.
- *      Keys are handled case-insensitively.
- *
- * @return array<non-empty-string, string>|null Map of keys to values or {@code null} if incompatible duplicates are found.
- */
-function createFieldValueComponentMap(?array $sets): ?array
-{
-    if ($sets === null) {
-        return null;
-    }
-
-    $map = [];
-
-    /** @psalm-suppress RedundantCondition */
-    \assert((static function () use ($sets): bool {
-        foreach ($sets ?? [] as $pairs) {
-            foreach ($pairs as $pair) {
-                \assert(\count($pair) === 2);
-                \assert(\is_string($pair[0]));
-                \assert(\is_string($pair[1]));
-            }
-        }
-
-        return true;
-    })());
-
-    foreach ($sets as $pairs) {
-        foreach ($pairs as [$key, $value]) {
-            $key = \strtolower($key);
-
-            if (isset($map[$key]) && $map[$key] !== $value) {
-                return null; // incompatible duplicates
-            }
-
-            $map[$key] = $value;
-        }
-    }
-
-    return $map;
-}
-
-/**
  * Splits comma-separated fields into individual components.
  *
- * @param HttpMessage $message
- * @param string $headerName
+ * @param non-empty-string $headerName
  *
  * @return list<string>|null
  */
@@ -112,9 +76,10 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
 }
 
 /**
+ *
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  *
- * @return list<array{non-empty-string, string}>|null
+ * @return list<array{non-empty-string, string|null}>|null
  */
 function parseFieldValuePairs(string $header): ?array
 {
@@ -132,7 +97,7 @@ function parseFieldValuePairs(string $header): ?array
         $totalMatchedLength += \strlen($match[0]);
 
         $key = \trim($match[1]);
-        $value = ($match[2] ?? '') . \trim($match[3] ?? '');
+        $value = $match[3] ?? $match[2] ?? null;
 
         if (($match[2] ?? '') !== '') {
             // decode escaped characters
