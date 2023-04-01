@@ -6,12 +6,6 @@ use Amp\Http\Http1\Rfc7230;
 
 function parseFieldValueComponents(HttpMessage $message, string $headerName): ?array
 {
-    $header = \implode(', ', $message->getHeaderArray($headerName));
-
-    if ($header === '') {
-        return [];
-    }
-
     $headers = splitHeader($message, $headerName);
     if (!$headers === null) {
         return null;
@@ -69,7 +63,6 @@ function createFieldValueComponentMap(?array $sets): ?array
 
     return $map;
 }
-
 
 /**
  * Splits comma-separated fields into individual components.
