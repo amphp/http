@@ -2,63 +2,88 @@
 
 namespace Amp\Http;
 
-use PHPUnit\Framework\TestCase;
-
-class ParseFieldValueComponentsTest extends TestCase
+class ParseFieldValueComponentsTest extends HeaderParsingTest
 {
-    public function test(): void
+    public function provideCases(): iterable
     {
-        self::assertSame([
-            ['no-cache', ''],
-            ['no-store', ''],
-            ['must-revalidate', ''],
-        ], $this->parse('no-cache, no-store, must-revalidate'));
+        yield [
+            'no-cache, no-store, must-revalidate',
+            [
+                [['no-cache', null]],
+                [['no-store', null]],
+                [['must-revalidate', null]],
+            ],
+        ];
 
-        self::assertSame([
-            ['public', ''],
-            ['max-age', '31536000'],
-        ], $this->parse('public, max-age=31536000'));
+        yield [
+            'public, max-age=31536000',
+            [
+                [['public', null]],
+                [['max-age', '31536000']],
+            ],
+        ];
 
-        self::assertSame([
-            ['private', 'foo, bar'],
-            ['max-age', '31536000'],
-        ], $this->parse('private="foo, bar", max-age=31536000'));
+        yield [
+            'private="foo, bar", max-age=31536000',
+            [
+                [['private', 'foo, bar']],
+                [['max-age', '31536000']],
+            ],
+        ];
 
-        self::assertNull($this->parse('private="foo, bar, max-age=31536000'));
+        yield [
+            'private="foo, bar, max-age=31536000',
+            null,
+        ];
 
-        self::assertSame([
-            ['private', 'foo"bar'],
-            ['max-age', '31536000'],
-        ], $this->parse('private="foo\"bar", max-age=31536000'));
+        yield [
+            'private="foo\"bar", max-age=31536000',
+            [
+                [['private', 'foo"bar']],
+                [['max-age', '31536000']],
+            ],
+        ];
 
-        self::assertSame([
-            ['private', 'foo""bar'],
-            ['max-age', '31536000'],
-        ], $this->parse('private="foo\"\"bar", max-age=31536000'));
+        yield [
+            'private="foo\"\"bar", max-age=31536000',
+            [
+                [['private', 'foo""bar']],
+                [['max-age', '31536000']],
+            ],
+        ];
 
-        self::assertSame([
-            ['private', 'foo\\'],
-            ['bar', ''],
-        ], $this->parse('private="foo\\\\", bar'));
+        yield [
+            'private="foo\\\\", bar',
+            [
+                [['private', 'foo\\']],
+                [['bar', null]],
+            ],
+        ];
 
-        self::assertSame([
-            ['private', 'foo'],
-            ['private', 'bar'],
-        ], $this->parse('private="foo", private=bar'));
+        yield [
+            'private="foo", private=bar',
+            [
+                [['private', 'foo']],
+                [['private', 'bar']],
+            ],
+        ];
+
+        yield [
+            'by="fake;proxy";for="127.0.0.1";proto=https,by=nginx;for="172.18.0.1";proto=http',
+            [
+                [['by', 'fake;proxy'], ['for', '127.0.0.1'], ['proto', 'https']],
+                [['by', 'nginx'], ['for', '172.18.0.1'], ['proto', 'http']],
+            ],
+        ];
     }
 
-    private function parse(string $headerValue): ?array
+    /**
+     * @dataProvider provideCases
+     */
+    public function test(string $header, ?array $expected): void
     {
-        return parseFieldValueComponents($this->createMessage(['cache-control' => $headerValue]), 'cache-control');
-    }
-
-    private function createMessage(array $headers): HttpMessage
-    {
-        return new class($headers) extends HttpMessage {
-            public function __construct(array $headers)
-            {
-                $this->replaceHeaders($headers);
-            }
-        };
+        $headerName = 'test-header';
+        $message = $this->createMessage([$headerName => [$header]]);
+        self::assertSame($expected, parseFieldValueComponents($message, $headerName));
     }
 }

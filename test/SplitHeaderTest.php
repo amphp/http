@@ -2,9 +2,7 @@
 
 namespace Amp\Http;
 
-use PHPUnit\Framework\TestCase;
-
-class SplitHeaderTest extends TestCase
+class SplitHeaderTest extends HeaderParsingTest
 {
     public function provideCases(): iterable
     {
@@ -37,15 +35,5 @@ class SplitHeaderTest extends TestCase
         $headerName = 'test-header';
         $message = $this->createMessage([$headerName => $headers]);
         self::assertSame($expected, splitHeader($message, $headerName));
-    }
-
-    private function createMessage(array $headers): HttpMessage
-    {
-        return new class($headers) extends HttpMessage {
-            public function __construct(array $headers)
-            {
-                $this->replaceHeaders($headers);
-            }
-        };
     }
 }
