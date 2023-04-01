@@ -20,10 +20,12 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
 
     $maps = [];
     foreach ($headers as $header) {
-        $maps[] = $map = parseFieldValueMap($header);
+        $map = parseFieldValueMap($header);
         if ($map === null) {
             return null;
         }
+
+        $maps[] = $map;
     }
 
     return $maps;
@@ -101,7 +103,7 @@ function parseFieldValueMap(string $header): ?array
 
         if (($match[2] ?? '') !== '') {
             // decode escaped characters
-            $value = (string) \preg_replace('(\\\\(.))', '\1', $value);
+            $value = (string) \preg_replace('(\\\\(.))', '\1', $match[2]);
         }
 
         \assert($key !== '');
