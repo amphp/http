@@ -14,7 +14,7 @@ use Amp\Http\Http1\Rfc7230;
 function parseFieldValueComponents(HttpMessage $message, string $headerName): ?array
 {
     $headers = splitHeader($message, $headerName);
-    if (!$headers === null) {
+    if ($headers === null) {
         return null;
     }
 
