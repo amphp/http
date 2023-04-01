@@ -9,25 +9,25 @@ class ParseFieldValueComponentsTest extends HeaderParsingTest
         yield [
             'no-cache, no-store, must-revalidate',
             [
-                [['no-cache', null]],
-                [['no-store', null]],
-                [['must-revalidate', null]],
+                ['no-cache' => null],
+                ['no-store' => null],
+                ['must-revalidate' => null],
             ],
         ];
 
         yield [
             'public, max-age=31536000',
             [
-                [['public', null]],
-                [['max-age', '31536000']],
+                ['public' => null],
+                ['max-age' => '31536000'],
             ],
         ];
 
         yield [
             'private="foo, bar", max-age=31536000',
             [
-                [['private', 'foo, bar']],
-                [['max-age', '31536000']],
+                ['private' => 'foo, bar'],
+                ['max-age' => '31536000'],
             ],
         ];
 
@@ -39,40 +39,40 @@ class ParseFieldValueComponentsTest extends HeaderParsingTest
         yield [
             'private="foo\"bar", max-age=31536000',
             [
-                [['private', 'foo"bar']],
-                [['max-age', '31536000']],
+                ['private' => 'foo"bar'],
+                ['max-age' => '31536000'],
             ],
         ];
 
         yield [
             'private="foo\"\"bar", max-age=31536000',
             [
-                [['private', 'foo""bar']],
-                [['max-age', '31536000']],
+                ['private' => 'foo""bar'],
+                ['max-age' => '31536000'],
             ],
         ];
 
         yield [
             'private="foo\\\\", bar',
             [
-                [['private', 'foo\\']],
-                [['bar', null]],
+                ['private' => 'foo\\'],
+                ['bar' => null],
             ],
         ];
 
         yield [
             'private="foo", private=bar',
             [
-                [['private', 'foo']],
-                [['private', 'bar']],
+                ['private' => 'foo'],
+                ['private' => 'bar'],
             ],
         ];
 
         yield [
-            'by="fake;proxy";for="127.0.0.1";proto=https,by=nginx;for="172.18.0.1";proto=http',
+            'by="fake;proxy";for="127.0.0.1";proto=https, by=nginx;for="172.18.0.1";proto=http',
             [
-                [['by', 'fake;proxy'], ['for', '127.0.0.1'], ['proto', 'https']],
-                [['by', 'nginx'], ['for', '172.18.0.1'], ['proto', 'http']],
+                ['by' => 'fake;proxy', 'for' => '127.0.0.1', 'proto' => 'https'],
+                ['by' => 'nginx', 'for' => '172.18.0.1', 'proto' => 'http'],
             ],
         ];
     }

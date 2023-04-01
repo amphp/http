@@ -9,7 +9,7 @@ use Amp\Http\Http1\Rfc7230;
  *
  * @param non-empty-string $headerName
  *
- * @return list<list<array{non-empty-string, string|null}>>|null
+ * @return list<array<non-empty-string, string|null>>|null
  */
 function parseFieldValueComponents(HttpMessage $message, string $headerName): ?array
 {
@@ -18,15 +18,15 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
         return null;
     }
 
-    $sets = [];
+    $maps = [];
     foreach ($headers as $header) {
-        $sets[] = $pairs = parseFieldValuePairs($header);
-        if ($pairs === null) {
+        $maps[] = $map = parseFieldValueMap($header);
+        if ($map === null) {
             return null;
         }
     }
 
-    return $sets;
+    return $maps;
 }
 
 /**
@@ -79,9 +79,9 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
  *
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  *
- * @return list<array{non-empty-string, string|null}>|null
+ * @return array<non-empty-string, string|null>|null
  */
-function parseFieldValuePairs(string $header): ?array
+function parseFieldValueMap(string $header): ?array
 {
     \preg_match_all(
         '((?:^|;\s*)([^=]+)(?:=(?:"((?:[^\\\\"]|\\\\\\\\|\\\\")*)"|([^";]+)))?\s*)',
@@ -91,7 +91,7 @@ function parseFieldValuePairs(string $header): ?array
     );
 
     $totalMatchedLength = 0;
-    $pairs = [];
+    $map = [];
 
     foreach ($matches as $match) {
         $totalMatchedLength += \strlen($match[0]);
@@ -105,14 +105,14 @@ function parseFieldValuePairs(string $header): ?array
         }
 
         \assert($key !== '');
-        $pairs[] = [$key, $value];
+        $map[$key] = $value;
     }
 
     if ($totalMatchedLength !== \strlen($header)) {
         return null; // parse error
     }
 
-    return $pairs;
+    return $map;
 }
 
 /**
