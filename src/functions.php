@@ -13,17 +13,17 @@ use Amp\Http\Http1\Rfc7230;
  * ['public', 'max-age=604800', 'must-revalidate']
  *
  * @param non-empty-string $headerName
- * @param non-empty-string $separator
+ * @param non-empty-string $separator Must be a string of length 1.
  *
  * @return list<string>|null
  */
 function splitHeader(HttpMessage $message, string $headerName, string $separator = ','): ?array
 {
-    if (!\strlen($separator)) {
-        throw new \ValueError('The separate must be a non-empty string');
+    if (\strlen($separator) !== 1) {
+        throw new \ValueError('The separator must be a single byte');
     }
 
-    $header = \implode(', ', $message->getHeaderArray($headerName));
+    $header = \implode($separator, $message->getHeaderArray($headerName));
 
     if ($header === '') {
         return [];
