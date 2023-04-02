@@ -5,39 +5,6 @@ namespace Amp\Http;
 use Amp\Http\Http1\Rfc7230;
 
 /**
- * Parses a list of key-value pairs from each comma-separated header value. Returns null if a syntax error is
- * encountered.
- *
- * For example, the following header
- * Forwarded: for="172.18.0.1";proto=https, for="172.25.0.1";proto=http
- * would be parsed to the array
- * `[['for' => '172.18.0.1', 'proto' => 'https'], ['for' => '172.25.0.1', 'proto' => 'http']]`
- *
- * @param non-empty-string $headerName
- *
- * @return list<array<non-empty-string, string|null>>|null
- */
-function parseMultipleHeaderFields(HttpMessage $message, string $headerName): ?array
-{
-    $headers = splitHeader($message, $headerName);
-    if ($headers === null) {
-        return null;
-    }
-
-    $maps = [];
-    foreach ($headers as $header) {
-        $map = parseSingleHeaderFields($header);
-        if ($map === null) {
-            return null;
-        }
-
-        $maps[] = $map;
-    }
-
-    return $maps;
-}
-
-/**
  * Splits comma-separated fields into individual components. Returns null if a syntax error is encountered.
  *
  * For example, the following header
@@ -92,6 +59,39 @@ function splitHeader(HttpMessage $message, string $headerName, string $separator
     $headers[] = \substr($header, $offset);
 
     return \array_map(\trim(...), $headers);
+}
+
+/**
+ * Parses a list of key-value pairs from each comma-separated header value. Returns null if a syntax error is
+ * encountered.
+ *
+ * For example, the following header
+ * Forwarded: for="172.18.0.1";proto=https, for="172.25.0.1";proto=http
+ * would be parsed to the array
+ * `[['for' => '172.18.0.1', 'proto' => 'https'], ['for' => '172.25.0.1', 'proto' => 'http']]`
+ *
+ * @param non-empty-string $headerName
+ *
+ * @return list<array<non-empty-string, string|null>>|null
+ */
+function parseMultipleHeaderFields(HttpMessage $message, string $headerName): ?array
+{
+    $headers = splitHeader($message, $headerName);
+    if ($headers === null) {
+        return null;
+    }
+
+    $maps = [];
+    foreach ($headers as $header) {
+        $map = parseSingleHeaderFields($header);
+        if ($map === null) {
+            return null;
+        }
+
+        $maps[] = $map;
+    }
+
+    return $maps;
 }
 
 /**
