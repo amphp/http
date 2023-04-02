@@ -4,7 +4,7 @@ namespace Amp\Http\Http1;
 
 use Amp\Http\InvalidHeaderException;
 use PHPUnit\Framework\TestCase;
-use function Amp\Http\convertHeaderPairsToMap;
+use function Amp\Http\mapHeaderPairs;
 
 class Rfc7230Test extends TestCase
 {
@@ -19,7 +19,7 @@ class Rfc7230Test extends TestCase
     public function testValidHeaderParsing(string $rawHeaders, array $expectedResult): void
     {
         $result = Rfc7230::parseHeaders($rawHeaders);
-        $headers = convertHeaderPairsToMap($expectedResult);
+        $headers = mapHeaderPairs($expectedResult);
         $this->assertSame($result, $headers);
     }
 

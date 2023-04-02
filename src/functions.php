@@ -162,7 +162,7 @@ function formatDateHeader(?int $timestamp = null): string
  *
  * @return array<non-empty-string, list<string>>
  */
-function convertHeaderPairsToMap(array $pairs): array
+function mapHeaderPairs(array $pairs): array
 {
     $headers = [];
 
