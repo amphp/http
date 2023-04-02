@@ -5,13 +5,19 @@ namespace Amp\Http;
 use Amp\Http\Http1\Rfc7230;
 
 /**
- * Creates a list of key-value pairs from each comma-separated header value.
+ * Parses a list of key-value pairs from each comma-separated header value. Returns null if a syntax error is
+ * encountered.
+ *
+ * For example, the following header
+ * Forwarded: for="172.18.0.1";proto=https, for="172.25.0.1";proto=http
+ * would be parsed to the array
+ * `[['for' => '172.18.0.1', 'proto' => 'https'], ['for' => '172.25.0.1', 'proto' => 'http']]`
  *
  * @param non-empty-string $headerName
  *
  * @return list<array<non-empty-string, string|null>>|null
  */
-function parseFieldValueComponents(HttpMessage $message, string $headerName): ?array
+function parseMultipleHeaderFields(HttpMessage $message, string $headerName): ?array
 {
     $headers = splitHeader($message, $headerName);
     if ($headers === null) {
@@ -20,7 +26,7 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
 
     $maps = [];
     foreach ($headers as $header) {
-        $map = parseFieldValueMap($header);
+        $map = parseSingleHeaderFields($header);
         if ($map === null) {
             return null;
         }
@@ -32,14 +38,24 @@ function parseFieldValueComponents(HttpMessage $message, string $headerName): ?a
 }
 
 /**
- * Splits comma-separated fields into individual components.
+ * Splits comma-separated fields into individual components. Returns null if a syntax error is encountered.
+ *
+ * For example, the following header
+ * Cache-Control: public, max-age=604800, must-revalidate
+ * would be parsed to the array
+ * ['public', 'max-age=604800', 'must-revalidate']
  *
  * @param non-empty-string $headerName
+ * @param non-empty-string $separator
  *
  * @return list<string>|null
  */
-function splitHeader(HttpMessage $message, string $headerName): ?array
+function splitHeader(HttpMessage $message, string $headerName, string $separator = ','): ?array
 {
+    if (!\strlen($separator)) {
+        throw new \ValueError('The separate must be a non-empty string');
+    }
+
     $header = \implode(', ', $message->getHeaderArray($headerName));
 
     if ($header === '') {
@@ -48,12 +64,12 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
 
     $positions = [];
     $withinQuotes = false;
-    $length = \strlen($header);
-    for ($i = 0; $i < $length; ++$i) {
+    $headerLength = \strlen($header);
+    for ($i = 0; $i < $headerLength; ++$i) {
         match ($header[$i]) {
             '\\' => ++$i, // Skip next character
             '"' => $withinQuotes = !$withinQuotes,
-            ',' => $withinQuotes ? null : $positions[] = $i,
+            $separator => $withinQuotes ? null : $positions[] = $i,
             default => null,
         };
     }
@@ -68,9 +84,10 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
 
     $offset = 0;
     $headers = [];
+    $separatorLength = \strlen($separator);
     foreach ($positions as $position) {
         $headers[] = \substr($header, $offset, $position - $offset);
-        $offset = $position + 1;
+        $offset = $position + $separatorLength;
     }
     $headers[] = \substr($header, $offset);
 
@@ -78,12 +95,13 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
 }
 
 /**
+ * Parse a single header into key-value pairs.
  *
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  *
  * @return array<non-empty-string, string|null>|null
  */
-function parseFieldValueMap(string $header): ?array
+function parseSingleHeaderFields(string $header): ?array
 {
     \preg_match_all(
         '((?:^|;\s*)([^=]+)(?:=(?:"((?:[^\\\\"]|\\\\\\\\|\\\\")*)"|([^";]+)))?\s*)',

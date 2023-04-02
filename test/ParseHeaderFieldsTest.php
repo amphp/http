@@ -2,7 +2,7 @@
 
 namespace Amp\Http;
 
-class ParseFieldValueComponentsTest extends HeaderParsingTest
+class ParseHeaderFieldsTest extends HeaderParsingTest
 {
     public function provideCases(): iterable
     {
@@ -84,6 +84,6 @@ class ParseFieldValueComponentsTest extends HeaderParsingTest
     {
         $headerName = 'test-header';
         $message = $this->createMessage([$headerName => [$header]]);
-        self::assertSame($expected, parseFieldValueComponents($message, $headerName));
+        self::assertSame($expected, parseMultipleHeaderFields($message, $headerName));
     }
 }
