@@ -8,22 +8,17 @@ use Amp\Http\Http1\Rfc7230;
  * Splits comma-separated fields into individual components. Returns null if a syntax error is encountered.
  *
  * For example, the following header
- * Cache-Control: public, max-age=604800, must-revalidate
+ * `Cache-Control: public, max-age=604800, must-revalidate`
  * would be parsed to the array
  * ['public', 'max-age=604800', 'must-revalidate']
  *
  * @param non-empty-string $headerName
- * @param non-empty-string $separator Must be a string of length 1.
  *
  * @return list<string>|null
  */
-function splitHeader(HttpMessage $message, string $headerName, string $separator = ','): ?array
+function splitHeader(HttpMessage $message, string $headerName): ?array
 {
-    if (\strlen($separator) !== 1) {
-        throw new \ValueError('The separator must be a single byte');
-    }
-
-    $header = \implode($separator, $message->getHeaderArray($headerName));
+    $header = \implode(',', $message->getHeaderArray($headerName));
 
     if ($header === '') {
         return [];
@@ -36,7 +31,7 @@ function splitHeader(HttpMessage $message, string $headerName, string $separator
         match ($header[$i]) {
             '\\' => ++$i, // Skip next character
             '"' => $withinQuotes = !$withinQuotes,
-            $separator => $withinQuotes ? null : $positions[] = $i,
+            ',' => $withinQuotes ? null : $positions[] = $i,
             default => null,
         };
     }
@@ -51,10 +46,9 @@ function splitHeader(HttpMessage $message, string $headerName, string $separator
 
     $offset = 0;
     $headers = [];
-    $separatorLength = \strlen($separator);
     foreach ($positions as $position) {
         $headers[] = \substr($header, $offset, $position - $offset);
-        $offset = $position + $separatorLength;
+        $offset = $position + 1;
     }
     $headers[] = \substr($header, $offset);
 
@@ -66,7 +60,7 @@ function splitHeader(HttpMessage $message, string $headerName, string $separator
  * encountered.
  *
  * For example, the following header
- * Forwarded: for="172.18.0.1";proto=https, for="172.25.0.1";proto=http
+ * `Forwarded: for="172.18.0.1";proto=https, for="172.25.0.1";proto=http`
  * would be parsed to the array
  * `[['for' => '172.18.0.1', 'proto' => 'https'], ['for' => '172.25.0.1', 'proto' => 'http']]`
  *
