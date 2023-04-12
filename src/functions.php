@@ -133,6 +133,8 @@ function parseSingleHeaderFields(string $header): ?array
  * Parses a list of tokens from each comma-separated header value. Returns null if a syntax error is
  * encountered. Use {@see parseMultipleHeaderFields()} for headers with key-value pairs.
  *
+ * @link https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.6
+ *
  * @return array<non-empty-string, non-empty-string>|null
  */
 function parseHeaderTokens(HttpMessage $message, string $headerName): ?array
