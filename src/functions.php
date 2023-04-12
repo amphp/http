@@ -135,7 +135,7 @@ function parseSingleHeaderFields(string $header): ?array
  *
  * @link https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.6
  *
- * @return array<non-empty-string, non-empty-string>|null
+ * @return list<non-empty-string>|null
  */
 function parseHeaderTokens(HttpMessage $message, string $headerName): ?array
 {
@@ -146,9 +146,7 @@ function parseHeaderTokens(HttpMessage $message, string $headerName): ?array
 
     $elements = \explode(",", $combinedHeader);
 
-    $tokens = \array_filter(\array_map(fn ($element) => \strtolower(\trim($element)), $elements), fn ($element) => $element !== '');
-
-    return \array_combine($tokens, $tokens);
+    return \array_filter(\array_map(fn ($element) => \strtolower(\trim($element)), $elements), fn ($element) => $element !== '');
 }
 
 /**

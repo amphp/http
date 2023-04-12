@@ -96,18 +96,12 @@ class ParseHeaderFieldsTest extends HeaderParsingTest
     {
         yield [
             'no-cache, no-store, must-revalidate',
-            [
-                'no-cache' => 'no-cache',
-                'no-store' => 'no-store',
-                'must-revalidate' => 'must-revalidate',
-            ],
+            ['no-cache', 'no-store', 'must-revalidate'],
         ];
 
         yield [
             'Upgrade',
-            [
-                'upgrade' => 'upgrade',
-            ],
+            ['upgrade'],
         ];
 
         yield [
