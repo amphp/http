@@ -145,8 +145,9 @@ function parseHeaderTokens(HttpMessage $message, string $headerName): ?array
     }
 
     $elements = \explode(",", $combinedHeader);
+    $normalizedElements = \array_map(fn ($element) => \strtolower(\trim($element)), $elements);
 
-    return \array_filter(\array_map(fn ($element) => \strtolower(\trim($element)), $elements), fn ($element) => $element !== '');
+    return \array_values(\array_filter($normalizedElements, fn ($element) => $element !== ''));
 }
 
 /**
