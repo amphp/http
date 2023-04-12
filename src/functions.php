@@ -111,11 +111,11 @@ function parseSingleHeaderFields(string $header): ?array
         $totalMatchedLength += \strlen($match[0]);
 
         $key = \trim(\strtolower($match[1]));
-        $value = $match[3] ?? $match[2] ?? null;
+        $value = $match[3] ?? $match[2] ?? '';
 
         if (($match[2] ?? '') !== '') {
             // decode escaped characters
-            $value = (string) \preg_replace('(\\\\(.))', '\1', $match[2]);
+            $value = (string) \preg_replace('/\\\\(.)/', '\1', $match[2]);
         }
 
         \assert($key !== '');

@@ -9,23 +9,23 @@ class ParseHeaderFieldsTest extends HeaderParsingTest
         yield [
             'no-cache, no-store, must-revalidate',
             [
-                ['no-cache' => null],
-                ['no-store' => null],
-                ['must-revalidate' => null],
+                ['no-cache' => ''],
+                ['no-store' => ''],
+                ['must-revalidate' => ''],
             ],
         ];
 
         yield [
             'Upgrade',
             [
-                ['upgrade' => null],
+                ['upgrade' => ''],
             ],
         ];
 
         yield [
             'public, max-age=31536000',
             [
-                ['public' => null],
+                ['public' => ''],
                 ['max-age' => '31536000'],
             ],
         ];
@@ -33,7 +33,7 @@ class ParseHeaderFieldsTest extends HeaderParsingTest
         yield [
             'Public, max-Age=31536000',
             [
-                ['public' => null],
+                ['public' => ''],
                 ['max-age' => '31536000'],
             ],
         ];
@@ -71,7 +71,7 @@ class ParseHeaderFieldsTest extends HeaderParsingTest
             'private="foo\\\\", bar',
             [
                 ['private' => 'foo\\'],
-                ['bar' => null],
+                ['bar' => ''],
             ],
         ];
 
