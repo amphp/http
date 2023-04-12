@@ -110,7 +110,7 @@ function parseSingleHeaderFields(string $header): ?array
     foreach ($matches as $match) {
         $totalMatchedLength += \strlen($match[0]);
 
-        $key = \trim($match[1]);
+        $key = \trim(\strtolower($match[1]));
         $value = $match[3] ?? $match[2] ?? null;
 
         if (($match[2] ?? '') !== '') {

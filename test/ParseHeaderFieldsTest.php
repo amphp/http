@@ -16,7 +16,22 @@ class ParseHeaderFieldsTest extends HeaderParsingTest
         ];
 
         yield [
+            'Upgrade',
+            [
+                ['upgrade' => null],
+            ],
+        ];
+
+        yield [
             'public, max-age=31536000',
+            [
+                ['public' => null],
+                ['max-age' => '31536000'],
+            ],
+        ];
+
+        yield [
+            'Public, max-Age=31536000',
             [
                 ['public' => null],
                 ['max-age' => '31536000'],
