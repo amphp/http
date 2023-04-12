@@ -130,6 +130,26 @@ function parseSingleHeaderFields(string $header): ?array
 }
 
 /**
+ * Parses a list of tokens from each comma-separated header value. Returns null if a syntax error is
+ * encountered. Use {@see parseMultipleHeaderFields()} for headers with key-value pairs.
+ *
+ * @return array<non-empty-string, non-empty-string>|null
+ */
+function parseHeaderTokens(HttpMessage $message, string $headerName): ?array
+{
+    $combinedHeader = \implode(",", $message->getHeaderArray($headerName));
+    if (\preg_match('([^!#$%&\'*+\-.^_`|~0-9A-Za-z, ])', $combinedHeader)) {
+        return null;
+    }
+
+    $elements = \explode(",", $combinedHeader);
+
+    $tokens = \array_filter(\array_map(fn ($element) => \strtolower(\trim($element)), $elements), \strlen(...));
+
+    return \array_combine($tokens, $tokens);
+}
+
+/**
  * Format timestamp in seconds as an HTTP date header.
  *
  * @param int|null $timestamp Timestamp to format, current time if `null`.

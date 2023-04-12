@@ -4,7 +4,7 @@ namespace Amp\Http;
 
 class ParseHeaderFieldsTest extends HeaderParsingTest
 {
-    public function provideCases(): iterable
+    public function provideMultipleHeaderCases(): iterable
     {
         yield [
             'no-cache, no-store, must-revalidate',
@@ -92,13 +92,47 @@ class ParseHeaderFieldsTest extends HeaderParsingTest
         ];
     }
 
+    public function provideTokenCases(): iterable
+    {
+        yield [
+            'no-cache, no-store, must-revalidate',
+            [
+                'no-cache' => 'no-cache',
+                'no-store' => 'no-store',
+                'must-revalidate' => 'must-revalidate',
+            ],
+        ];
+
+        yield [
+            'Upgrade',
+            [
+                'upgrade' => 'upgrade',
+            ],
+        ];
+
+        yield [
+            'public, max-age=31536000',
+            null,
+        ];
+    }
+
     /**
-     * @dataProvider provideCases
+     * @dataProvider provideMultipleHeaderCases
      */
     public function test(string $header, ?array $expected): void
     {
         $headerName = 'test-header';
         $message = $this->createMessage([$headerName => [$header]]);
         self::assertSame($expected, parseMultipleHeaderFields($message, $headerName));
+    }
+
+    /**
+     * @dataProvider provideTokenCases
+     */
+    public function testParseHeaderTokens(string $header, ?array $expected): void
+    {
+        $headerName = 'test-header';
+        $message = $this->createMessage([$headerName => [$header]]);
+        self::assertSame($expected, parseHeaderTokens($message, $headerName));
     }
 }
