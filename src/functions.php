@@ -66,7 +66,7 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
  *
  * @param non-empty-string $headerName
  *
- * @return list<array<non-empty-string, string|null>>|null
+ * @return list<array<non-empty-string, string>>|null
  */
 function parseMultipleHeaderFields(HttpMessage $message, string $headerName): ?array
 {
@@ -93,7 +93,7 @@ function parseMultipleHeaderFields(HttpMessage $message, string $headerName): ?a
  *
  * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
  *
- * @return array<non-empty-string, string|null>|null
+ * @return array<non-empty-string, string>|null
  */
 function parseSingleHeaderFields(string $header): ?array
 {
