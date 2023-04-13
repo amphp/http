@@ -41,7 +41,7 @@ function splitHeader(HttpMessage $message, string $headerName): ?array
     }
 
     if (!$positions) {
-        return [$header];
+        return [\trim($header)];
     }
 
     $offset = 0;
