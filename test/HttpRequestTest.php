@@ -109,7 +109,9 @@ class HttpRequestTest extends TestCase
         self::assertSame('3[1]', $request->getQueryParameter('key[3]'));
 
         $request->setQueryParameter('key[3]', '3[2]');
-        self::assertSame(\str_replace('3%5B1%5D', '3%5B2%5D', $query), $request->getUri()->getQuery());
+        $query = \str_replace('3%5B1%5D', '3%5B2%5D', $query);
+        $query = \str_replace('%20', '+', $query);
+        self::assertSame($query, $request->getUri()->getQuery());
     }
 
     public function testQueryWithMultipleKeyValues(): void
@@ -182,12 +184,14 @@ class HttpRequestTest extends TestCase
 
     public function testQueryWithEmptyPairs(): void
     {
-        $request = $this->createTestRequest('&&&=to&&key=value&empty');
+        $query = '&&&=to&&key=value&empty&encoded=%2B+%2B';
+        $request = $this->createTestRequest($query);
 
         self::assertSame([
             '' => ['', '', '', 'to', ''],
             'key' => ['value'],
             'empty' => [''],
+            'encoded' => ['+ +'],
         ], $request->getQueryParameters());
 
         self::assertTrue($request->hasQueryParameter(''));
@@ -197,7 +201,9 @@ class HttpRequestTest extends TestCase
 
         $request->setQueryParameter('key', 'test');
         self::assertSame('test', $request->getQueryParameter('key'));
-        self::assertSame('&&&=to&&key=test&empty', $request->getUri()->getQuery());
+
+        $query = \str_replace('key=value', 'key=test', $query);
+        self::assertSame($query, $request->getUri()->getQuery());
     }
 
     public function testSetUri(): void

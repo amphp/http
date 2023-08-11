@@ -109,7 +109,7 @@ abstract class HttpRequest extends HttpMessage
         /** @var QueryPairsType */
         return $this->queryPairs ??= match ($queryString = $this->uri->getQuery()) {
             '' => [],
-            default => QueryString::parse($queryString),
+            default => QueryString::parse($queryString, '&', \PHP_QUERY_RFC1738),
         };
     }
 
@@ -201,7 +201,7 @@ abstract class HttpRequest extends HttpMessage
             \array_push($pairs, ...\array_map(static fn ($value) => [$key, $value], $values));
         }
 
-        $this->uri = $this->uri->withQuery(QueryString::build($pairs) ?? '');
+        $this->uri = $this->uri->withQuery(QueryString::build($pairs, '&', \PHP_QUERY_RFC1738) ?? '');
         $this->queryMap = $query;
         $this->queryPairs = $pairs;
     }
