@@ -201,7 +201,7 @@ abstract class HttpRequest extends HttpMessage
             \array_push($pairs, ...\array_map(static fn ($value) => [$key, $value], $values));
         }
 
-        $this->uri = $this->uri->withQuery(QueryString::build($pairs, '&', \PHP_QUERY_RFC1738) ?? '');
+        $this->uri = $this->uri->withQuery(QueryString::build($pairs, '&', \PHP_QUERY_RFC3986) ?? '');
         $this->queryMap = $query;
         $this->queryPairs = $pairs;
     }
