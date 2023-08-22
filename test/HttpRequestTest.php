@@ -102,16 +102,13 @@ class HttpRequestTest extends TestCase
 
     public function testQueryWithEncodedChars(): void
     {
-        $query = 'key%5B1%5D=1+1&key%5B2%5D=2%261&key%5B3%5D=3%5B1%5D';
-        $request = $this->createTestRequest($query);
+        $request = $this->createTestRequest('key%5B1%5D=1+1&key%5B2%5D=2%261&key%5B3%5D=3%5B1%5D');
         self::assertSame('1 1', $request->getQueryParameter('key[1]'));
         self::assertSame('2&1', $request->getQueryParameter('key[2]'));
         self::assertSame('3[1]', $request->getQueryParameter('key[3]'));
 
         $request->setQueryParameter('key[3]', '3[2]');
-        $query = \str_replace('3%5B1%5D', '3%5B2%5D', $query);
-        $query = \str_replace('+', '%20', $query);
-        self::assertSame($query, $request->getUri()->getQuery());
+        self::assertSame('key%5B1%5D=1%201&key%5B2%5D=2%261&key%5B3%5D=3%5B2%5D', $request->getUri()->getQuery());
     }
 
     public function testQueryWithMultipleKeyValues(): void
@@ -184,8 +181,7 @@ class HttpRequestTest extends TestCase
 
     public function testQueryWithEmptyPairs(): void
     {
-        $query = '&&&=to&&key=value&empty&encoded=%2B%20%2B';
-        $request = $this->createTestRequest($query);
+        $request = $this->createTestRequest('&&&=to&&key=value&empty&encoded=%2B%20%2B');
 
         self::assertSame([
             '' => ['', '', '', 'to', ''],
@@ -202,8 +198,7 @@ class HttpRequestTest extends TestCase
         $request->setQueryParameter('key', 'test');
         self::assertSame('test', $request->getQueryParameter('key'));
 
-        $query = \str_replace('key=value', 'key=test', $query);
-        self::assertSame($query, $request->getUri()->getQuery());
+        self::assertSame('&&&=to&&key=test&empty&encoded=%2B%20%2B', $request->getUri()->getQuery());
     }
 
     public function testSetUri(): void
@@ -237,11 +232,10 @@ class HttpRequestTest extends TestCase
     {
         $rfc1738 = 'key=1+1';
         $rfc3986 = 'key=1%201';
+        $expected = '1 1';
 
-        self::assertSame(
-            $this->createTestRequest($rfc1738)->getQueryParameter('key'),
-            $this->createTestRequest($rfc3986)->getQueryParameter('key'),
-        );
+        self::assertSame($expected, $this->createTestRequest($rfc1738)->getQueryParameter('key'));
+        self::assertSame($expected, $this->createTestRequest($rfc3986)->getQueryParameter('key'));
     }
 
     public function testIsIdempotent(): void
