@@ -408,7 +408,7 @@ final class Http2Parser
         $padding = $isPadded ? \ord($header[0]) : 0;
 
         if ($isPriority) {
-            ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/cweight", $header, $isPadded ? 1 : 0);
+            ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/Cweight", $header, $isPadded ? 1 : 0);
 
             $parent &= 0x7fffffff;
 
@@ -465,7 +465,7 @@ final class Http2Parser
             $this->throwInvalidFrameSizeError();
         }
 
-        ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/cweight", $frameBuffer);
+        ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/Cweight", $frameBuffer);
 
         if ($exclusive = ($parent & 0x80000000)) {
             $parent &= 0x7fffffff;
