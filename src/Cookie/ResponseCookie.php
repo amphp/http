@@ -12,6 +12,9 @@ namespace Amp\Http\Cookie;
  */
 final class ResponseCookie implements \Stringable
 {
+    private const NAME_REGEX = /** @lang RegExp */ '(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]*+$)';
+    private const VALUE_REGEX = /** @lang RegExp */ '(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)';
+
     private static array $dateFormats = [
         'D, d M Y H:i:s T',
         'D, d-M-y H:i:s T',
@@ -164,11 +167,11 @@ final class ResponseCookie implements \Stringable
         private string $value = '',
         CookieAttributes $attributes = null,
     ) {
-        if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
+        if (!\preg_match(self::NAME_REGEX, $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");
         }
 
-        if (!\preg_match('(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)', $value)) {
+        if (!\preg_match(self::VALUE_REGEX, $value)) {
             throw new InvalidCookieException("Invalid cookie value: '{$value}'");
         }
 
@@ -188,7 +191,7 @@ final class ResponseCookie implements \Stringable
      */
     public function withName(string $name): self
     {
-        if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
+        if (!\preg_match(self::NAME_REGEX, $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");
         }
 
@@ -208,7 +211,7 @@ final class ResponseCookie implements \Stringable
 
     public function withValue(string $value): self
     {
-        if (!\preg_match('(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)', $value)) {
+        if (!\preg_match(self::VALUE_REGEX, $value)) {
             throw new InvalidCookieException("Invalid cookie value: '{$value}'");
         }
 
