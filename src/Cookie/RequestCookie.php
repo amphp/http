@@ -29,8 +29,8 @@ final class RequestCookie implements \Stringable
         $cookies = \explode(";", $string);
         $result = [];
 
-        foreach ($cookies as $cookie) {
-            try {
+        try {
+            foreach ($cookies as $cookie) {
                 // Ignore zero-length cookie.
                 if (\trim($cookie) === '') {
                     continue;
@@ -39,21 +39,21 @@ final class RequestCookie implements \Stringable
                 $parts = \explode('=', $cookie, 2);
 
                 if (\count($parts) !== 2) {
-                    continue;
+                    return [];
                 }
 
                 [$name, $value] = $parts;
 
                 $name = \trim($name);
                 if ($name === '') {
-                    continue;
+                    return [];
                 }
 
                 // We can safely trim quotes, as they're not allowed within cookie values
                 $result[] = new self($name, \trim($value, " \t\""));
-            } catch (InvalidCookieException) {
-                // Skip invalid cookie.
             }
+        } catch (InvalidCookieException) {
+            return [];
         }
 
         return $result;
