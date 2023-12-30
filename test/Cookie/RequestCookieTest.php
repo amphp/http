@@ -14,7 +14,7 @@ class RequestCookieTest extends TestCase
         $this->assertEquals([new RequestCookie("a", "1"), new RequestCookie("b", "2")], RequestCookie::fromHeader("a=1; b=2"));
         $this->assertEquals([new RequestCookie("a", "1"), new RequestCookie("b", "2")], RequestCookie::fromHeader("a=1 ;b=2"));
         $this->assertEquals([new RequestCookie("a", "1"), new RequestCookie("b", "-2")], RequestCookie::fromHeader("a=1; b = -2"));
-        $this->assertEquals([], RequestCookie::fromHeader("a=1; b=2,2"));
+        $this->assertEquals([new RequestCookie("a", "1"), new RequestCookie("b", "2,2")], RequestCookie::fromHeader("a=1; b=2,2"));
         $this->assertEquals([], RequestCookie::fromHeader("a=1; b=2 2"));
         $this->assertEquals([], RequestCookie::fromHeader("a=1; b"));
     }

@@ -13,7 +13,7 @@ namespace Amp\Http\Cookie;
 final class ResponseCookie implements \Stringable
 {
     private const NAME_REGEX = /** @lang RegExp */ '(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]*+$)';
-    private const VALUE_REGEX = /** @lang RegExp */ '(^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]*+$)';
+    private const VALUE_REGEX = /** @lang RegExp */ '(^[\x21\x23-\x3A\x3C-\x5B\x5D-\x7E]*+$)';
 
     private static array $dateFormats = [
         'D, d M Y H:i:s T',
