@@ -186,12 +186,12 @@ final class Rfc8941
                 return null;
             }
             $length = $decimaldot - $i + $decimals;
-            $num = $sign * (float)\substr($string, $i, $length);
+            $num = $sign * (float) \substr($string, $i, $length);
             $i += $length;
         } elseif ($digits > 15) {
             return null;
         } else {
-            $num = $sign * (int)\substr($string, $i, $digits);
+            $num = $sign * (int) \substr($string, $i, $digits);
             $i += $digits;
         }
         return $num;

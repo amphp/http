@@ -2,8 +2,8 @@
 
 namespace Amp\Http;
 
-use Amp\Http\StructuredFields\Rfc8941;
 use Amp\Http\StructuredFields\Item;
+use Amp\Http\StructuredFields\Rfc8941;
 use PHPUnit\Framework\TestCase;
 
 class Rfc8941Test extends TestCase
