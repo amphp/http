@@ -3,13 +3,13 @@
 namespace Amp\Http\StructuredFields;
 
 /**
- * @psalm-import-type Rfc8941Parameters from \Amp\Http\StructuredFields\Rfc8941
- * @template-extends Item<int|float>
+ * @psalm-import-type Rfc8941Parameters from Rfc8941
+ * @extends Item<int|float>
  */
-class Number extends Item
+final class Number extends Item
 {
     /**
-     * @psalm-param Rfc8941Parameters $parameters
+     * @param Rfc8941Parameters $parameters
      */
     public function __construct(int|float $item, array $parameters)
     {

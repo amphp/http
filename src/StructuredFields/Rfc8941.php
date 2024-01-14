@@ -4,16 +4,15 @@ namespace Amp\Http\StructuredFields;
 
 // Including support for the extension for RFC 8941, see https://datatracker.ietf.org/doc/draft-ietf-httpbis-sfbis
 /**
- * @psalm-type Rfc8941SingleItem = Item<Rfc8941BareItem>
+ * @psalm-type Rfc8941SingleItem = Boolean|Bytes|Date|DisplayString|Number|Str|Token
  * @psalm-type Rfc8941ListItem = InnerList|Rfc8941SingleItem
- * @psalm-type Rfc8941BareItem = int|float|string|bool
- * @psalm-type Rfc8941Parameters = array<string, Rfc8941BareItem>
+ * @psalm-type Rfc8941Parameters = array<string, scalar>
  */
-class Rfc8941
+final class Rfc8941
 {
     /**
      * @param string[]|string $value
-     * @psalm-return null|list<Rfc8941ListItem>
+     * @return null|list<Rfc8941ListItem>
      */
     public static function parseList(array|string $value): ?array
     {
@@ -48,7 +47,7 @@ class Rfc8941
 
     /**
      * @param string[]|string $value
-     * @psalm-return array<string, Rfc8941ListItem>|null
+     * @return array<string, Rfc8941ListItem>|null
      */
     public static function parseDictionary(array|string $value): ?array
     {
@@ -68,9 +67,11 @@ class Rfc8941
             }
             if ($i < $len && $string[$i] === "=") {
                 ++$i;
-                if (null === $values[$key] = self::parseItemOrInnerList($string, $i)) {
+                $value = self::parseItemOrInnerList($string, $i);
+                if ($value === null) {
                     return null;
                 }
+                $values[$key] = $value;
             } else {
                 if (null === $parameters = self::parseParameters($string, $i)) {
                     return null;
@@ -91,7 +92,7 @@ class Rfc8941
         }
     }
 
-    /** @psalm-return null|Rfc8941SingleItem */
+    /** @return null|Rfc8941SingleItem */
     public static function parseItem(string $string): ?Item
     {
         $i = \strspn($string, " ");
@@ -102,7 +103,7 @@ class Rfc8941
         return $i + \strspn($string, " ", $i) < \strlen($string) ? null : $parsed;
     }
 
-    /** @psalm-return null|Rfc8941ListItem */
+    /** @return null|Rfc8941ListItem */
     private static function parseItemOrInnerList(string $string, int &$i): ?Item
     {
         $len = \strlen($string);
@@ -125,15 +126,17 @@ class Rfc8941
                 if ($chr !== " " && $chr !== "(") {
                     return null;
                 }
-                if (null === $innerList[] = self::parseItemInternal($string, $i)) {
+                $value = self::parseItemInternal($string, $i);
+                if ($value === null) {
                     return null;
                 }
+                $innerList[] = $value;
             }
         }
         return self::parseItemInternal($string, $i);
     }
 
-    /** @psalm-return null|Rfc8941SingleItem */
+    /** @return null|Rfc8941SingleItem */
     private static function parseItemInternal(string $string, int &$i): ?Item
     {
         if (null === $value = self::parseBareItem($string, $i, $class)) {
@@ -142,6 +145,7 @@ class Rfc8941
         if (null === $parameters = self::parseParameters($string, $i)) {
             return null;
         }
+        /** @var class-string<Rfc8941SingleItem> $class */
         return new $class($value, $parameters);
     }
 
@@ -397,11 +401,11 @@ class Rfc8941
     }
 
     /**
-     * @psalm-template TOutput of Rfc8941BareItem|null
-     * @param-out (TOutput is null ? null : class-string<Rfc8941SingleItem>) $class
-     * @psalm-return TOutput
+     * @param null $class
+     * @param-out class-string<Rfc8941SingleItem>|null $class
+     * @return scalar|null
      */
-    private static function parseBareItem(string $string, int &$i, ?string &$class = ""): null|int|float|string|bool
+    private static function parseBareItem(string $string, int &$i, ?string &$class = null): null|int|float|string|bool
     {
         $chr = \ord($string[$i]);
         if ($chr === \ord("-") || ($chr >= \ord('0') && $chr <= \ord('9'))) {
@@ -442,7 +446,7 @@ class Rfc8941
         return null;
     }
 
-    /** @psalm-return null|Rfc8941Parameters */
+    /** @return null|Rfc8941Parameters */
     private static function parseParameters(string $string, int &$i): ?array
     {
         $parameters = [];
