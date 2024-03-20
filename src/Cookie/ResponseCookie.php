@@ -166,7 +166,7 @@ final class ResponseCookie
     public function __construct(
         string $name,
         string $value = '',
-        CookieAttributes $attributes = null
+        ?CookieAttributes $attributes = null
     ) {
         if (!\preg_match('(^[^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++$)', $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");

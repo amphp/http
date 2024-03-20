@@ -158,7 +158,7 @@ final class Http2Parser
         return $this->receivedFrameCount;
     }
 
-    public function parse(string $settings = null): \Generator
+    public function parse(?string $settings = null): \Generator
     {
         if ($settings !== null) {
             $this->parseSettings($settings, \strlen($settings), self::NO_FLAG, 0);
