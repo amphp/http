@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9 || ^8 || ^7",
-        "amphp/php-cs-fixer-config": "^2-dev"
+        "amphp/php-cs-fixer-config": "2.x-dev#3c24119d0377eed2093d5c0f0541478cb75ea72d"
     },
     "scripts": {
         "test": "php -dzend.assertions=1 -dassert.exception=1 vendor/bin/phpunit",
