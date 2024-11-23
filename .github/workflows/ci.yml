@@ -17,6 +17,7 @@ jobs:
 
           - operating-system: 'ubuntu-latest'
             php-version: '8.4'
+            psalm: none
 
           - operating-system: 'windows-latest'
             php-version: '8.1'
@@ -82,6 +83,7 @@ jobs:
 
       - name: Run static analysis
         run: vendor/bin/psalm.phar
+        if: matrix.psalm != 'none'
 
       - name: Run style fixer
         env:
