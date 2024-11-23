@@ -158,14 +158,14 @@ final class ResponseCookie implements \Stringable
     /**
      * @param non-empty-string $name Name of the cookie.
      * @param string $value Value of the cookie.
-     * @param CookieAttributes $attributes Attributes of the cookie.
+     * @param CookieAttributes|null $attributes Attributes of the cookie.
      *
      * @throws InvalidCookieException If name or value is invalid.
      */
     public function __construct(
         private string $name,
         private string $value = '',
-        CookieAttributes $attributes = null,
+        ?CookieAttributes $attributes = null,
     ) {
         if (!\preg_match(self::NAME_REGEX, $name)) {
             throw new InvalidCookieException("Invalid cookie name: '{$name}'");
