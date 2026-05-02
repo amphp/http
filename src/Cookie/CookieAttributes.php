@@ -363,6 +363,7 @@ final class CookieAttributes implements \Stringable
     /**
      * @see toString()
      */
+    #[\Override]
     public function __toString(): string
     {
         return $this->toString();

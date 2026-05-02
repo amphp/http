@@ -130,6 +130,7 @@ final class RequestCookie implements \Stringable
     /**
      * @see toString()
      */
+    #[\Override]
     public function __toString(): string
     {
         return $this->toString();
