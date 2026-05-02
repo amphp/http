@@ -53,7 +53,7 @@ class HttpRequestTest extends TestCase
 {
     public function createTestRequest(string $query, string $method = 'GET'): TestHttpRequest
     {
-        $uri = Http::createFromComponents(['query' => $query]);
+        $uri = Http::fromComponents(['query' => $query]);
         return new TestHttpRequest($method, $uri);
     }
 
@@ -206,7 +206,7 @@ class HttpRequestTest extends TestCase
         $request = $this->createTestRequest('key1=value1');
         self::assertSame('value1', $request->getQueryParameter('key1'));
 
-        $request->setUri(Http::createFromComponents(['query' => 'key2=value2']));
+        $request->setUri(Http::fromComponents(['query' => 'key2=value2']));
         self::assertNull($request->getQueryParameter('key1'));
         self::assertSame('value2', $request->getQueryParameter('key2'));
     }
