@@ -38,7 +38,7 @@
         "phpunit/phpunit": "^9",
         "amphp/php-cs-fixer-config": "^2",
         "league/uri": "^7.1",
-        "psalm/phar": "^5.26.1"
+        "psalm/phar": "6.16.1"
     },
     "scripts": {
         "test": "php -dzend.assertions=1 -dassert.exception=1 vendor/bin/phpunit",
