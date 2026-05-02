@@ -178,10 +178,12 @@ final class HttpStatus
         return $code >= 500 && $code < 600;
     }
 
-    // @codeCoverageIgnoreStart
+    /**
+     * @codeCoverageIgnore
+     * @psalm-suppress UnusedConstructor
+     */
     private function __construct()
     {
         // forbid instances
     }
-    // @codeCoverageIgnoreEnd
 }

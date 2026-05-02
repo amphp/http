@@ -368,7 +368,7 @@ final class ResponseCookie implements \Stringable
     public function toString(): string
     {
         $line = $this->name . '=' . $this->value;
-        $line .= $this->attributes;
+        $line .= (string) $this->attributes;
 
         $unknownAttributes = \implode('; ', $this->unknownAttributes);
         if ($unknownAttributes !== '') {

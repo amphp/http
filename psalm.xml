@@ -27,16 +27,22 @@
             </errorLevel>
         </MissingClosureReturnType>
 
+        <PossiblyUnusedMethod>
+            <errorLevel type="suppress">
+                <directory name="src"/>
+            </errorLevel>
+        </PossiblyUnusedMethod>
+
         <RedundantCastGivenDocblockType>
             <errorLevel type="suppress">
                 <directory name="src" />
             </errorLevel>
         </RedundantCastGivenDocblockType>
 
-        <RedundantConditionGivenDocblockType>
+        <UnusedClass>
             <errorLevel type="suppress">
-                <directory name="src" />
+                <directory name="src"/>
             </errorLevel>
-        </RedundantConditionGivenDocblockType>
+        </UnusedClass>
     </issueHandlers>
 </psalm>
