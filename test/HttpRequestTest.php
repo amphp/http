@@ -53,7 +53,7 @@ class HttpRequestTest extends TestCase
 {
     public function createTestRequest(string $query, string $method = 'GET'): TestHttpRequest
     {
-        $uri = Http::createFromComponents(['query' => $query]);
+        $uri = Http::fromComponents(['query' => $query]);
         return new TestHttpRequest($method, $uri);
     }
 
@@ -102,14 +102,13 @@ class HttpRequestTest extends TestCase
 
     public function testQueryWithEncodedChars(): void
     {
-        $query = 'key%5B1%5D=1%201&key%5B2%5D=2%261&key%5B3%5D=3%5B1%5D';
-        $request = $this->createTestRequest($query);
+        $request = $this->createTestRequest('key%5B1%5D=1+1&key%5B2%5D=2%261&key%5B3%5D=3%5B1%5D');
         self::assertSame('1 1', $request->getQueryParameter('key[1]'));
         self::assertSame('2&1', $request->getQueryParameter('key[2]'));
         self::assertSame('3[1]', $request->getQueryParameter('key[3]'));
 
         $request->setQueryParameter('key[3]', '3[2]');
-        self::assertSame(\str_replace('3%5B1%5D', '3%5B2%5D', $query), $request->getUri()->getQuery());
+        self::assertSame('key%5B1%5D=1%201&key%5B2%5D=2%261&key%5B3%5D=3%5B2%5D', $request->getUri()->getQuery());
     }
 
     public function testQueryWithMultipleKeyValues(): void
@@ -182,12 +181,13 @@ class HttpRequestTest extends TestCase
 
     public function testQueryWithEmptyPairs(): void
     {
-        $request = $this->createTestRequest('&&&=to&&key=value&empty');
+        $request = $this->createTestRequest('&&&=to&&key=value&empty&encoded=%2B%20%2B');
 
         self::assertSame([
             '' => ['', '', '', 'to', ''],
             'key' => ['value'],
             'empty' => [''],
+            'encoded' => ['+ +'],
         ], $request->getQueryParameters());
 
         self::assertTrue($request->hasQueryParameter(''));
@@ -197,7 +197,8 @@ class HttpRequestTest extends TestCase
 
         $request->setQueryParameter('key', 'test');
         self::assertSame('test', $request->getQueryParameter('key'));
-        self::assertSame('&&&=to&&key=test&empty', $request->getUri()->getQuery());
+
+        self::assertSame('&&&=to&&key=test&empty&encoded=%2B%20%2B', $request->getUri()->getQuery());
     }
 
     public function testSetUri(): void
@@ -205,7 +206,7 @@ class HttpRequestTest extends TestCase
         $request = $this->createTestRequest('key1=value1');
         self::assertSame('value1', $request->getQueryParameter('key1'));
 
-        $request->setUri(Http::createFromComponents(['query' => 'key2=value2']));
+        $request->setUri(Http::fromComponents(['query' => 'key2=value2']));
         self::assertNull($request->getQueryParameter('key1'));
         self::assertSame('value2', $request->getQueryParameter('key2'));
     }
@@ -225,6 +226,16 @@ class HttpRequestTest extends TestCase
 
         $this->expectException(\TypeError::class);
         $request->setQueryParameter('key4', [true]);
+    }
+
+    public function testBothRfc1738AndRfc3986EncodingAccepted(): void
+    {
+        $rfc1738 = 'key=1+1';
+        $rfc3986 = 'key=1%201';
+        $expected = '1 1';
+
+        self::assertSame($expected, $this->createTestRequest($rfc1738)->getQueryParameter('key'));
+        self::assertSame($expected, $this->createTestRequest($rfc3986)->getQueryParameter('key'));
     }
 
     public function testIsIdempotent(): void

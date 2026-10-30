@@ -328,19 +328,19 @@ final class CookieAttributes implements \Stringable
     {
         $string = '';
 
-        if ($this->expiry) {
+        if ($this->expiry !== null) {
             $string .= '; Expires=' . \gmdate('D, j M Y G:i:s T', $this->expiry->getTimestamp());
         }
 
-        if ($this->maxAge) {
+        if ($this->maxAge !== null) {
             $string .= '; Max-Age=' . $this->maxAge;
         }
 
-        if ('' !== $this->path) {
+        if ($this->path !== '') {
             $string .= '; Path=' . $this->path;
         }
 
-        if ('' !== $this->domain) {
+        if ($this->domain !== '') {
             $string .= '; Domain=' . $this->domain;
         }
 
@@ -362,6 +362,7 @@ final class CookieAttributes implements \Stringable
     /**
      * @see toString()
      */
+    #[\Override]
     public function __toString(): string
     {
         return $this->toString();

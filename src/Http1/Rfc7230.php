@@ -176,10 +176,12 @@ final class Rfc7230
         return $bytes;
     }
 
-    // @codeCoverageIgnoreStart
+    /**
+     * @codeCoverageIgnore
+     * @psalm-suppress UnusedConstructor
+     */
     private function __construct()
     {
         // forbid instances
     }
-    // @codeCoverageIgnoreEnd
 }

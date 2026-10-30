@@ -101,6 +101,7 @@ final class Http2Parser
         int $streamId,
         int $frameLength
     ): bool {
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         $env = \getenv("AMP_DEBUG_HTTP2_FRAMES") ?: "0";
         if (match ($env) {
             "0", "false", "off" => false,
@@ -184,6 +185,7 @@ final class Http2Parser
             $frameHeader = yield 9;
             $this->receivedByteCount += 9;
 
+            /** @psalm-suppress PossiblyInvalidArrayAccess */
             [
                 'length' => $frameLength,
                 'flags' => $frameFlags,
@@ -281,6 +283,7 @@ final class Http2Parser
 
         $padding = $isPadded ? \ord($header[0]) : 0;
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $pushId = \unpack("N", $header)[1] & 0x7fffffff;
 
         if ($frameLength - $headerLength - $padding < 0) {
@@ -378,6 +381,15 @@ final class Http2Parser
         $this->headerStream = $streamId;
         $this->headerBuffer[] = $buffer;
         $this->headerLength += \strlen($buffer);
+
+        $headersTooLarge = $this->headerLength > $this->headerSizeLimit;
+
+        if ($headersTooLarge) {
+            throw new Http2ConnectionException(
+                "Headers exceed the maximum configured size of {$this->headerSizeLimit} bytes",
+                self::COMPRESSION_ERROR
+            );
+        }
     }
 
     /** @see https://http2.github.io/http2-spec/#HEADERS */
@@ -408,6 +420,7 @@ final class Http2Parser
         $padding = $isPadded ? \ord($header[0]) : 0;
 
         if ($isPriority) {
+            /** @psalm-suppress PossiblyInvalidArrayAccess */
             ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/Cweight", $header, $isPadded ? 1 : 0);
 
             $parent &= 0x7fffffff;
@@ -465,9 +478,11 @@ final class Http2Parser
             $this->throwInvalidFrameSizeError();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/Cweight", $frameBuffer);
 
-        if ($exclusive = ($parent & 0x80000000)) {
+        $exclusive = $parent & 0x80000000;
+        if ($exclusive) {
             $parent &= 0x7fffffff;
         }
 
@@ -492,6 +507,7 @@ final class Http2Parser
             $this->throwInvalidZeroStreamIdError();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $errorCode = \unpack('N', $frameBuffer)[1];
 
         $this->handler->handleStreamReset($streamId, $errorCode);
@@ -524,6 +540,7 @@ final class Http2Parser
         $settings = [];
 
         while ($frameLength > 0) {
+            /** @psalm-suppress PossiblyInvalidArrayAccess */
             ['key' => $key, 'value' => $value] = \unpack("nkey/Nvalue", $frameBuffer);
 
             if ($value < 0) {
@@ -571,6 +588,7 @@ final class Http2Parser
             $this->throwInvalidNonZeroStreamIdError();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         ['last' => $lastId, 'error' => $error] = \unpack("Nlast/Nerror", $frameBuffer);
 
         $this->handler->handleShutdown($lastId & 0x7fffffff, $error, \substr($frameBuffer, 8));
@@ -583,6 +601,7 @@ final class Http2Parser
             $this->throwInvalidFrameSizeError();
         }
 
+        /** @psalm-suppress PossiblyInvalidArrayAccess */
         $windowSize = \unpack('N', $frameBuffer)[1];
 
         if ($windowSize === 0) {
