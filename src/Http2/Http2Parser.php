@@ -421,7 +421,7 @@ final class Http2Parser
 
         if ($isPriority) {
             /** @psalm-suppress PossiblyInvalidArrayAccess */
-            ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/cweight", $header, $isPadded ? 1 : 0);
+            ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/Cweight", $header, $isPadded ? 1 : 0);
 
             $parent &= 0x7fffffff;
 
@@ -479,7 +479,7 @@ final class Http2Parser
         }
 
         /** @psalm-suppress PossiblyInvalidArrayAccess */
-        ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/cweight", $frameBuffer);
+        ['parent' => $parent, 'weight' => $weight] = \unpack("Nparent/Cweight", $frameBuffer);
 
         $exclusive = $parent & 0x80000000;
         if ($exclusive) {
